@@ -73,6 +73,13 @@
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
   }
+  /* מניעת גלילה אופקית כתוצאה מאלמנטים דקורטיביים/צפים.
+   * overflow-x: clip בטוח ל-position: sticky (אינו יוצר scroll container). */
+  html,
+  body {
+    overflow-x: clip;
+    max-width: 100%;
+  }
 
   /* נגישות: קישור דילוג לתוכן + מצבי פוקוס נראים */
   .skip-link {
