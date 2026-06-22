@@ -129,8 +129,11 @@
 
 	function applyState() {
 		var html = document.documentElement;
+		// פילטרים חזותיים מוחלים על #top (התוכן) ולא על html — כדי לא לשבור
+		// position: fixed של הכפתורים הצפים (filter על אב הופך fixed ל-absolute).
+		var fx = document.getElementById('top') || html;
 		Object.keys(TOGGLE_CLASSES).forEach(function (key) {
-			html.classList.toggle(TOGGLE_CLASSES[key], !!state.toggles[key]);
+			fx.classList.toggle(TOGGLE_CLASSES[key], !!state.toggles[key]);
 		});
 		html.style.fontSize = state.scale !== 100 ? state.scale + '%' : '';
 		var guide = document.querySelector('.md-reading-guide');

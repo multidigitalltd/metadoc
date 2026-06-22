@@ -83,6 +83,13 @@
   body {
     overflow-x: clip;
     max-width: 100%;
+    position: relative;
+  }
+
+  /* התכונה hidden חייבת לגבור על מחלקות display של Tailwind (grid/flex/block)
+   * אחרת מודאלים/פאנלים עם class="grid hidden..." יוצגו תמיד. */
+  [hidden] {
+    display: none !important;
   }
 
   /* נגישות: קישור דילוג לתוכן + מצבי פוקוס נראים */
@@ -202,33 +209,33 @@
 /* ---------------------------------------------------------------------------
  * ווידג'ט נגישות (ת"י 5568) — מצבים מופעלים ע"י main.js
  * ------------------------------------------------------------------------- */
-html.md-a11y-contrast {
+.md-a11y-contrast {
   filter: contrast(1.35);
 }
-html.md-a11y-grayscale {
+.md-a11y-grayscale {
   filter: grayscale(1);
 }
-html.md-a11y-invert {
+.md-a11y-invert {
   filter: invert(1) hue-rotate(180deg);
 }
-html.md-a11y-invert img,
-html.md-a11y-invert video {
+.md-a11y-invert img,
+.md-a11y-invert video {
   filter: invert(1) hue-rotate(180deg);
 }
-html.md-a11y-links a {
+.md-a11y-links a {
   text-decoration: underline !important;
   text-underline-offset: 2px;
 }
-html.md-a11y-highlight-headings :is(h1, h2, h3) {
+.md-a11y-highlight-headings :is(h1, h2, h3) {
   outline: 2px dashed var(--md-orange);
   outline-offset: 3px;
 }
-html.md-a11y-readable * {
+.md-a11y-readable * {
   font-family: Arial, "Assistant", sans-serif !important;
   letter-spacing: 0.01em;
 }
-html.md-a11y-stop-anim *,
-html.md-a11y-stop-anim *::before {
+.md-a11y-stop-anim *,
+.md-a11y-stop-anim *::before {
   animation: none !important;
   transition: none !important;
 }

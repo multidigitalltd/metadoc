@@ -28,7 +28,7 @@ $c = metadoc_contact();
 	</a>
 </div>
 
-<div class="md:hidden fixed bottom-0 inset-x-0 bg-black/95 backdrop-blur-lg border-t border-white/10 p-3 flex gap-3 z-50">
+<div class="md:hidden fixed bottom-0 inset-x-0 max-w-full overflow-x-hidden box-border bg-black/95 backdrop-blur-lg border-t border-white/10 p-3 flex gap-3 z-50">
 	<a href="<?php echo esc_url( metadoc_form_url() ); ?>" class="flex-1 text-black flex items-center justify-center gap-2 py-3 rounded-xl font-black text-sm" style="background:linear-gradient(135deg, #ff7a00 0%, #ff9a3c 100%);box-shadow:0 8px 20px -8px #ff7a00b3">
 		<?php esc_html_e( 'בדיקת זכאות חינם', 'metadoc' ); ?>
 		<?php metadoc_icon( 'arrow-left', array( 'class' => 'size-4' ) ); ?>
