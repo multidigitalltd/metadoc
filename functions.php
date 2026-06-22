@@ -174,6 +174,56 @@ function metadoc_resource_hints(): void {
 add_action( 'wp_head', 'metadoc_resource_hints', 1 );
 
 /**
+ * תגי Open Graph / Twitter בסיסיים.
+ * מדלג אם מותקן תוסף SEO גדול (מניעת כפילות).
+ */
+function metadoc_seo_meta(): void {
+	if (
+		defined( 'WPSEO_VERSION' ) || defined( 'SEOPRESS_VERSION' ) ||
+		class_exists( 'RankMath' ) || class_exists( 'All_in_One_SEO_Pack' ) || function_exists( 'aioseo' )
+	) {
+		return; // התוסף מטפל ב-OG.
+	}
+
+	$title = wp_get_document_title();
+	$desc  = get_bloginfo( 'description' );
+	if ( is_singular() ) {
+		$post = get_queried_object();
+		if ( $post instanceof WP_Post && '' !== $post->post_excerpt ) {
+			$desc = $post->post_excerpt;
+		}
+	}
+	$url   = is_singular() ? (string) get_permalink() : home_url( '/' );
+	$url   = $url ? $url : home_url( '/' );
+	$image = metadoc_img_url( 'family-home.jpg' );
+
+	$tags = array(
+		array( 'property', 'og:site_name', get_bloginfo( 'name' ) ),
+		array( 'property', 'og:title', $title ),
+		array( 'property', 'og:description', $desc ),
+		array( 'property', 'og:type', is_front_page() ? 'website' : 'article' ),
+		array( 'property', 'og:url', $url ),
+		array( 'property', 'og:image', $image ),
+		array( 'property', 'og:locale', 'he_IL' ),
+		array( 'name', 'twitter:card', 'summary_large_image' ),
+		array( 'name', 'twitter:title', $title ),
+		array( 'name', 'twitter:description', $desc ),
+		array( 'name', 'twitter:image', $image ),
+	);
+
+	if ( '' !== $desc ) {
+		printf( '<meta name="description" content="%s">' . "\n", esc_attr( $desc ) );
+	}
+	foreach ( $tags as $tag ) {
+		if ( '' === (string) $tag[2] ) {
+			continue;
+		}
+		printf( '<meta %s="%s" content="%s">' . "\n", esc_attr( $tag[0] ), esc_attr( $tag[1] ), esc_attr( (string) $tag[2] ) );
+	}
+}
+add_action( 'wp_head', 'metadoc_seo_meta', 5 );
+
+/**
  * ניקוי head מפלטים מיותרים (ביצועים + צמצום משטח חשיפה).
  */
 function metadoc_clean_head(): void {

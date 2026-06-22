@@ -261,8 +261,42 @@ final class Metadoc_Leads {
 
 		set_transient( $key, 1, self::RATE_SECONDS );
 		self::notify( $name, $phone, $note );
+		self::send_webhook(
+			array(
+				'name'       => $name,
+				'phone'      => $phone,
+				'note'       => $note,
+				'source'     => home_url( '/' ),
+				'created_at' => current_time( 'c' ),
+			)
+		);
 
 		return new WP_REST_Response( array( 'ok' => true ), 201 );
+	}
+
+	/**
+	 * שליחת Webhook עם נתוני הליד (אם הוגדרה כתובת בהגדרות).
+	 * נשלח ללא חסימה (fire-and-forget) כדי לא להשהות את תגובת הטופס.
+	 *
+	 * @param array $data נתוני הליד.
+	 */
+	private static function send_webhook( array $data ): void {
+		if ( ! class_exists( 'Metadoc_Settings' ) ) {
+			return;
+		}
+		$url = Metadoc_Settings::get( 'webhook_url' );
+		if ( '' === $url || ! wp_http_validate_url( $url ) ) {
+			return;
+		}
+		wp_remote_post(
+			$url,
+			array(
+				'timeout'  => 5,
+				'blocking' => false, // לא מעכב את המשתמש.
+				'headers'  => array( 'Content-Type' => 'application/json; charset=utf-8' ),
+				'body'     => wp_json_encode( $data ),
+			)
+		);
 	}
 
 	/**
@@ -321,7 +355,14 @@ final class Metadoc_Leads {
 	 */
 	private static function notify( string $name, string $phone, string $note ): void {
 		$contact = metadoc_contact();
-		$to      = apply_filters( 'metadoc_lead_email', $contact['email'] );
+
+		// יעד: מההגדרות אם תקין, אחרת ברירת המחדל. ניתן לעקיפה דרך פילטר.
+		$to = class_exists( 'Metadoc_Settings' ) ? Metadoc_Settings::get( 'lead_email' ) : '';
+		if ( '' === $to || ! is_email( $to ) ) {
+			$to = $contact['email'];
+		}
+		$to = apply_filters( 'metadoc_lead_email', $to );
+
 		$subject = sprintf( '[מטאדוק] ליד חדש מהאתר — %s', $name );
 
 		$lines = array(
@@ -335,6 +376,15 @@ final class Metadoc_Leads {
 		);
 
 		$headers = array( 'Content-Type: text/plain; charset=UTF-8' );
+
+		// כתובת שולח (From) מההגדרות, אם הוגדרה ותקינה.
+		$from_email = class_exists( 'Metadoc_Settings' ) ? Metadoc_Settings::get( 'from_email' ) : '';
+		if ( '' !== $from_email && is_email( $from_email ) ) {
+			$from_name = Metadoc_Settings::get( 'from_name' );
+			$from_name = '' !== $from_name ? $from_name : get_bloginfo( 'name' );
+			$headers[] = sprintf( 'From: %s <%s>', $from_name, $from_email );
+		}
+
 		wp_mail( $to, $subject, implode( "\n", $lines ), $headers );
 	}
 

@@ -76,8 +76,15 @@ final class Metadoc_Settings {
 			)
 		);
 
-		add_settings_section( 'metadoc_turnstile', __( 'Cloudflare Turnstile (CAPTCHA)', 'metadoc' ), array( __CLASS__, 'section_intro' ), self::PAGE );
+		// סקשן לידים — יעד מייל, שולח, Webhook.
+		add_settings_section( 'metadoc_leads', __( 'טופס לידים', 'metadoc' ), array( __CLASS__, 'section_leads' ), self::PAGE );
+		add_settings_field( 'lead_email', __( 'כתובת לקבלת הלידים', 'metadoc' ), array( __CLASS__, 'field_text' ), self::PAGE, 'metadoc_leads', array( 'key' => 'lead_email', 'type' => 'email', 'placeholder' => 'office@metadoc.co.il' ) );
+		add_settings_field( 'from_name', __( 'שם השולח (From)', 'metadoc' ), array( __CLASS__, 'field_text' ), self::PAGE, 'metadoc_leads', array( 'key' => 'from_name', 'placeholder' => get_bloginfo( 'name' ) ) );
+		add_settings_field( 'from_email', __( 'כתובת השולח (From)', 'metadoc' ), array( __CLASS__, 'field_text' ), self::PAGE, 'metadoc_leads', array( 'key' => 'from_email', 'type' => 'email', 'placeholder' => 'no-reply@' . wp_parse_url( home_url(), PHP_URL_HOST ) ) );
+		add_settings_field( 'webhook_url', __( 'כתובת Webhook (אופציונלי)', 'metadoc' ), array( __CLASS__, 'field_text' ), self::PAGE, 'metadoc_leads', array( 'key' => 'webhook_url', 'type' => 'url', 'placeholder' => 'https://...' ) );
 
+		// סקשן Turnstile.
+		add_settings_section( 'metadoc_turnstile', __( 'Cloudflare Turnstile (CAPTCHA)', 'metadoc' ), array( __CLASS__, 'section_intro' ), self::PAGE );
 		add_settings_field( 'turnstile_site_key', __( 'Site Key', 'metadoc' ), array( __CLASS__, 'field_text' ), self::PAGE, 'metadoc_turnstile', array( 'key' => 'turnstile_site_key' ) );
 		add_settings_field( 'turnstile_secret_key', __( 'Secret Key', 'metadoc' ), array( __CLASS__, 'field_text' ), self::PAGE, 'metadoc_turnstile', array( 'key' => 'turnstile_secret_key', 'secret' => true ) );
 	}
@@ -91,9 +98,20 @@ final class Metadoc_Settings {
 	public static function sanitize( $input ): array {
 		$input = is_array( $input ) ? $input : array();
 		return array(
+			'lead_email'           => isset( $input['lead_email'] ) ? sanitize_email( $input['lead_email'] ) : '',
+			'from_name'            => isset( $input['from_name'] ) ? sanitize_text_field( $input['from_name'] ) : '',
+			'from_email'           => isset( $input['from_email'] ) ? sanitize_email( $input['from_email'] ) : '',
+			'webhook_url'          => isset( $input['webhook_url'] ) ? esc_url_raw( trim( (string) $input['webhook_url'] ), array( 'http', 'https' ) ) : '',
 			'turnstile_site_key'   => isset( $input['turnstile_site_key'] ) ? sanitize_text_field( $input['turnstile_site_key'] ) : '',
 			'turnstile_secret_key' => isset( $input['turnstile_secret_key'] ) ? sanitize_text_field( $input['turnstile_secret_key'] ) : '',
 		);
+	}
+
+	/**
+	 * תיאור סקשן הלידים.
+	 */
+	public static function section_leads(): void {
+		echo '<p>' . esc_html__( 'קביעת כתובת לקבלת פניות מהטופס, פרטי השולח, ושליחת Webhook אופציונלי לכל ליד.', 'metadoc' ) . '</p>';
 	}
 
 	/**
@@ -109,15 +127,18 @@ final class Metadoc_Settings {
 	 * @param array $args ארגומנטים.
 	 */
 	public static function field_text( array $args ): void {
-		$key    = (string) ( $args['key'] ?? '' );
-		$secret = ! empty( $args['secret'] );
-		$value  = self::get( $key );
+		$key         = (string) ( $args['key'] ?? '' );
+		$secret      = ! empty( $args['secret'] );
+		$type        = $secret ? 'password' : (string) ( $args['type'] ?? 'text' );
+		$placeholder = (string) ( $args['placeholder'] ?? '' );
+		$value       = self::get( $key );
 		printf(
-			'<input type="%1$s" name="%2$s[%3$s]" value="%4$s" class="regular-text" autocomplete="off" />',
-			$secret ? 'password' : 'text',
+			'<input type="%1$s" name="%2$s[%3$s]" value="%4$s" placeholder="%5$s" class="regular-text" autocomplete="off" />',
+			esc_attr( $type ),
 			esc_attr( self::OPTION ),
 			esc_attr( $key ),
-			esc_attr( $value )
+			esc_attr( $value ),
+			esc_attr( $placeholder )
 		);
 	}
 
