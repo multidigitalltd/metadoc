@@ -1,0 +1,229 @@
+@import "tailwindcss" source(none);
+
+/* סריקת קבצי התבנית לאיתור מחלקות Tailwind בשימוש */
+@source "../**/*.php";
+
+/* ---------------------------------------------------------------------------
+ * פונטים מקומיים — Barlev (כותרות), Atlas (גוף), Anomalia (חלופי).
+ * קבצי .woff מונחים ב-assets/fonts. עד להעלאתם, נופלים ל-Assistant.
+ * ------------------------------------------------------------------------- */
+@font-face {
+  font-family: "Barlev";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("../fonts/barlev-bold.woff") format("woff");
+}
+@font-face {
+  font-family: "Atlas";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("../fonts/atlas-regular.woff") format("woff");
+}
+@font-face {
+  font-family: "Atlas";
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("../fonts/atlas-medium.woff") format("woff");
+}
+@font-face {
+  font-family: "Atlas";
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("../fonts/atlas-medium.woff") format("woff");
+}
+@font-face {
+  font-family: "Anomalia";
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("../fonts/anomalia-demibold.woff") format("woff");
+}
+@font-face {
+  font-family: "Anomalia";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("../fonts/anomalia-bold.woff") format("woff");
+}
+
+@theme {
+  --font-sans: "Atlas", "Assistant", system-ui, sans-serif;
+  --font-display: "Barlev", "Atlas", "Assistant", system-ui, sans-serif;
+}
+
+:root {
+  --md-display: "Barlev", "Atlas", "Assistant", system-ui, sans-serif;
+  --md-orange: #ff7a00;
+  --md-orange-soft: #ff9a3c;
+  --md-orange-muted: #d96a10;
+  --md-ink: #0a0a0a;
+}
+
+@layer base {
+  html {
+    direction: rtl;
+  }
+  body {
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* נגישות: קישור דילוג לתוכן + מצבי פוקוס נראים */
+  .skip-link {
+    position: absolute;
+    left: -9999px;
+    top: 0;
+    z-index: 100;
+    background: #000;
+    color: #fff;
+    padding: 0.75rem 1.25rem;
+    border-radius: 0 0 0.5rem 0;
+    font-weight: 700;
+  }
+  .skip-link:focus {
+    left: 0;
+  }
+  a:focus-visible,
+  button:focus-visible,
+  input:focus-visible,
+  textarea:focus-visible,
+  [tabindex]:focus-visible {
+    outline: 3px solid var(--md-orange);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+}
+
+@layer utilities {
+  .font-display {
+    font-family: var(--md-display);
+  }
+  .font-body {
+    font-family: var(--font-sans);
+  }
+}
+
+/* ---------------------------------------------------------------------------
+ * אנימציות ואינטראקציות מהעיצוב המקורי (מועבר 1:1).
+ * ------------------------------------------------------------------------- */
+@keyframes md-fade-up {
+  0% { opacity: 0; transform: translateY(24px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+@keyframes md-fade-in {
+  0% { opacity: 0; }
+  100% { opacity: 1; }
+}
+@keyframes md-slide-right {
+  0% { opacity: 0; transform: translateX(28px); }
+  100% { opacity: 1; transform: translateX(0); }
+}
+@keyframes md-pop {
+  0% { opacity: 0; transform: scale(0.92); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+.md-reveal { opacity: 0; animation: md-fade-up 0.8s ease-out forwards; }
+.md-reveal-in { opacity: 0; animation: md-fade-in 1s ease-out forwards; }
+.md-reveal-right { opacity: 0; animation: md-slide-right 0.8s ease-out forwards; }
+.md-reveal-pop { opacity: 0; animation: md-pop 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
+
+.md-card-hover {
+  transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.35s ease,
+    border-color 0.35s ease, background-color 0.35s ease;
+}
+.md-card-hover:hover { transform: translateY(-6px); }
+
+.md-img-hover img { transition: transform 0.8s cubic-bezier(0.2, 0.8, 0.2, 1); }
+.md-img-hover:hover img { transform: scale(1.06); }
+
+.md-btn {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.35s ease, filter 0.35s ease;
+}
+.md-btn:hover { transform: translateY(-2px); filter: brightness(1.05); }
+.md-btn:active { transform: translateY(0); }
+.md-btn::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(120deg, transparent 30%, rgba(255, 255, 255, 0.55) 50%, transparent 70%);
+  transform: translateX(-120%);
+  transition: transform 0.8s ease;
+}
+.md-btn:hover::before { transform: translateX(120%); }
+
+.md-btn-ghost {
+  transition: background-color 0.3s ease, border-color 0.3s ease, transform 0.3s ease, color 0.3s ease;
+}
+.md-btn-ghost:hover { transform: translateY(-2px); }
+
+@media (prefers-reduced-motion: reduce) {
+  .md-reveal,
+  .md-reveal-in,
+  .md-reveal-right,
+  .md-reveal-pop {
+    animation: none;
+    opacity: 1;
+  }
+  .md-btn::before { display: none; }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+ * ווידג'ט נגישות (ת"י 5568) — מצבים מופעלים ע"י main.js
+ * ------------------------------------------------------------------------- */
+html.md-a11y-contrast {
+  filter: contrast(1.35);
+}
+html.md-a11y-grayscale {
+  filter: grayscale(1);
+}
+html.md-a11y-invert {
+  filter: invert(1) hue-rotate(180deg);
+}
+html.md-a11y-invert img,
+html.md-a11y-invert video {
+  filter: invert(1) hue-rotate(180deg);
+}
+html.md-a11y-links a {
+  text-decoration: underline !important;
+  text-underline-offset: 2px;
+}
+html.md-a11y-highlight-headings :is(h1, h2, h3) {
+  outline: 2px dashed var(--md-orange);
+  outline-offset: 3px;
+}
+html.md-a11y-readable * {
+  font-family: Arial, "Assistant", sans-serif !important;
+  letter-spacing: 0.01em;
+}
+html.md-a11y-stop-anim *,
+html.md-a11y-stop-anim *::before {
+  animation: none !important;
+  transition: none !important;
+}
+.md-reading-guide {
+  position: fixed;
+  left: 0;
+  right: 0;
+  height: 2.25rem;
+  background: rgba(255, 122, 0, 0.18);
+  border-top: 2px solid var(--md-orange);
+  border-bottom: 2px solid var(--md-orange);
+  pointer-events: none;
+  z-index: 9998;
+  display: none;
+}

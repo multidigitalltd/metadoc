@@ -1,0 +1,229 @@
+<?php
+/**
+ * ניהול לידים — CPT פרטי + REST endpoint מאובטח + התראת מייל.
+ *
+ * אבטחה (תקן Multi Digital): Nonce (wp_rest), Sanitization מלאה,
+ * Honeypot, Rate limiting (transient), permission_callback, Escaping בפלט.
+ *
+ * @package Metadoc
+ */
+
+declare( strict_types=1 );
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
+/**
+ * Class Metadoc_Leads
+ */
+final class Metadoc_Leads {
+
+	private const CPT          = 'md_lead';
+	private const RATE_SECONDS = 30; // מקסימום פנייה אחת לכל 30 שניות לכל IP.
+
+	/**
+	 * אתחול ה-hooks.
+	 */
+	public static function init(): void {
+		add_action( 'init', array( __CLASS__, 'register_cpt' ) );
+		add_action( 'rest_api_init', array( __CLASS__, 'register_routes' ) );
+		add_filter( 'manage_' . self::CPT . '_posts_columns', array( __CLASS__, 'admin_columns' ) );
+		add_action( 'manage_' . self::CPT . '_posts_custom_column', array( __CLASS__, 'admin_column_content' ), 10, 2 );
+	}
+
+	/**
+	 * רישום סוג תוכן פרטי ללידים.
+	 */
+	public static function register_cpt(): void {
+		register_post_type(
+			self::CPT,
+			array(
+				'labels'              => array(
+					'name'          => __( 'לידים', 'metadoc' ),
+					'singular_name' => __( 'ליד', 'metadoc' ),
+					'menu_name'     => __( 'לידים', 'metadoc' ),
+				),
+				'public'              => false,
+				'show_ui'             => true,
+				'show_in_menu'        => true,
+				'show_in_rest'        => false,
+				'menu_icon'           => 'dashicons-email-alt',
+				'menu_position'       => 25,
+				'capability_type'     => 'post',
+				'capabilities'        => array( 'create_posts' => 'do_not_allow' ), // נוצרים רק דרך ה-endpoint.
+				'map_meta_cap'        => true,
+				'supports'            => array( 'title' ),
+				'exclude_from_search' => true,
+				'has_archive'         => false,
+				'rewrite'             => false,
+			)
+		);
+	}
+
+	/**
+	 * רישום ה-REST route.
+	 */
+	public static function register_routes(): void {
+		register_rest_route(
+			'metadoc/v1',
+			'/lead',
+			array(
+				'methods'             => WP_REST_Server::CREATABLE,
+				'callback'            => array( __CLASS__, 'handle' ),
+				'permission_callback' => array( __CLASS__, 'permission' ),
+				'args'                => array(
+					'name'  => array( 'required' => true, 'type' => 'string' ),
+					'phone' => array( 'required' => true, 'type' => 'string' ),
+					'note'  => array( 'required' => false, 'type' => 'string' ),
+				),
+			)
+		);
+	}
+
+	/**
+	 * בדיקת הרשאה — אימות nonce של REST (מונע CSRF). פתוח לציבור אך חתום.
+	 *
+	 * @param WP_REST_Request $request הבקשה.
+	 * @return bool|WP_Error
+	 */
+	public static function permission( WP_REST_Request $request ) {
+		$nonce = $request->get_header( 'X-WP-Nonce' );
+		if ( ! $nonce || ! wp_verify_nonce( $nonce, 'wp_rest' ) ) {
+			return new WP_Error( 'metadoc_bad_nonce', __( 'אימות נכשל. רעננו את העמוד ונסו שוב.', 'metadoc' ), array( 'status' => 403 ) );
+		}
+		return true;
+	}
+
+	/**
+	 * טיפול בשליחת ליד.
+	 *
+	 * @param WP_REST_Request $request הבקשה.
+	 * @return WP_REST_Response|WP_Error
+	 */
+	public static function handle( WP_REST_Request $request ) {
+		// Honeypot — שדה שאמור להישאר ריק. בוטים ממלאים אותו.
+		if ( '' !== trim( (string) $request->get_param( 'website' ) ) ) {
+			return new WP_REST_Response( array( 'ok' => true ), 200 ); // בליעה שקטה.
+		}
+
+		// Rate limiting לפי IP.
+		$ip  = self::client_ip();
+		$key = 'md_lead_rl_' . md5( $ip );
+		if ( get_transient( $key ) ) {
+			return new WP_Error( 'metadoc_rate', __( 'נא להמתין רגע לפני שליחה נוספת.', 'metadoc' ), array( 'status' => 429 ) );
+		}
+
+		// Sanitization.
+		$name  = sanitize_text_field( (string) $request->get_param( 'name' ) );
+		$phone = sanitize_text_field( (string) $request->get_param( 'phone' ) );
+		$note  = sanitize_textarea_field( (string) $request->get_param( 'note' ) );
+
+		// אימות צד-שרת (לא לסמוך על הדפדפן).
+		if ( mb_strlen( $name ) < 2 || mb_strlen( $name ) > 60 ) {
+			return new WP_Error( 'metadoc_name', __( 'נא להזין שם מלא', 'metadoc' ), array( 'status' => 422 ) );
+		}
+		if ( ! preg_match( '/^0\d[\d-]{7,11}$/', $phone ) ) {
+			return new WP_Error( 'metadoc_phone', __( 'מספר טלפון לא תקין', 'metadoc' ), array( 'status' => 422 ) );
+		}
+		if ( mb_strlen( $note ) > 1000 ) {
+			$note = mb_substr( $note, 0, 1000 );
+		}
+
+		// שמירה כ-CPT.
+		$post_id = wp_insert_post(
+			array(
+				'post_type'   => self::CPT,
+				'post_status' => 'private',
+				'post_title'  => sprintf( '%s · %s', $name, $phone ),
+				'meta_input'  => array(
+					'_md_name'  => $name,
+					'_md_phone' => $phone,
+					'_md_note'  => $note,
+					'_md_ip'    => $ip,
+					'_md_ua'    => sanitize_text_field( (string) $request->get_header( 'user_agent' ) ),
+				),
+			),
+			true
+		);
+
+		if ( is_wp_error( $post_id ) ) {
+			return new WP_Error( 'metadoc_save', __( 'אירעה שגיאה. נסו שוב.', 'metadoc' ), array( 'status' => 500 ) );
+		}
+
+		set_transient( $key, 1, self::RATE_SECONDS );
+		self::notify( $name, $phone, $note );
+
+		return new WP_REST_Response( array( 'ok' => true ), 201 );
+	}
+
+	/**
+	 * שליחת התראת מייל למשרד.
+	 *
+	 * @param string $name  שם.
+	 * @param string $phone טלפון.
+	 * @param string $note  הערה.
+	 */
+	private static function notify( string $name, string $phone, string $note ): void {
+		$contact = metadoc_contact();
+		$to      = apply_filters( 'metadoc_lead_email', $contact['email'] );
+		$subject = sprintf( '[מטאדוק] ליד חדש מהאתר — %s', $name );
+
+		$lines = array(
+			'התקבלה פנייה חדשה לבדיקת זכאות:',
+			'',
+			'שם: ' . $name,
+			'טלפון: ' . $phone,
+			'פרטים: ' . ( '' !== $note ? $note : '—' ),
+			'',
+			'נשלח מ-' . home_url( '/' ),
+		);
+
+		$headers = array( 'Content-Type: text/plain; charset=UTF-8' );
+		wp_mail( $to, $subject, implode( "\n", $lines ), $headers );
+	}
+
+	/**
+	 * זיהוי IP הלקוח בזהירות (לא לסמוך עיוור על כותרות proxy).
+	 *
+	 * @return string
+	 */
+	private static function client_ip(): string {
+		$ip = isset( $_SERVER['REMOTE_ADDR'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) ) : '0.0.0.0';
+		return filter_var( $ip, FILTER_VALIDATE_IP ) ? $ip : '0.0.0.0';
+	}
+
+	/**
+	 * עמודות מותאמות בטבלת הלידים בניהול.
+	 *
+	 * @param array $cols עמודות.
+	 * @return array
+	 */
+	public static function admin_columns( array $cols ): array {
+		$new = array( 'cb' => $cols['cb'] ?? '' );
+		$new['md_name']  = __( 'שם', 'metadoc' );
+		$new['md_phone'] = __( 'טלפון', 'metadoc' );
+		$new['md_note']  = __( 'פרטים', 'metadoc' );
+		$new['date']     = __( 'התקבל', 'metadoc' );
+		return $new;
+	}
+
+	/**
+	 * תוכן עמודה מותאמת.
+	 *
+	 * @param string $column  מזהה עמודה.
+	 * @param int    $post_id מזהה הפוסט.
+	 */
+	public static function admin_column_content( string $column, int $post_id ): void {
+		$map = array(
+			'md_name'  => '_md_name',
+			'md_phone' => '_md_phone',
+			'md_note'  => '_md_note',
+		);
+		if ( isset( $map[ $column ] ) ) {
+			echo esc_html( (string) get_post_meta( $post_id, $map[ $column ], true ) );
+		}
+	}
+}
+
+Metadoc_Leads::init();
