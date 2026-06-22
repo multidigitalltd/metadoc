@@ -74,7 +74,11 @@
     -webkit-font-smoothing: antialiased;
   }
   /* מניעת גלילה אופקית כתוצאה מאלמנטים דקורטיביים/צפים.
-   * overflow-x: clip בטוח ל-position: sticky (אינו יוצר scroll container). */
+   * overflow-x: clip בטוח ל-position: sticky (אינו יוצר scroll container).
+   * נפילה ל-hidden ברמת ה-html עבור דפדפנים ישנים (iOS Safari < 16). */
+  html {
+    overflow-x: hidden;
+  }
   html,
   body {
     overflow-x: clip;
