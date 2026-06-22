@@ -129,43 +129,47 @@
   100% { opacity: 1; transform: scale(1); }
 }
 
-.md-reveal { opacity: 0; animation: md-fade-up 0.8s ease-out forwards; }
-.md-reveal-in { opacity: 0; animation: md-fade-in 1s ease-out forwards; }
-.md-reveal-right { opacity: 0; animation: md-slide-right 0.8s ease-out forwards; }
-.md-reveal-pop { opacity: 0; animation: md-pop 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
+/* רכיבי אינטראקציה ב-@layer components כדי שמחלקות Utility של Tailwind
+ * (כמו .fixed / .relative) יגברו עליהם בעת הצורך. */
+@layer components {
+  .md-reveal { opacity: 0; animation: md-fade-up 0.8s ease-out forwards; }
+  .md-reveal-in { opacity: 0; animation: md-fade-in 1s ease-out forwards; }
+  .md-reveal-right { opacity: 0; animation: md-slide-right 0.8s ease-out forwards; }
+  .md-reveal-pop { opacity: 0; animation: md-pop 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
 
-.md-card-hover {
-  transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.35s ease,
-    border-color 0.35s ease, background-color 0.35s ease;
-}
-.md-card-hover:hover { transform: translateY(-6px); }
+  .md-card-hover {
+    transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.35s ease,
+      border-color 0.35s ease, background-color 0.35s ease;
+  }
+  .md-card-hover:hover { transform: translateY(-6px); }
 
-.md-img-hover img { transition: transform 0.8s cubic-bezier(0.2, 0.8, 0.2, 1); }
-.md-img-hover:hover img { transform: scale(1.06); }
+  .md-img-hover img { transition: transform 0.8s cubic-bezier(0.2, 0.8, 0.2, 1); }
+  .md-img-hover:hover img { transform: scale(1.06); }
 
-.md-btn {
-  position: relative;
-  overflow: hidden;
-  isolation: isolate;
-  transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.35s ease, filter 0.35s ease;
-}
-.md-btn:hover { transform: translateY(-2px); filter: brightness(1.05); }
-.md-btn:active { transform: translateY(0); }
-.md-btn::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  background: linear-gradient(120deg, transparent 30%, rgba(255, 255, 255, 0.55) 50%, transparent 70%);
-  transform: translateX(-120%);
-  transition: transform 0.8s ease;
-}
-.md-btn:hover::before { transform: translateX(120%); }
+  .md-btn {
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
+    transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.35s ease, filter 0.35s ease;
+  }
+  .md-btn:hover { transform: translateY(-2px); filter: brightness(1.05); }
+  .md-btn:active { transform: translateY(0); }
+  .md-btn::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: linear-gradient(120deg, transparent 30%, rgba(255, 255, 255, 0.55) 50%, transparent 70%);
+    transform: translateX(-120%);
+    transition: transform 0.8s ease;
+  }
+  .md-btn:hover::before { transform: translateX(120%); }
 
-.md-btn-ghost {
-  transition: background-color 0.3s ease, border-color 0.3s ease, transform 0.3s ease, color 0.3s ease;
+  .md-btn-ghost {
+    transition: background-color 0.3s ease, border-color 0.3s ease, transform 0.3s ease, color 0.3s ease;
+  }
+  .md-btn-ghost:hover { transform: translateY(-2px); }
 }
-.md-btn-ghost:hover { transform: translateY(-2px); }
 
 @media (prefers-reduced-motion: reduce) {
   .md-reveal,

@@ -50,15 +50,17 @@ final class Metadoc_Settings {
 	}
 
 	/**
-	 * רישום תפריט תחת "הגדרות".
+	 * רישום תפריט עליון "מטאדוק" בלוח הבקרה.
 	 */
 	public static function menu(): void {
-		add_options_page(
+		add_menu_page(
 			__( 'הגדרות מטאדוק', 'metadoc' ),
 			__( 'מטאדוק', 'metadoc' ),
 			'manage_options',
 			self::PAGE,
-			array( __CLASS__, 'render' )
+			array( __CLASS__, 'render' ),
+			'dashicons-admin-settings',
+			26
 		);
 	}
 
