@@ -33,7 +33,7 @@ $toggles = array(
 <div class="md-reading-guide" aria-hidden="true"></div>
 
 <div id="md-a11y" class="fixed bottom-24 md:bottom-6 right-4 md:right-6 z-[55]">
-	<button type="button" id="md-a11y-toggle" aria-expanded="false" aria-controls="md-a11y-panel" aria-label="<?php esc_attr_e( 'פתיחת תפריט נגישות', 'metadoc' ); ?>" class="size-14 rounded-full bg-[#1a4fd6] text-white grid place-items-center shadow-[0_8px_24px_rgba(26,79,214,0.4)] hover:scale-105 active:scale-95 transition">
+	<button type="button" id="md-a11y-toggle" aria-expanded="false" aria-controls="md-a11y-panel" aria-label="<?php esc_attr_e( 'פתיחת תפריט נגישות', 'metadoc' ); ?>" class="size-14 rounded-full bg-[#0a0a0a] text-white grid place-items-center shadow-[0_8px_24px_rgba(0,0,0,0.35)] ring-2 ring-[#ff7a00]/40 hover:scale-105 active:scale-95 transition">
 		<?php metadoc_icon( 'accessibility', array( 'class' => 'size-7' ) ); ?>
 	</button>
 
@@ -46,7 +46,7 @@ $toggles = array(
 		</div>
 		<div class="grid grid-cols-2 gap-2">
 			<?php foreach ( $toggles as $key => $labeltext ) : ?>
-				<button type="button" data-a11y="<?php echo esc_attr( $key ); ?>" aria-pressed="false" class="md-a11y-btn text-[12px] font-bold border border-neutral-200 rounded-xl px-2 py-2.5 hover:border-[#1a4fd6] hover:bg-blue-50 transition text-center">
+				<button type="button" data-a11y="<?php echo esc_attr( $key ); ?>" aria-pressed="false" class="md-a11y-btn text-[12px] font-bold border border-neutral-200 rounded-xl px-2 py-2.5 hover:border-[#ff7a00] hover:bg-orange-50 transition text-center">
 					<?php echo esc_html( $labeltext ); ?>
 				</button>
 			<?php endforeach; ?>

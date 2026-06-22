@@ -22,6 +22,17 @@ function metadoc_form_url(): string {
 }
 
 /**
+ * מחזיר את כתובת עמוד מדיניות הפרטיות.
+ * מעדיף את העמוד שהוגדר בהגדרות → פרטיות, אחרת נופל ל-/privacy-policy/.
+ *
+ * @return string
+ */
+function metadoc_privacy_url(): string {
+	$url = get_privacy_policy_url();
+	return $url ? $url : home_url( '/privacy-policy/' );
+}
+
+/**
  * מחזיר URL לנכס מדיה בתבנית, עם העדפת WebP אם קיים.
  *
  * @param string $file שם קובץ יחסי ל-assets/img (למשל 'family-home.jpg').

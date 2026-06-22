@@ -17,7 +17,7 @@ $c = metadoc_contact();
 	<?php metadoc_icon( 'message-circle', array( 'class' => 'size-7 text-white' ) ); ?>
 </a>
 
-<a href="<?php echo esc_url( metadoc_form_url() ); ?>" aria-label="<?php esc_attr_e( 'בדיקת זכאות חינם', 'metadoc' ); ?>" class="fixed bottom-44 md:bottom-24 left-4 md:left-6 z-40 inline-flex items-center gap-2 px-4 py-2.5 rounded-full text-black font-black text-[13px] md:text-[14px] md-btn hover:scale-105 transition font-display" style="background:linear-gradient(135deg, #ff7a00 0%, #ff9a3c 100%);box-shadow:0 12px 28px -8px #ff7a00cc, 0 0 0 3px rgba(255,122,0,0.18)">
+<a href="<?php echo esc_url( metadoc_form_url() ); ?>" aria-label="<?php esc_attr_e( 'בדיקת זכאות חינם', 'metadoc' ); ?>" class="fixed bottom-44 md:bottom-24 left-4 md:left-6 z-[55] inline-flex items-center gap-2 px-4 py-2.5 rounded-full text-black font-black text-[13px] md:text-[14px] md-btn hover:scale-105 transition font-display" style="background:linear-gradient(135deg, #ff7a00 0%, #ff9a3c 100%);box-shadow:0 12px 28px -8px #ff7a00cc, 0 0 0 3px rgba(255,122,0,0.18)">
 	<span class="relative flex size-2" aria-hidden="true">
 		<span class="absolute inline-flex h-full w-full rounded-full bg-black/40 animate-ping"></span>
 		<span class="relative inline-flex rounded-full size-2 bg-black"></span>
