@@ -64,80 +64,33 @@ final class Metadoc_Settings {
 	 * @param WP_Customize_Manager $wp_customize מנהל ה-Customizer.
 	 */
 	public static function customize( $wp_customize ): void {
-		$wp_customize->add_panel(
-			'metadoc_panel',
-			array(
-				'title'    => __( 'מטאדוק — הגדרות', 'metadoc' ),
-				'priority' => 30,
-			)
-		);
-
-		// --- סקשן לידים ---
+		// סקשן יחיד בשורש ה-Customizer (ללא פאנל) — הופעה אמינה ופשוטה.
 		$wp_customize->add_section(
-			'metadoc_leads',
+			'metadoc_settings_section',
 			array(
-				'title'       => __( 'טופס לידים', 'metadoc' ),
-				'panel'       => 'metadoc_panel',
-				'description' => __( 'יעד הפניות, פרטי השולח, ו-Webhook אופציונלי.', 'metadoc' ),
+				'title'       => __( 'מטאדוק — הגדרות', 'metadoc' ),
+				'priority'    => 30,
+				'description' => __( 'יעד לידים, פרטי שולח, Webhook, ומפתחות Cloudflare Turnstile. השאירו ריק כדי להשבית.', 'metadoc' ),
 			)
 		);
 
 		$fields = array(
-			'lead_email' => array(
-				'label'    => __( 'כתובת לקבלת הלידים', 'metadoc' ),
-				'section'  => 'metadoc_leads',
-				'sanitize' => 'sanitize_email',
-				'type'     => 'email',
-			),
-			'from_name'  => array(
-				'label'    => __( 'שם השולח (From)', 'metadoc' ),
-				'section'  => 'metadoc_leads',
-				'sanitize' => 'sanitize_text_field',
-				'type'     => 'text',
-			),
-			'from_email' => array(
-				'label'    => __( 'כתובת השולח (From)', 'metadoc' ),
-				'section'  => 'metadoc_leads',
-				'sanitize' => 'sanitize_email',
-				'type'     => 'email',
-			),
-			'webhook_url' => array(
-				'label'    => __( 'כתובת Webhook (אופציונלי)', 'metadoc' ),
-				'section'  => 'metadoc_leads',
-				'sanitize' => array( __CLASS__, 'sanitize_webhook' ),
-				'type'     => 'url',
-			),
-			'turnstile_site_key' => array(
-				'label'    => __( 'Turnstile Site Key', 'metadoc' ),
-				'section'  => 'metadoc_turnstile',
-				'sanitize' => 'sanitize_text_field',
-				'type'     => 'text',
-			),
-			'turnstile_secret_key' => array(
-				'label'    => __( 'Turnstile Secret Key', 'metadoc' ),
-				'section'  => 'metadoc_turnstile',
-				'sanitize' => 'sanitize_text_field',
-				'type'     => 'text',
-			),
+			'lead_email'           => array( 'label' => __( 'כתובת לקבלת הלידים', 'metadoc' ), 'sanitize' => 'sanitize_email' ),
+			'from_name'            => array( 'label' => __( 'שם השולח (From)', 'metadoc' ), 'sanitize' => 'sanitize_text_field' ),
+			'from_email'           => array( 'label' => __( 'כתובת השולח (From)', 'metadoc' ), 'sanitize' => 'sanitize_email' ),
+			'webhook_url'          => array( 'label' => __( 'כתובת Webhook (אופציונלי)', 'metadoc' ), 'sanitize' => array( __CLASS__, 'sanitize_webhook' ) ),
+			'turnstile_site_key'   => array( 'label' => __( 'Cloudflare Turnstile — Site Key', 'metadoc' ), 'sanitize' => 'sanitize_text_field' ),
+			'turnstile_secret_key' => array( 'label' => __( 'Cloudflare Turnstile — Secret Key', 'metadoc' ), 'sanitize' => 'sanitize_text_field' ),
 		);
 
-		// --- סקשן Turnstile ---
-		$wp_customize->add_section(
-			'metadoc_turnstile',
-			array(
-				'title'       => __( 'Cloudflare Turnstile (CAPTCHA)', 'metadoc' ),
-				'panel'       => 'metadoc_panel',
-				'description' => __( 'הזינו מפתחות מחשבון Cloudflare כדי להפעיל CAPTCHA על הטפסים. ריק = מושבת.', 'metadoc' ),
-			)
-		);
-
+		$priority = 10;
 		foreach ( $fields as $key => $field ) {
 			$id = self::OPTION . '[' . $key . ']';
 			$wp_customize->add_setting(
 				$id,
 				array(
 					'type'              => 'option',
-					'capability'        => 'manage_options',
+					'capability'        => 'edit_theme_options',
 					'default'           => '',
 					'sanitize_callback' => $field['sanitize'],
 					'transport'         => 'refresh',
@@ -146,11 +99,13 @@ final class Metadoc_Settings {
 			$wp_customize->add_control(
 				$id,
 				array(
-					'label'   => $field['label'],
-					'section' => $field['section'],
-					'type'    => $field['type'],
+					'label'    => $field['label'],
+					'section'  => 'metadoc_settings_section',
+					'type'     => 'text',
+					'priority' => $priority,
 				)
 			);
+			$priority += 10;
 		}
 	}
 }
