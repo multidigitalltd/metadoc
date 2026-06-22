@@ -45,10 +45,16 @@
 			var phone = (form.elements.phone && form.elements.phone.value || '').trim();
 			var note = (form.elements.note && form.elements.note.value || '').trim();
 			var hp = (form.elements.website && form.elements.website.value || '').trim();
+			var consentEl = form.querySelector('.md-consent');
+			var consent = consentEl ? consentEl.checked : true;
+			var captchaEl = form.querySelector('[name="cf-turnstile-response"]');
+			var captcha = captchaEl ? captchaEl.value : '';
 
 			if (hp !== '') { return; } // honeypot
 			if (name.length < 2) { setStatus(statusEl, i18n.invalidName || 'נא להזין שם מלא', false); return; }
 			if (!PHONE_RE.test(phone)) { setStatus(statusEl, i18n.invalidPhone || 'מספר טלפון לא תקין', false); return; }
+			if (!consent) { setStatus(statusEl, i18n.invalidConsent || 'יש לאשר את מדיניות הפרטיות', false); return; }
+			if (data.turnstile && !captcha) { setStatus(statusEl, i18n.invalidCaptcha || 'נא להשלים את אימות ה-CAPTCHA', false); return; }
 
 			if (button) { button.disabled = true; }
 			if (label) { label.textContent = i18n.sending || 'שולח...'; }
@@ -61,7 +67,7 @@
 					return fetch(data.restUrl, {
 						method: 'POST',
 						headers: { 'Content-Type': 'application/json', 'X-WP-Nonce': nonce },
-						body: JSON.stringify({ name: name, phone: phone, note: note, website: hp })
+						body: JSON.stringify({ name: name, phone: phone, note: note, website: hp, consent: consent ? 1 : 0, captcha: captcha })
 					});
 				})
 				.then(function (res) {
@@ -82,6 +88,9 @@
 				.finally(function () {
 					if (button) { button.disabled = false; }
 					if (label) { label.textContent = labelText; }
+					if (window.turnstile && typeof window.turnstile.reset === 'function') {
+						try { window.turnstile.reset(); } catch (e) {}
+					}
 				});
 		});
 	}
@@ -200,11 +209,35 @@
 	}
 
 	/* ------------------------------------------------------------------ */
+	/* פופאפ עוגיות                                                        */
+	/* ------------------------------------------------------------------ */
+	var COOKIE_KEY = 'md-cookie-consent';
+
+	function setupCookie() {
+		var banner = document.getElementById('md-cookie');
+		if (!banner) { return; }
+		var choice;
+		try { choice = localStorage.getItem(COOKIE_KEY); } catch (e) {}
+		if (choice) { return; } // כבר הוחלט — לא מציגים.
+
+		banner.hidden = false;
+		function decide(value) {
+			try { localStorage.setItem(COOKIE_KEY, value); } catch (e) {}
+			banner.hidden = true;
+		}
+		var accept = document.getElementById('md-cookie-accept');
+		var decline = document.getElementById('md-cookie-decline');
+		if (accept) { accept.addEventListener('click', function () { decide('accepted'); }); }
+		if (decline) { decline.addEventListener('click', function () { decide('declined'); }); }
+	}
+
+	/* ------------------------------------------------------------------ */
 	function init() {
 		document.querySelectorAll('.md-lead-form').forEach(handleForm);
 		loadState();
 		applyState();
 		setupA11y();
+		setupCookie();
 	}
 
 	if (document.readyState === 'loading') {

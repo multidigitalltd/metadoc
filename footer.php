@@ -15,6 +15,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 get_template_part( 'template-parts/site-footer' );
 get_template_part( 'template-parts/floating' );
 get_template_part( 'template-parts/accessibility-widget' );
+get_template_part( 'template-parts/cookie-consent' );
 ?>
 </div><!-- #top -->
 <?php wp_footer(); ?>

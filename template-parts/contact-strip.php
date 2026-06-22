@@ -38,6 +38,9 @@ $input_cls = 'w-full bg-white border border-white/20 rounded-xl px-4 py-3 focus:
 					<?php metadoc_icon( 'arrow-left', array( 'class' => 'size-4' ) ); ?>
 				</button>
 			</div>
+			<div class="md:col-span-12 flex flex-col items-center gap-2">
+				<?php get_template_part( 'template-parts/form-extras', null, array( 'prefix' => 'strip' ) ); ?>
+			</div>
 			<?php get_template_part( 'template-parts/form-honeypot' ); ?>
 			<p class="md-form-status md:col-span-12 text-center text-[13px] font-bold" role="status" aria-live="polite"></p>
 		</form>

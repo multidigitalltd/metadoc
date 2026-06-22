@@ -30,6 +30,65 @@ final class Metadoc_Leads {
 		add_action( 'rest_api_init', array( __CLASS__, 'register_routes' ) );
 		add_filter( 'manage_' . self::CPT . '_posts_columns', array( __CLASS__, 'admin_columns' ) );
 		add_action( 'manage_' . self::CPT . '_posts_custom_column', array( __CLASS__, 'admin_column_content' ), 10, 2 );
+		add_filter( 'manage_edit-' . self::CPT . '_sortable_columns', array( __CLASS__, 'sortable_columns' ) );
+		add_action( 'add_meta_boxes', array( __CLASS__, 'meta_boxes' ) );
+	}
+
+	/**
+	 * עמודות מיון.
+	 *
+	 * @param array $cols עמודות.
+	 * @return array
+	 */
+	public static function sortable_columns( array $cols ): array {
+		$cols['date'] = 'date';
+		return $cols;
+	}
+
+	/**
+	 * תיבת פרטי ליד במסך העריכה.
+	 */
+	public static function meta_boxes(): void {
+		add_meta_box( 'metadoc_lead_details', __( 'פרטי הליד', 'metadoc' ), array( __CLASS__, 'render_details' ), self::CPT, 'normal', 'high' );
+	}
+
+	/**
+	 * רינדור פרטי הליד (קריאה בלבד) + פעולות מהירות.
+	 *
+	 * @param WP_Post $post הפוסט.
+	 */
+	public static function render_details( WP_Post $post ): void {
+		$fields = array(
+			'_md_name'    => __( 'שם', 'metadoc' ),
+			'_md_phone'   => __( 'טלפון', 'metadoc' ),
+			'_md_note'    => __( 'פרטים', 'metadoc' ),
+			'_md_consent' => __( 'אישור מדיניות פרטיות', 'metadoc' ),
+			'_md_ip'      => __( 'כתובת IP', 'metadoc' ),
+			'_md_ua'      => __( 'דפדפן', 'metadoc' ),
+		);
+		echo '<table class="widefat striped"><tbody>';
+		foreach ( $fields as $meta => $label ) {
+			$value = (string) get_post_meta( $post->ID, $meta, true );
+			if ( '_md_consent' === $meta ) {
+				$value = $value ? __( 'כן', 'metadoc' ) : __( 'לא', 'metadoc' );
+			}
+			printf(
+				'<tr><th style="width:170px;text-align:right">%s</th><td>%s</td></tr>',
+				esc_html( $label ),
+				esc_html( '' !== $value ? $value : '—' )
+			);
+		}
+		echo '</tbody></table>';
+
+		$phone = (string) get_post_meta( $post->ID, '_md_phone', true );
+		$wa    = preg_replace( '/\D/', '', '972' . ltrim( $phone, '0' ) );
+		printf(
+			'<p style="margin-top:12px"><a class="button button-primary" href="tel:%1$s">%2$s</a> <a class="button" href="https://wa.me/%3$s" target="_blank" rel="noopener noreferrer">%4$s</a></p>',
+			esc_attr( $phone ),
+			esc_html__( 'חיוג ללקוח', 'metadoc' ),
+			esc_attr( (string) $wa ),
+			esc_html__( 'וואטסאפ', 'metadoc' )
+		);
 	}
 
 	/**
@@ -167,6 +226,17 @@ final class Metadoc_Leads {
 			$note = mb_substr( $note, 0, 1000 );
 		}
 
+		// אישור מדיניות פרטיות — חובה (נבדק גם בצד השרת).
+		if ( empty( $request->get_param( 'consent' ) ) ) {
+			return new WP_Error( 'metadoc_consent', __( 'יש לאשר את מדיניות הפרטיות', 'metadoc' ), array( 'status' => 422 ) );
+		}
+
+		// אימות Cloudflare Turnstile (אם מופעל בהגדרות).
+		$captcha = self::verify_turnstile( $request, $ip );
+		if ( is_wp_error( $captcha ) ) {
+			return $captcha;
+		}
+
 		// שמירה כ-CPT.
 		$post_id = wp_insert_post(
 			array(
@@ -174,11 +244,12 @@ final class Metadoc_Leads {
 				'post_status' => 'private',
 				'post_title'  => sprintf( '%s · %s', $name, $phone ),
 				'meta_input'  => array(
-					'_md_name'  => $name,
-					'_md_phone' => $phone,
-					'_md_note'  => $note,
-					'_md_ip'    => $ip,
-					'_md_ua'    => sanitize_text_field( (string) $request->get_header( 'user_agent' ) ),
+					'_md_name'    => $name,
+					'_md_phone'   => $phone,
+					'_md_note'    => $note,
+					'_md_consent' => '1',
+					'_md_ip'      => $ip,
+					'_md_ua'      => sanitize_text_field( (string) $request->get_header( 'user_agent' ) ),
 				),
 			),
 			true
@@ -192,6 +263,53 @@ final class Metadoc_Leads {
 		self::notify( $name, $phone, $note );
 
 		return new WP_REST_Response( array( 'ok' => true ), 201 );
+	}
+
+	/**
+	 * אימות טוקן Cloudflare Turnstile מול שרת Cloudflare.
+	 * אם Turnstile אינו מופעל — מדלג ומחזיר true.
+	 *
+	 * @param WP_REST_Request $request הבקשה.
+	 * @param string          $ip      כתובת ה-IP של הלקוח.
+	 * @return true|WP_Error
+	 */
+	private static function verify_turnstile( WP_REST_Request $request, string $ip ) {
+		if ( ! class_exists( 'Metadoc_Settings' ) || ! Metadoc_Settings::turnstile_enabled() ) {
+			return true;
+		}
+		$secret = Metadoc_Settings::get( 'turnstile_secret_key' );
+		if ( '' === $secret ) {
+			return true; // הוגדר site key בלבד — לא ניתן לאמת בצד שרת, לא חוסמים.
+		}
+
+		$token = sanitize_text_field( (string) $request->get_param( 'captcha' ) );
+		if ( '' === $token ) {
+			return new WP_Error( 'metadoc_captcha', __( 'נא להשלים את אימות ה-CAPTCHA', 'metadoc' ), array( 'status' => 422 ) );
+		}
+
+		$resp = wp_remote_post(
+			'https://challenges.cloudflare.com/turnstile/v0/siteverify',
+			array(
+				'timeout' => 8,
+				'body'    => array(
+					'secret'   => $secret,
+					'response' => $token,
+					'remoteip' => $ip,
+				),
+			)
+		);
+
+		if ( is_wp_error( $resp ) ) {
+			// כשל בתקשורת מול Cloudflare — לא חוסמים ליד לגיטימי בגלל תקלת רשת.
+			return true;
+		}
+
+		$body = json_decode( (string) wp_remote_retrieve_body( $resp ), true );
+		if ( empty( $body['success'] ) ) {
+			return new WP_Error( 'metadoc_captcha', __( 'אימות ה-CAPTCHA נכשל. נסו שוב.', 'metadoc' ), array( 'status' => 422 ) );
+		}
+
+		return true;
 	}
 
 	/**

@@ -41,12 +41,21 @@ function metadoc_img_url( string $file ): string {
  * @return string
  */
 function metadoc_logo_url(): string {
+	// 1) לוגו שהועלה דרך התאמה אישית → זהות האתר (העדפה ראשונה).
+	$custom_logo_id = get_theme_mod( 'custom_logo' );
+	if ( $custom_logo_id ) {
+		$url = wp_get_attachment_image_url( (int) $custom_logo_id, 'full' );
+		if ( $url ) {
+			return $url;
+		}
+	}
+	// 2) קובץ לוגו בתיקיית התבנית.
 	foreach ( array( 'metadoc-logo.svg', 'metadoc-logo.png' ) as $candidate ) {
 		if ( is_readable( METADOC_DIR . '/assets/img/' . $candidate ) ) {
 			return METADOC_URI . '/assets/img/' . $candidate;
 		}
 	}
-	// נפילה לקובץ הצפוי גם אם טרם הועלה — יוחלף מיד עם העלאת הלוגו.
+	// 3) נפילה לקובץ הצפוי גם אם טרם הועלה — יוחלף מיד עם העלאת הלוגו.
 	return METADOC_URI . '/assets/img/metadoc-logo.png';
 }
 

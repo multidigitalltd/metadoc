@@ -20,7 +20,9 @@ define( 'METADOC_URI', get_template_directory_uri() );
 
 require_once METADOC_DIR . '/inc/icons.php';
 require_once METADOC_DIR . '/inc/helpers.php';
+require_once METADOC_DIR . '/inc/class-metadoc-settings.php';
 require_once METADOC_DIR . '/inc/class-metadoc-leads.php';
+require_once METADOC_DIR . '/inc/class-metadoc-branding.php';
 require_once METADOC_DIR . '/inc/class-metadoc-setup.php';
 
 /**
@@ -32,6 +34,17 @@ function metadoc_setup(): void {
 	add_theme_support( 'automatic-feed-links' );
 	add_theme_support( 'html5', array( 'search-form', 'comment-form', 'comment-list', 'gallery', 'caption', 'style', 'script' ) );
 	add_theme_support( 'responsive-embeds' );
+
+	// לוגו ניתן להעלאה דרך התאמה אישית → זהות האתר.
+	add_theme_support(
+		'custom-logo',
+		array(
+			'height'      => 100,
+			'width'       => 260,
+			'flex-height' => true,
+			'flex-width'  => true,
+		)
+	);
 
 	// תמיכת WebP/AVIF להעלאות.
 	add_filter(
@@ -47,6 +60,17 @@ function metadoc_setup(): void {
 	load_theme_textdomain( 'metadoc', METADOC_DIR . '/languages' );
 }
 add_action( 'after_setup_theme', 'metadoc_setup' );
+
+/**
+ * מבטיח הדפסת כללי @font-face לפונטים שהותקנו דרך ה-Font Library של וורדפרס,
+ * גם בתבנית קלאסית (שאינה block theme), כדי שהעיצוב ילבש אותם בפועל.
+ */
+function metadoc_ensure_font_faces(): void {
+	if ( function_exists( 'wp_print_font_faces' ) && false === has_action( 'wp_head', 'wp_print_font_faces' ) ) {
+		add_action( 'wp_head', 'wp_print_font_faces', 50 );
+	}
+}
+add_action( 'after_setup_theme', 'metadoc_ensure_font_faces' );
 
 /**
  * מחזיר מחרוזת גרסה מבוססת זמן-שינוי לשבירת מטמון, עם נפילה לגרסת התבנית.
@@ -81,19 +105,27 @@ function metadoc_enqueue_assets(): void {
 		true // בתחתית, יקבל defer דרך הפילטר למטה.
 	);
 
+	// סקריפט Turnstile של Cloudflare — רק כשהוגדר site key.
+	if ( Metadoc_Settings::turnstile_enabled() ) {
+		wp_enqueue_script( 'cf-turnstile', 'https://challenges.cloudflare.com/turnstile/v0/api.js', array(), null, true ); // phpcs:ignore WordPress.WP.EnqueuedResourceParameters.MissingVersion -- צד שלישי ללא גרסה.
+	}
+
 	wp_localize_script(
 		'metadoc-main',
 		'metadocData',
 		array(
-			'restUrl'  => esc_url_raw( rest_url( 'metadoc/v1/lead' ) ),
-			'nonceUrl' => esc_url_raw( rest_url( 'metadoc/v1/nonce' ) ),
-			'nonce'    => wp_create_nonce( 'wp_rest' ), // נפילה בלבד; ה-JS שולף nonce טרי.
-			'i18n'     => array(
-				'invalidName'  => __( 'נא להזין שם מלא', 'metadoc' ),
-				'invalidPhone' => __( 'מספר טלפון לא תקין', 'metadoc' ),
-				'sending'      => __( 'שולח...', 'metadoc' ),
-				'success'      => __( 'הפרטים נשלחו! מומחה יחזור אליכם בהקדם.', 'metadoc' ),
-				'error'        => __( 'אירעה שגיאה. נסו שוב או התקשרו אלינו.', 'metadoc' ),
+			'restUrl'         => esc_url_raw( rest_url( 'metadoc/v1/lead' ) ),
+			'nonceUrl'        => esc_url_raw( rest_url( 'metadoc/v1/nonce' ) ),
+			'nonce'           => wp_create_nonce( 'wp_rest' ), // נפילה בלבד; ה-JS שולף nonce טרי.
+			'turnstile'       => Metadoc_Settings::turnstile_enabled(),
+			'i18n'            => array(
+				'invalidName'    => __( 'נא להזין שם מלא', 'metadoc' ),
+				'invalidPhone'   => __( 'מספר טלפון לא תקין', 'metadoc' ),
+				'invalidConsent' => __( 'יש לאשר את מדיניות הפרטיות', 'metadoc' ),
+				'invalidCaptcha' => __( 'נא להשלים את אימות ה-CAPTCHA', 'metadoc' ),
+				'sending'        => __( 'שולח...', 'metadoc' ),
+				'success'        => __( 'הפרטים נשלחו! מומחה יחזור אליכם בהקדם.', 'metadoc' ),
+				'error'          => __( 'אירעה שגיאה. נסו שוב או התקשרו אלינו.', 'metadoc' ),
 			),
 		)
 	);

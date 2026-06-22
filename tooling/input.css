@@ -49,13 +49,16 @@
     url("../fonts/anomalia-bold.woff") format("woff");
 }
 
+/* שמות המשפחה כפי שנרשמו ב-Font Library של וורדפרס מופיעים ראשונים,
+ * ואחריהם שמות ה-@font-face המקומיים (אם יועלו קבצים לתיקיית assets/fonts)
+ * ולבסוף נפילה ל-Assistant. התאמת font-family אינה תלוית-רישיות. */
 @theme {
-  --font-sans: "Atlas", "Assistant", system-ui, sans-serif;
-  --font-display: "Anomalia", "Atlas", "Assistant", system-ui, sans-serif;
+  --font-sans: "Atlas DL 3.1 AAA", "Atlas", "Assistant", system-ui, sans-serif;
+  --font-display: "Anomalia ML v2 AAA", "Anomalia", "Atlas DL 3.1 AAA", "Atlas", "Assistant", system-ui, sans-serif;
 }
 
 :root {
-  --md-display: "Anomalia", "Atlas", "Assistant", system-ui, sans-serif;
+  --md-display: "Anomalia ML v2 AAA", "Anomalia", "Atlas DL 3.1 AAA", "Atlas", "Assistant", system-ui, sans-serif;
   --md-orange: #ff7a00;
   --md-orange-soft: #ff9a3c;
   --md-orange-muted: #d96a10;

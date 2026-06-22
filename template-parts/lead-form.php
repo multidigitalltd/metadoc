@@ -69,6 +69,7 @@ $benefits = array(
 							<label class="<?php echo esc_attr( $label ); ?>" for="lead-note"><?php esc_html_e( 'פרטים נוספים (לא חובה)', 'metadoc' ); ?></label>
 							<textarea id="lead-note" name="note" rows="3" class="<?php echo esc_attr( $input . ' resize-none' ); ?>" placeholder="<?php esc_attr_e( 'ספרו לנו בקצרה על המקרה שלכם', 'metadoc' ); ?>"></textarea>
 						</div>
+						<?php get_template_part( 'template-parts/form-extras', null, array( 'prefix' => 'lead' ) ); ?>
 						<button type="submit" class="md-btn w-full text-black font-black py-4 rounded-xl text-lg disabled:opacity-60 flex items-center justify-center gap-2" style="background:linear-gradient(135deg, #ff7a00 0%, #ff9a3c 100%);box-shadow:0 16px 36px -10px #ff7a00b3">
 							<span class="md-btn-label"><?php esc_html_e( 'שלחו לבדיקה', 'metadoc' ); ?></span>
 							<?php metadoc_icon( 'arrow-left', array( 'class' => 'size-5' ) ); ?>

@@ -78,5 +78,11 @@ $schema = array(
 			</nav>
 		</div>
 	</div>
+	<div class="border-t border-white/10">
+		<div class="max-w-7xl mx-auto px-6 md:px-10 py-4 text-center text-[11px] text-white/40">
+			UX/UI &amp; Dev by
+			<a href="https://multidigital.co.il" target="_blank" rel="noopener noreferrer" class="font-bold text-white/70 hover:text-[#ff7a00] transition-colors">Multi Digital</a>
+		</div>
+	</div>
 </footer>
 <script type="application/ld+json"><?php echo wp_json_encode( $schema, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES ); ?></script>
