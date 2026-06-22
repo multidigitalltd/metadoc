@@ -33,8 +33,8 @@ $toggles = array(
 <div class="md-reading-guide" aria-hidden="true"></div>
 
 <div id="md-a11y" class="fixed bottom-24 md:bottom-6 right-4 md:right-6 z-[55]">
-	<button type="button" id="md-a11y-toggle" aria-expanded="false" aria-controls="md-a11y-panel" aria-label="<?php esc_attr_e( 'פתיחת תפריט נגישות', 'metadoc' ); ?>" class="size-14 rounded-full bg-[#0a0a0a] text-white grid place-items-center shadow-[0_8px_24px_rgba(0,0,0,0.35)] ring-2 ring-[#ff7a00]/40 hover:scale-105 active:scale-95 transition">
-		<?php metadoc_icon( 'accessibility', array( 'class' => 'size-7' ) ); ?>
+	<button type="button" id="md-a11y-toggle" aria-expanded="false" aria-controls="md-a11y-panel" aria-label="<?php esc_attr_e( 'פתיחת תפריט נגישות', 'metadoc' ); ?>" class="size-11 rounded-full bg-[#0a0a0a] text-white grid place-items-center shadow-[0_8px_24px_rgba(0,0,0,0.35)] ring-2 ring-[#ff7a00]/40 hover:scale-105 active:scale-95 transition">
+		<?php metadoc_icon( 'accessibility', array( 'class' => 'size-6' ) ); ?>
 	</button>
 
 	<div id="md-a11y-panel" role="dialog" aria-modal="false" aria-label="<?php esc_attr_e( 'הגדרות נגישות', 'metadoc' ); ?>" hidden class="absolute bottom-16 right-0 w-72 max-w-[85vw] bg-white text-neutral-900 rounded-2xl shadow-2xl border border-neutral-200 p-4">
