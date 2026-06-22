@@ -14,6 +14,18 @@
 	/* ------------------------------------------------------------------ */
 	var PHONE_RE = /^0\d[\d-]{7,11}$/;
 
+	/**
+	 * מחזיר nonce עדכני מה-endpoint; בכשל נופל ל-nonce המוטמע.
+	 * @returns {Promise<string>}
+	 */
+	function getFreshNonce() {
+		if (!data.nonceUrl) { return Promise.resolve(data.nonce); }
+		return fetch(data.nonceUrl, { headers: { 'Accept': 'application/json' }, cache: 'no-store' })
+			.then(function (res) { return res.ok ? res.json() : null; })
+			.then(function (body) { return (body && body.nonce) ? body.nonce : data.nonce; })
+			.catch(function () { return data.nonce; });
+	}
+
 	function setStatus(el, msg, ok) {
 		if (!el) return;
 		el.textContent = msg;
@@ -42,11 +54,16 @@
 			if (label) { label.textContent = i18n.sending || 'שולח...'; }
 			setStatus(statusEl, '', true);
 
-			fetch(data.restUrl, {
-				method: 'POST',
-				headers: { 'Content-Type': 'application/json', 'X-WP-Nonce': data.nonce },
-				body: JSON.stringify({ name: name, phone: phone, note: note, website: hp })
-			})
+			// שולפים nonce טרי בזמן ריצה כדי לא להישען על ה-nonce המוטמע ב-HTML,
+			// שעלול להיות במטמון full-page (LiteSpeed/Cloudflare/WP Rocket) ולפוג.
+			getFreshNonce()
+				.then(function (nonce) {
+					return fetch(data.restUrl, {
+						method: 'POST',
+						headers: { 'Content-Type': 'application/json', 'X-WP-Nonce': nonce },
+						body: JSON.stringify({ name: name, phone: phone, note: note, website: hp })
+					});
+				})
 				.then(function (res) {
 					return res.json().then(function (body) { return { ok: res.ok, body: body }; });
 				})

@@ -90,9 +90,10 @@ function metadoc_enqueue_assets(): void {
 		'metadoc-main',
 		'metadocData',
 		array(
-			'restUrl' => esc_url_raw( rest_url( 'metadoc/v1/lead' ) ),
-			'nonce'   => wp_create_nonce( 'wp_rest' ),
-			'i18n'    => array(
+			'restUrl'  => esc_url_raw( rest_url( 'metadoc/v1/lead' ) ),
+			'nonceUrl' => esc_url_raw( rest_url( 'metadoc/v1/nonce' ) ),
+			'nonce'    => wp_create_nonce( 'wp_rest' ), // נפילה בלבד; ה-JS שולף nonce טרי.
+			'i18n'     => array(
 				'invalidName'  => __( 'נא להזין שם מלא', 'metadoc' ),
 				'invalidPhone' => __( 'מספר טלפון לא תקין', 'metadoc' ),
 				'sending'      => __( 'שולח...', 'metadoc' ),

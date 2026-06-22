@@ -50,8 +50,21 @@ final class Metadoc_Leads {
 				'show_in_rest'        => false,
 				'menu_icon'           => 'dashicons-email-alt',
 				'menu_position'       => 25,
+				// לידים מכילים PII — כל גישה (תפריט/צפייה/עריכה/מחיקה) למנהלים בלבד,
+				// כדי שעורכים/תפקידים אחרים עם הרשאות post לא יגיעו לשמות וטלפונים.
 				'capability_type'     => 'post',
-				'capabilities'        => array( 'create_posts' => 'do_not_allow' ), // נוצרים רק דרך ה-endpoint.
+				'capabilities'        => array(
+					'edit_post'           => 'manage_options',
+					'read_post'           => 'manage_options',
+					'delete_post'         => 'manage_options',
+					'edit_posts'          => 'manage_options',
+					'edit_others_posts'   => 'manage_options',
+					'delete_posts'        => 'manage_options',
+					'delete_others_posts' => 'manage_options',
+					'publish_posts'       => 'manage_options',
+					'read_private_posts'  => 'manage_options',
+					'create_posts'        => 'do_not_allow', // נוצרים רק דרך ה-endpoint.
+				),
 				'map_meta_cap'        => true,
 				'supports'            => array( 'title' ),
 				'exclude_from_search' => true,
@@ -79,6 +92,30 @@ final class Metadoc_Leads {
 				),
 			)
 		);
+
+		// מנפיק nonce טרי בזמן ריצה — מונע 403 כשה-HTML מוגש מ-full-page cache/CDN
+		// וה-nonce המוטמע פג. ה-endpoint אינו ניתן למטמון.
+		register_rest_route(
+			'metadoc/v1',
+			'/nonce',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => array( __CLASS__, 'nonce' ),
+				'permission_callback' => '__return_true',
+			)
+		);
+	}
+
+	/**
+	 * מחזיר nonce עדכני ל-REST, עם כותרות מניעת מטמון.
+	 *
+	 * @return WP_REST_Response
+	 */
+	public static function nonce(): WP_REST_Response {
+		nocache_headers();
+		$response = new WP_REST_Response( array( 'nonce' => wp_create_nonce( 'wp_rest' ) ), 200 );
+		$response->header( 'Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0' );
+		return $response;
 	}
 
 	/**
