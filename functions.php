@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit; // לא לאפשר גישה ישירה.
 }
 
-define( 'METADOC_VERSION', '1.2.2' );
+define( 'METADOC_VERSION', '1.2.3' );
 define( 'METADOC_DIR', get_template_directory() );
 define( 'METADOC_URI', get_template_directory_uri() );
 
@@ -117,7 +117,7 @@ function metadoc_enqueue_assets(): void {
 		array(
 			'restUrl'         => esc_url_raw( rest_url( 'metadoc/v1/lead' ) ),
 			'nonceUrl'        => esc_url_raw( rest_url( 'metadoc/v1/nonce' ) ),
-			'nonce'           => wp_create_nonce( 'wp_rest' ), // נפילה בלבד; ה-JS שולף nonce טרי.
+			'nonce'           => wp_create_nonce( 'metadoc_lead' ), // נפילה בלבד; ה-JS שולף nonce טרי.
 			'turnstile'       => Metadoc_Settings::turnstile_enabled(),
 			'i18n'            => array(
 				'invalidName'    => __( 'נא להזין שם מלא', 'metadoc' ),

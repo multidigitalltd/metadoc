@@ -66,8 +66,8 @@
 				.then(function (nonce) {
 					return fetch(data.restUrl, {
 						method: 'POST',
-						headers: { 'Content-Type': 'application/json', 'X-WP-Nonce': nonce },
-						body: JSON.stringify({ name: name, phone: phone, note: note, website: hp, consent: consent ? 1 : 0, captcha: captcha })
+						headers: { 'Content-Type': 'application/json' },
+						body: JSON.stringify({ name: name, phone: phone, note: note, website: hp, consent: consent ? 1 : 0, captcha: captcha, md_nonce: nonce })
 					});
 				})
 				.then(function (res) {

@@ -21,6 +21,7 @@ final class Metadoc_Leads {
 
 	private const CPT          = 'md_lead';
 	private const RATE_SECONDS = 30; // מקסימום פנייה אחת לכל 30 שניות לכל IP.
+	private const NONCE_ACTION = 'metadoc_lead'; // nonce ייעודי (לא wp_rest) למניעת התנגשות עם בדיקת ה-cookie של הליבה.
 
 	/**
 	 * אתחול ה-hooks.
@@ -172,20 +173,25 @@ final class Metadoc_Leads {
 	 */
 	public static function nonce(): WP_REST_Response {
 		nocache_headers();
-		$response = new WP_REST_Response( array( 'nonce' => wp_create_nonce( 'wp_rest' ) ), 200 );
+		$response = new WP_REST_Response( array( 'nonce' => wp_create_nonce( self::NONCE_ACTION ) ), 200 );
 		$response->header( 'Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0' );
 		return $response;
 	}
 
 	/**
-	 * בדיקת הרשאה — אימות nonce של REST (מונע CSRF). פתוח לציבור אך חתום.
+	 * בדיקת הרשאה — אימות nonce ייעודי משלנו (מונע CSRF). פתוח לציבור אך חתום.
+	 * משתמשים ב-nonce ייעודי (לא wp_rest) ובשדה גוף ייעודי (לא X-WP-Nonce),
+	 * כדי שבדיקת ה-cookie של ליבת ה-REST לא תיכשל עבור משתמשים מחוברים.
 	 *
 	 * @param WP_REST_Request $request הבקשה.
 	 * @return bool|WP_Error
 	 */
 	public static function permission( WP_REST_Request $request ) {
-		$nonce = $request->get_header( 'X-WP-Nonce' );
-		if ( ! $nonce || ! wp_verify_nonce( $nonce, 'wp_rest' ) ) {
+		$nonce = (string) $request->get_param( 'md_nonce' );
+		if ( '' === $nonce ) {
+			$nonce = (string) $request->get_header( 'X-Metadoc-Nonce' );
+		}
+		if ( '' === $nonce || ! wp_verify_nonce( $nonce, self::NONCE_ACTION ) ) {
 			return new WP_Error( 'metadoc_bad_nonce', __( 'אימות נכשל. רעננו את העמוד ונסו שוב.', 'metadoc' ), array( 'status' => 403 ) );
 		}
 		return true;
