@@ -5,6 +5,9 @@ tooling/node_modules/
 # Lovable source export (reference only; not part of the theme)
 _lovable_src/
 
+# Packaged theme artifact (generated on demand)
+*.zip
+
 # OS / editor
 .DS_Store
 Thumbs.db
