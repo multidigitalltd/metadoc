@@ -109,7 +109,7 @@ final class Metadoc_Leads {
 				'show_in_menu'        => true,
 				'show_in_rest'        => false,
 				'menu_icon'           => 'dashicons-email-alt',
-				'menu_position'       => 25,
+				'menu_position'       => 26, // 25 תפוס ע"י "תגובות" — התנגשות מסתירה את התפריט.
 				// לידים מכילים PII — כל גישה (תפריט/צפייה/עריכה/מחיקה) למנהלים בלבד,
 				// כדי שעורכים/תפקידים אחרים עם הרשאות post לא יגיעו לשמות וטלפונים.
 				'capability_type'     => 'post',
@@ -225,7 +225,9 @@ final class Metadoc_Leads {
 		if ( mb_strlen( $name ) < 2 || mb_strlen( $name ) > 60 ) {
 			return new WP_Error( 'metadoc_name', __( 'נא להזין שם מלא', 'metadoc' ), array( 'status' => 422 ) );
 		}
-		if ( ! preg_match( '/^0\d[\d-]{7,11}$/', $phone ) ) {
+		// אימות טלפון לפי ספרות בלבד — תומך מקומי (0...) ובינלאומי (972...).
+		$phone_digits = preg_replace( '/\D/', '', $phone );
+		if ( ! preg_match( '/^0\d{7,9}$/', $phone_digits ) && ! preg_match( '/^972\d{8,9}$/', $phone_digits ) ) {
 			return new WP_Error( 'metadoc_phone', __( 'מספר טלפון לא תקין', 'metadoc' ), array( 'status' => 422 ) );
 		}
 		if ( mb_strlen( $note ) > 1000 ) {

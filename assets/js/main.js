@@ -12,7 +12,12 @@
 	/* ------------------------------------------------------------------ */
 	/* טפסי לידים                                                          */
 	/* ------------------------------------------------------------------ */
-	var PHONE_RE = /^0\d[\d-]{7,11}$/;
+	// מקבל טלפון ישראלי במגוון פורמטים: מקומי (05X...), בינלאומי (+972 / 972),
+	// עם/בלי מקפים, רווחים או סוגריים.
+	function validPhone(raw) {
+		var d = (raw || '').replace(/\D/g, '');
+		return /^0\d{7,9}$/.test(d) || /^972\d{8,9}$/.test(d);
+	}
 
 	/**
 	 * מחזיר nonce עדכני מה-endpoint; בכשל נופל ל-nonce המוטמע.
@@ -52,7 +57,7 @@
 
 			if (hp !== '') { return; } // honeypot
 			if (name.length < 2) { setStatus(statusEl, i18n.invalidName || 'נא להזין שם מלא', false); return; }
-			if (!PHONE_RE.test(phone)) { setStatus(statusEl, i18n.invalidPhone || 'מספר טלפון לא תקין', false); return; }
+			if (!validPhone(phone)) { setStatus(statusEl, i18n.invalidPhone || 'מספר טלפון לא תקין', false); return; }
 			if (!consent) { setStatus(statusEl, i18n.invalidConsent || 'יש לאשר את מדיניות הפרטיות', false); return; }
 			if (data.turnstile && !captcha) { setStatus(statusEl, i18n.invalidCaptcha || 'נא להשלים את אימות ה-CAPTCHA', false); return; }
 
@@ -75,8 +80,9 @@
 				})
 				.then(function (result) {
 					if (result.ok) {
-						setStatus(statusEl, i18n.success || 'הפרטים נשלחו!', true);
+						setStatus(statusEl, '', true);
 						form.reset();
+						openSuccessModal();
 					} else {
 						var msg = (result.body && result.body.message) ? result.body.message : (i18n.error || 'אירעה שגיאה.');
 						setStatus(statusEl, msg, false);
@@ -232,12 +238,47 @@
 	}
 
 	/* ------------------------------------------------------------------ */
+	/* מודאל אישור שליחה                                                   */
+	/* ------------------------------------------------------------------ */
+	var successReturnFocus = null;
+
+	function openSuccessModal() {
+		var modal = document.getElementById('md-success');
+		if (!modal) { return; }
+		successReturnFocus = document.activeElement;
+		modal.hidden = false;
+		var btn = modal.querySelector('[data-md-close]');
+		if (btn && btn.focus) { btn.focus(); }
+	}
+
+	function closeSuccessModal() {
+		var modal = document.getElementById('md-success');
+		if (!modal || modal.hidden) { return; }
+		modal.hidden = true;
+		if (successReturnFocus && successReturnFocus.focus) {
+			try { successReturnFocus.focus(); } catch (e) {}
+		}
+	}
+
+	function setupSuccessModal() {
+		var modal = document.getElementById('md-success');
+		if (!modal) { return; }
+		modal.querySelectorAll('[data-md-close]').forEach(function (el) {
+			el.addEventListener('click', closeSuccessModal);
+		});
+		document.addEventListener('keydown', function (e) {
+			if (e.key === 'Escape') { closeSuccessModal(); }
+		});
+	}
+
+	/* ------------------------------------------------------------------ */
 	function init() {
 		document.querySelectorAll('.md-lead-form').forEach(handleForm);
 		loadState();
 		applyState();
 		setupA11y();
 		setupCookie();
+		setupSuccessModal();
 	}
 
 	if (document.readyState === 'loading') {
