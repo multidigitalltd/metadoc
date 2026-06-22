@@ -12,10 +12,10 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 $stats = array(
-	array( 'icon' => 'clock', 'n' => '+15', 't' => __( 'מעל 15 שנות ניסיון', 'metadoc' ) ),
-	array( 'icon' => 'users', 'n' => '+800', 't' => __( 'לקוחות מרוצים', 'metadoc' ) ),
-	array( 'icon' => 'award', 'n' => '94%', 't' => __( 'אחוזי הצלחה', 'metadoc' ) ),
-	array( 'icon' => 'shield-check', 'n' => '100%', 't' => __( 'דיסקרטיות', 'metadoc' ) ),
+	array( 'icon' => 'clock', 'num' => 'trust_1_num', 'text' => 'trust_1_text' ),
+	array( 'icon' => 'users', 'num' => 'trust_2_num', 'text' => 'trust_2_text' ),
+	array( 'icon' => 'award', 'num' => 'trust_3_num', 'text' => 'trust_3_text' ),
+	array( 'icon' => 'shield-check', 'num' => 'trust_4_num', 'text' => 'trust_4_text' ),
 );
 ?>
 <section class="bg-white border-b border-neutral-200">
@@ -26,8 +26,8 @@ $stats = array(
 					<?php metadoc_icon( $s['icon'], array( 'class' => 'size-5 text-[#ff7a00]' ) ); ?>
 				</div>
 				<div class="min-w-0">
-					<div class="text-xl md:text-2xl font-black leading-none text-neutral-900 font-display"><?php echo esc_html( $s['n'] ); ?></div>
-					<div class="text-[11px] md:text-xs font-semibold text-neutral-500 tracking-wide mt-1"><?php echo esc_html( $s['t'] ); ?></div>
+					<div class="text-xl md:text-2xl font-black leading-none text-neutral-900 font-display"><?php metadoc_the_text( $s['num'] ); ?></div>
+					<div class="text-[11px] md:text-xs font-semibold text-neutral-500 tracking-wide mt-1"><?php metadoc_the_text( $s['text'] ); ?></div>
 				</div>
 			</div>
 		<?php endforeach; ?>

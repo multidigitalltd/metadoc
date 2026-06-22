@@ -26,30 +26,26 @@ if ( ! defined( 'ABSPATH' ) ) {
 				<img src="<?php echo esc_url( metadoc_logo_url() ); ?>" alt="" width="600" height="220" class="w-[70%] h-auto object-contain opacity-[0.08]" style="filter:drop-shadow(0 0 20px #ff7a0099)" loading="lazy" decoding="async">
 			</div>
 			<div class="absolute inset-x-0 bottom-0 p-5 bg-gradient-to-t from-black via-black/50 to-transparent">
-				<div class="text-[10px] uppercase tracking-[0.3em] font-bold text-[#ff9a3c]"><?php esc_html_e( 'שותפים · לא ספקים', 'metadoc' ); ?></div>
+				<div class="text-[10px] uppercase tracking-[0.3em] font-bold text-[#ff9a3c]"><?php metadoc_the_text( 'solution_tag' ); ?></div>
 			</div>
 		</figure>
 
 		<div class="md:col-span-6 order-1 md:order-2">
 			<?php
-			metadoc_section_label( '02', __( 'הפתרון', 'metadoc' ), true );
+			metadoc_section_label( '02', metadoc_text( 'solution_eyebrow' ), true );
 			metadoc_section_heading(
 				sprintf(
 					'%s<br /><span class="text-[#ff7a00]">%s</span>.',
-					esc_html__( 'פתרונות המימון שלנו מתאימים במיוחד', 'metadoc' ),
-					esc_html__( 'למצבים כאלו', 'metadoc' )
+					esc_html( metadoc_text( 'solution_title_1' ) ),
+					esc_html( metadoc_text( 'solution_title_2' ) )
 				),
 				'text-white'
 			);
 			?>
 			<div class="space-y-5 text-[15px] md:text-[16px] text-white/75 leading-relaxed mt-6">
-				<p><?php esc_html_e( 'במשך יותר מ-15 שנים אנו מלווים לקוחות במצבים מורכבים מול גופי המימון והבנקים — כאלה שכבר שמעו "לא" יותר מפעם אחת.', 'metadoc' ); ?></p>
-				<p><?php esc_html_e( 'אנחנו בוחנים כל תיק לעומק, מזהים את החסמים האמיתיים, בונים אסטרטגיית מימון יצירתית ומלווים אתכם לאורך כל הדרך עד החתימה.', 'metadoc' ); ?></p>
-				<p class="text-white font-bold border-r-2 pr-5 text-[19px] md:text-[24px] leading-relaxed font-display" style="border-color:#ff7a00">
-					<?php esc_html_e( 'המטרה שלנו פשוטה: למצות עבורכם את כל האפשרויות הקיימות', 'metadoc' ); ?>
-					<br>
-					<?php esc_html_e( 'ולהביא לפתרון המימון המתאים ביותר.', 'metadoc' ); ?>
-				</p>
+				<p><?php metadoc_the_text( 'solution_p1' ); ?></p>
+				<p><?php metadoc_the_text( 'solution_p2' ); ?></p>
+				<p class="text-white font-bold border-r-2 pr-5 text-[19px] md:text-[24px] leading-relaxed font-display" style="border-color:#ff7a00"><?php metadoc_the_text( 'solution_quote' ); ?></p>
 			</div>
 		</div>
 	</div>

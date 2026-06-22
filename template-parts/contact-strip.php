@@ -17,7 +17,7 @@ $input_cls = 'w-full bg-white border border-white/20 rounded-xl px-4 py-3 focus:
 	<div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[34rem] h-[34rem] rounded-full blur-[160px] opacity-20 bg-[#ff7a00]" aria-hidden="true"></div>
 	<div class="max-w-7xl mx-auto px-6 md:px-10 py-6 md:py-8 relative">
 		<h2 class="text-center text-2xl md:text-3xl font-bold mb-5 tracking-tight font-display">
-			<?php esc_html_e( 'צרו קשר לבדיקת זכאות', 'metadoc' ); ?> <span class="text-[#ff7a00]"><?php esc_html_e( 'ללא עלות', 'metadoc' ); ?></span>
+			<?php metadoc_the_text( 'contactstrip_title_1' ); ?> <span class="text-[#ff7a00]"><?php metadoc_the_text( 'contactstrip_title_2' ); ?></span>
 		</h2>
 		<form class="md-lead-form grid md:grid-cols-12 gap-3 items-end" novalidate>
 			<div class="md:col-span-3">

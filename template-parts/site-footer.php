@@ -35,7 +35,7 @@ $schema = array(
 	<div class="max-w-7xl mx-auto px-6 md:px-10 py-12 md:py-14 grid md:grid-cols-4 gap-8">
 		<div class="md:col-span-1">
 			<img src="<?php echo esc_url( metadoc_logo_url() ); ?>" alt="<?php esc_attr_e( 'מטאדוק', 'metadoc' ); ?>" width="180" height="64" class="h-14 w-auto object-contain bg-white/95 rounded-xl p-2 mb-4 inline-block" loading="lazy" decoding="async">
-			<p class="text-white/60 text-sm leading-relaxed max-w-[34ch]"><?php esc_html_e( 'פתרונות מימון יצירתיים לבעלי נכסים שהבנקים אמרו להם "לא".', 'metadoc' ); ?></p>
+			<p class="text-white/60 text-sm leading-relaxed max-w-[34ch]"><?php metadoc_the_text( 'footer_tagline' ); ?></p>
 		</div>
 		<div>
 			<h2 class="text-[10px] font-bold tracking-[0.3em] uppercase text-white/40 mb-4"><?php esc_html_e( 'צרו קשר', 'metadoc' ); ?></h2>
@@ -74,7 +74,7 @@ $schema = array(
 				<?php if ( $privacy ) : ?>
 					<a href="<?php echo esc_url( $privacy ); ?>" class="hover:text-white transition-colors"><?php esc_html_e( 'מדיניות פרטיות', 'metadoc' ); ?></a>
 				<?php endif; ?>
-				<span><?php esc_html_e( 'מתן ההלוואה בכפוף לאישור הגוף המממן.', 'metadoc' ); ?></span>
+				<span><?php metadoc_the_text( 'footer_legal' ); ?></span>
 			</nav>
 		</div>
 	</div>

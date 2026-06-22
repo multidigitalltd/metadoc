@@ -19,19 +19,17 @@ $c = metadoc_contact();
 	<div class="max-w-4xl mx-auto px-6 md:px-10 py-16 md:py-24 text-center relative">
 		<div class="inline-flex items-center gap-2 mb-6">
 			<span class="h-px w-8 bg-white/30"></span>
-			<span class="text-[10px] font-bold tracking-[0.35em] uppercase text-[#ff9a3c]"><?php esc_html_e( 'צעד אחד אחרון', 'metadoc' ); ?></span>
+			<span class="text-[10px] font-bold tracking-[0.35em] uppercase text-[#ff9a3c]"><?php metadoc_the_text( 'bottomcta_eyebrow' ); ?></span>
 			<span class="h-px w-8 bg-white/30"></span>
 		</div>
 		<h2 class="text-[2.2rem] sm:text-4xl md:text-5xl leading-[1.05] font-bold mb-5 tracking-tight font-display">
-			<?php esc_html_e( 'רוצים לבדוק את', 'metadoc' ); ?><br>
-			<span class="text-[#ff7a00]"><?php esc_html_e( 'סיכויי המימון שלכם?', 'metadoc' ); ?></span>
+			<?php metadoc_the_text( 'bottomcta_title_1' ); ?><br>
+			<span class="text-[#ff7a00]"><?php metadoc_the_text( 'bottomcta_title_2' ); ?></span>
 		</h2>
-		<p class="text-white/70 mb-9 text-[15px] md:text-base max-w-xl mx-auto">
-			<?php esc_html_e( 'השאירו פרטים עכשיו ונחזור אליכם בהקדם. ללא עלות, ללא התחייבות, עם ניסיון של מעל 15 שנים.', 'metadoc' ); ?>
-		</p>
+		<p class="text-white/70 mb-9 text-[15px] md:text-base max-w-xl mx-auto"><?php metadoc_the_text( 'bottomcta_p' ); ?></p>
 		<div class="flex flex-col sm:flex-row gap-3 justify-center">
 			<a href="#form" class="md-btn text-black px-8 py-4 rounded-xl text-lg font-black flex items-center justify-center gap-2" style="background:linear-gradient(135deg, #ff7a00 0%, #ff9a3c 100%);box-shadow:0 18px 40px -12px #ff7a00cc">
-				<?php esc_html_e( 'השאירו פרטים', 'metadoc' ); ?>
+				<?php metadoc_the_text( 'bottomcta_btn' ); ?>
 				<?php metadoc_icon( 'arrow-left', array( 'class' => 'size-5' ) ); ?>
 			</a>
 			<a href="tel:<?php echo esc_attr( $c['phone_tel'] ); ?>" class="md-btn-ghost text-white px-8 py-4 rounded-xl text-lg font-bold border border-white/20 hover:bg-white/10 hover:border-white/50 flex items-center justify-center gap-2">

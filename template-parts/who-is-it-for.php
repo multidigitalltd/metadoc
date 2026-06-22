@@ -12,12 +12,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 $audiences = array(
-	array( 'icon' => 'home', 't' => __( 'דירה ראשונה', 'metadoc' ), 'd' => __( 'זוגות צעירים ומשפחות שרוכשים נכס ראשון וצריכים ליווי מקצועי', 'metadoc' ) ),
-	array( 'icon' => 'building-2', 't' => __( 'מחזור משכנתא', 'metadoc' ), 'd' => __( 'בעלי נכס קיים שרוצים לשפר תנאים, להוריד ריבית או למשוך הון', 'metadoc' ) ),
-	array( 'icon' => 'landmark', 't' => __( 'נדחו על ידי הבנק', 'metadoc' ), 'd' => __( 'מי שסבל מסירוב בנקאי וזקוק למומחה שיודע איך לפתוח דלתות', 'metadoc' ) ),
-	array( 'icon' => 'briefcase', 't' => __( 'עצמאיים ובעלי עסקים', 'metadoc' ), 'd' => __( 'לקוחות עם הכנסה משתנה שבנקים רואים בה כאתגר', 'metadoc' ) ),
-	array( 'icon' => 'trending-down', 't' => __( 'ריבוי התחייבויות', 'metadoc' ), 'd' => __( 'בעלי הלוואות וחובות מרובים המעונינים לאחד הלוואות ולשפר את ההחזרים', 'metadoc' ) ),
-	array( 'icon' => 'wallet', 't' => __( 'נכס להשקעה', 'metadoc' ), 'd' => __( 'מי שמעוניין לרכוש דירה להשקעה וזקוק למסלול מימון מתאים', 'metadoc' ) ),
+	array( 'icon' => 'home', 'title' => 'audience_1_title', 'desc' => 'audience_1_desc' ),
+	array( 'icon' => 'building-2', 'title' => 'audience_2_title', 'desc' => 'audience_2_desc' ),
+	array( 'icon' => 'landmark', 'title' => 'audience_3_title', 'desc' => 'audience_3_desc' ),
+	array( 'icon' => 'briefcase', 'title' => 'audience_4_title', 'desc' => 'audience_4_desc' ),
+	array( 'icon' => 'trending-down', 'title' => 'audience_5_title', 'desc' => 'audience_5_desc' ),
+	array( 'icon' => 'wallet', 'title' => 'audience_6_title', 'desc' => 'audience_6_desc' ),
 );
 ?>
 <section class="bg-white relative overflow-hidden">
@@ -25,12 +25,12 @@ $audiences = array(
 	<div class="max-w-7xl mx-auto px-6 md:px-10 py-16 md:py-24 relative">
 		<div class="max-w-3xl mb-12 md:mb-16">
 			<?php
-			metadoc_section_label( '03', __( 'למי מתאים השירות', 'metadoc' ) );
+			metadoc_section_label( '03', metadoc_text( 'whoisfor_eyebrow' ) );
 			metadoc_section_heading(
 				sprintf(
 					'%s<br /><span class="text-[#ff7a00]">%s</span>',
-					esc_html__( 'אם יש לכם נכס או אתם בתהליך רכישה —', 'metadoc' ),
-					esc_html__( 'אתם מתאימים!', 'metadoc' )
+					esc_html( metadoc_text( 'whoisfor_title_1' ) ),
+					esc_html( metadoc_text( 'whoisfor_title_2' ) )
 				)
 			);
 			?>
@@ -42,8 +42,8 @@ $audiences = array(
 					<div class="size-12 rounded-xl grid place-items-center mb-4 border" style="background:rgba(255,122,0,0.08);border-color:rgba(255,122,0,0.25)">
 						<?php metadoc_icon( $a['icon'], array( 'class' => 'size-6 text-[#ff7a00]', 'stroke' => 1.6 ) ); ?>
 					</div>
-					<h3 class="font-bold text-xl md:text-2xl leading-[1.1] mb-2 text-neutral-900 tracking-tight font-display"><?php echo esc_html( $a['t'] ); ?></h3>
-					<p class="text-[14px] md:text-[15px] text-neutral-600 leading-relaxed"><?php echo esc_html( $a['d'] ); ?></p>
+					<h3 class="font-bold text-xl md:text-2xl leading-[1.1] mb-2 text-neutral-900 tracking-tight font-display"><?php metadoc_the_text( $a['title'] ); ?></h3>
+					<p class="text-[14px] md:text-[15px] text-neutral-600 leading-relaxed"><?php metadoc_the_text( $a['desc'] ); ?></p>
 				</div>
 			<?php endforeach; ?>
 		</div>

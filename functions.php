@@ -14,12 +14,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit; // לא לאפשר גישה ישירה.
 }
 
-define( 'METADOC_VERSION', '1.2.7' );
+define( 'METADOC_VERSION', '1.2.8' );
 define( 'METADOC_DIR', get_template_directory() );
 define( 'METADOC_URI', get_template_directory_uri() );
 
 require_once METADOC_DIR . '/inc/icons.php';
 require_once METADOC_DIR . '/inc/helpers.php';
+require_once METADOC_DIR . '/inc/class-metadoc-content.php';
 require_once METADOC_DIR . '/inc/class-metadoc-settings.php';
 require_once METADOC_DIR . '/inc/class-metadoc-leads.php';
 require_once METADOC_DIR . '/inc/class-metadoc-branding.php';
@@ -259,13 +260,15 @@ add_filter( 'wp_headers', 'metadoc_security_headers' );
  * @return array<string,string>
  */
 function metadoc_contact(): array {
+	$tel  = metadoc_text( 'phone_tel' );
+	$intl = '972' . ltrim( (string) preg_replace( '/\D/', '', $tel ), '0' );
 	return array(
-		'phone_tel'     => '0506001032',
-		'phone_display' => '050-600-1032',
-		'email'         => 'office@metadoc.co.il',
-		'address'       => 'הדובדבן 9, קריית אונו',
-		'whatsapp'      => 'https://wa.me/972506001032?text=' . rawurlencode( 'שלום, אשמח לבדיקת זכאות למשכנתא' ),
-		'hours_week'    => 'א׳–ה׳ · 09:00–18:00',
-		'hours_fri'     => 'ו׳ · 09:00–13:00',
+		'phone_tel'     => $tel,
+		'phone_display' => metadoc_text( 'phone_display' ),
+		'email'         => metadoc_text( 'email' ),
+		'address'       => metadoc_text( 'address' ),
+		'whatsapp'      => 'https://wa.me/' . $intl . '?text=' . rawurlencode( metadoc_text( 'whatsapp_text' ) ),
+		'hours_week'    => metadoc_text( 'hours_week' ),
+		'hours_fri'     => metadoc_text( 'hours_fri' ),
 	);
 }

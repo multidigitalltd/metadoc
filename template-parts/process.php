@@ -12,10 +12,10 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 $steps = array(
-	array( 'icon' => 'pen-line', 't' => __( 'משאירים פרטים', 'metadoc' ), 'd' => __( 'נציג מומחה יוצר איתכם קשר בהקדם לשיחת בדיקה ראשונית.', 'metadoc' ) ),
-	array( 'icon' => 'search', 't' => __( 'בודקים את המקרה', 'metadoc' ), 'd' => __( 'אנחנו מנתחים את כל הנתונים ומבינים בדיוק מה גרם לסירוב.', 'metadoc' ) ),
-	array( 'icon' => 'lightbulb', 't' => __( 'בונים פתרון', 'metadoc' ), 'd' => __( 'מתאימים את מסלול הפעולה הנכון והיצירתי ביותר עבורכם.', 'metadoc' ) ),
-	array( 'icon' => 'heart-handshake', 't' => __( 'מלווים עד לסיום', 'metadoc' ), 'd' => __( 'נמצאים לצידכם מהשלב הראשון ועד הרגע של קבלת הכסף לחשבון', 'metadoc' ) ),
+	array( 'icon' => 'pen-line', 'title' => 'step_1_title', 'desc' => 'step_1_desc' ),
+	array( 'icon' => 'search', 'title' => 'step_2_title', 'desc' => 'step_2_desc' ),
+	array( 'icon' => 'lightbulb', 'title' => 'step_3_title', 'desc' => 'step_3_desc' ),
+	array( 'icon' => 'heart-handshake', 'title' => 'step_4_title', 'desc' => 'step_4_desc' ),
 );
 $count = count( $steps );
 ?>
@@ -25,12 +25,12 @@ $count = count( $steps );
 	<div class="max-w-7xl mx-auto px-6 md:px-10 py-16 md:py-24 relative">
 		<div class="inline-flex items-center gap-2 mb-5 px-4 py-2 rounded-full border border-white/15 bg-white/5 backdrop-blur">
 			<span class="size-1.5 rounded-full bg-[#ff7a00]"></span>
-			<span class="text-[11px] md:text-[12px] font-bold tracking-[0.3em] uppercase text-white/80"><?php esc_html_e( 'התהליך · 4 שלבים פשוטים', 'metadoc' ); ?></span>
+			<span class="text-[11px] md:text-[12px] font-bold tracking-[0.3em] uppercase text-white/80"><?php metadoc_the_text( 'process_eyebrow' ); ?></span>
 		</div>
 		<h2 class="text-[2.6rem] sm:text-5xl md:text-6xl lg:text-[4.2rem] leading-[0.95] font-bold tracking-tight text-white mb-12 md:mb-16 font-display">
-			<?php esc_html_e( 'איך זה', 'metadoc' ); ?>
+			<?php metadoc_the_text( 'process_title_pre' ); ?>
 			<span class="relative inline-block">
-				<span class="relative z-10 text-[#ff7a00]"><?php esc_html_e( 'עובד', 'metadoc' ); ?></span>
+				<span class="relative z-10 text-[#ff7a00]"><?php metadoc_the_text( 'process_title_em' ); ?></span>
 				<span class="absolute inset-x-0 bottom-1 h-3 md:h-4 bg-white/10 -z-0"></span>
 			</span>?
 		</h2>
@@ -41,8 +41,8 @@ $count = count( $steps );
 					<div class="size-14 rounded-2xl grid place-items-center mb-5 border transition-transform duration-500 group-hover:rotate-6" style="background:rgba(255,122,0,0.10);border-color:rgba(255,122,0,0.35);box-shadow:inset 0 0 0 1px rgba(255,255,255,0.04)">
 						<?php metadoc_icon( $s['icon'], array( 'class' => 'size-7 text-[#ff7a00]', 'stroke' => 1.6 ) ); ?>
 					</div>
-					<h3 class="font-bold text-2xl md:text-[1.75rem] leading-[1.1] mb-3 tracking-tight font-display"><?php echo esc_html( $s['t'] ); ?></h3>
-					<p class="text-white/70 text-[14px] md:text-[15px] leading-relaxed"><?php echo esc_html( $s['d'] ); ?></p>
+					<h3 class="font-bold text-2xl md:text-[1.75rem] leading-[1.1] mb-3 tracking-tight font-display"><?php metadoc_the_text( $s['title'] ); ?></h3>
+					<p class="text-white/70 text-[14px] md:text-[15px] leading-relaxed"><?php metadoc_the_text( $s['desc'] ); ?></p>
 					<?php if ( $idx < $count - 1 ) : ?>
 						<?php metadoc_icon( 'arrow-left', array( 'class' => 'hidden md:block absolute -left-4 top-1/2 -translate-y-1/2 size-5 text-white/30' ) ); ?>
 					<?php endif; ?>
