@@ -110,22 +110,13 @@ final class Metadoc_Leads {
 				'show_in_rest'        => false,
 				'menu_icon'           => 'dashicons-email-alt',
 				'menu_position'       => 26, // 25 תפוס ע"י "תגובות" — התנגשות מסתירה את התפריט.
-				// לידים מכילים PII — כל גישה (תפריט/צפייה/עריכה/מחיקה) למנהלים בלבד,
-				// כדי שעורכים/תפקידים אחרים עם הרשאות post לא יגיעו לשמות וטלפונים.
+				// הרשאות תקן של 'post' (כל מנהל/עורך תוכן ניגש). הלידים נוצרים רק
+				// דרך ה-endpoint, ולכן create_posts מושבת.
 				'capability_type'     => 'post',
-				'capabilities'        => array(
-					'edit_post'           => 'manage_options',
-					'read_post'           => 'manage_options',
-					'delete_post'         => 'manage_options',
-					'edit_posts'          => 'manage_options',
-					'edit_others_posts'   => 'manage_options',
-					'delete_posts'        => 'manage_options',
-					'delete_others_posts' => 'manage_options',
-					'publish_posts'       => 'manage_options',
-					'read_private_posts'  => 'manage_options',
-					'create_posts'        => 'do_not_allow', // נוצרים רק דרך ה-endpoint.
-				),
 				'map_meta_cap'        => true,
+				'capabilities'        => array(
+					'create_posts' => 'do_not_allow',
+				),
 				'supports'            => array( 'title' ),
 				'exclude_from_search' => true,
 				'has_archive'         => false,
