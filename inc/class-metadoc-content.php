@@ -222,8 +222,43 @@ function metadoc_content_config(): array {
 		'footer'     => array(
 			'label'  => __( 'פוטר', 'metadoc' ),
 			'fields' => array(
-				'footer_tagline' => $t( __( 'תיאור קצר', 'metadoc' ), 'פתרונות מימון יצירתיים לבעלי נכסים שהבנקים אמרו להם "לא".', 'textarea' ),
-				'footer_legal'   => $t( __( 'הערה משפטית', 'metadoc' ), 'מתן ההלוואה בכפוף לאישור הגוף המממן.' ),
+				'footer_tagline'   => $t( __( 'תיאור קצר', 'metadoc' ), 'פתרונות מימון יצירתיים לבעלי נכסים שהבנקים אמרו להם "לא".', 'textarea' ),
+				'footer_col_contact' => $t( __( 'כותרת – צרו קשר', 'metadoc' ), 'צרו קשר' ),
+				'footer_col_address' => $t( __( 'כותרת – כתובת', 'metadoc' ), 'כתובת' ),
+				'footer_col_hours'   => $t( __( 'כותרת – שעות', 'metadoc' ), 'שעות פעילות' ),
+				'footer_copyright' => $t( __( 'זכויות יוצרים', 'metadoc' ), 'מטאדוק. כל הזכויות שמורות.' ),
+				'footer_legal'     => $t( __( 'הערה משפטית', 'metadoc' ), 'מתן ההלוואה בכפוף לאישור הגוף המממן.' ),
+			),
+		),
+		'forms'      => array(
+			'label'  => __( 'טפסים – תוויות', 'metadoc' ),
+			'fields' => array(
+				'form_label_name'   => $t( __( 'תווית – שם', 'metadoc' ), 'שם מלא' ),
+				'form_ph_name'      => $t( __( 'Placeholder – שם', 'metadoc' ), 'ישראל ישראלי' ),
+				'form_label_phone'  => $t( __( 'תווית – טלפון', 'metadoc' ), 'טלפון' ),
+				'form_label_note'   => $t( __( 'תווית – פרטים', 'metadoc' ), 'פרטים נוספים (לא חובה)' ),
+				'form_ph_note'      => $t( __( 'Placeholder – פרטים', 'metadoc' ), 'ספרו לנו בקצרה על המקרה שלכם' ),
+				'form_consent'      => $t( __( 'טקסט אישור פרטיות', 'metadoc' ), 'קראתי ואני מאשר/ת את' ),
+				'form_consent_link' => $t( __( 'טקסט קישור פרטיות', 'metadoc' ), 'מדיניות הפרטיות' ),
+				'form_hint'         => $t( __( 'הערה מתחת לכפתור', 'metadoc' ), 'בלחיצה על השליחה אני מאשר/ת קבלת פנייה חוזרת.' ),
+				'strip_badges'      => $t( __( 'רצועה – שורת תגים', 'metadoc' ), 'ללא התחייבות · דיסקרטיות מלאה · מענה תוך 24 שעות' ),
+			),
+		),
+		'cookie'     => array(
+			'label'  => __( 'באנר עוגיות', 'metadoc' ),
+			'fields' => array(
+				'cookie_text'    => $t( __( 'טקסט', 'metadoc' ), 'אנו משתמשים בעוגיות (Cookies) כדי לשפר את חוויית הגלישה ולנתח את השימוש באתר.', 'textarea' ),
+				'cookie_more'    => $t( __( 'טקסט קישור', 'metadoc' ), 'מידע נוסף במדיניות הפרטיות' ),
+				'cookie_accept'  => $t( __( 'כפתור אישור', 'metadoc' ), 'מאשר/ת' ),
+				'cookie_decline' => $t( __( 'כפתור דחייה', 'metadoc' ), 'דחייה' ),
+			),
+		),
+		'successmodal' => array(
+			'label'  => __( 'חלון אישור שליחה', 'metadoc' ),
+			'fields' => array(
+				'successmodal_title' => $t( __( 'כותרת', 'metadoc' ), 'הפרטים נשלחו בהצלחה!' ),
+				'successmodal_text'  => $t( __( 'טקסט', 'metadoc' ), 'מומחה מהצוות שלנו יחזור אליכם בהקדם, בדרך כלל תוך 24 שעות.', 'textarea' ),
+				'successmodal_btn'   => $t( __( 'כפתור', 'metadoc' ), 'מצוין, תודה' ),
 			),
 		),
 	);

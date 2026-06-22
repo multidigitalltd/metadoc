@@ -21,16 +21,16 @@ $input_cls = 'w-full text-center bg-white border border-white/20 rounded-xl px-4
 		</h2>
 		<form class="md-lead-form grid md:grid-cols-12 gap-3 items-end" novalidate>
 			<div class="md:col-span-3">
-				<label class="sr-only" for="strip-name"><?php esc_html_e( 'שם מלא', 'metadoc' ); ?></label>
-				<input id="strip-name" name="name" type="text" required class="<?php echo esc_attr( $input_cls ); ?>" placeholder="<?php esc_attr_e( 'שם מלא', 'metadoc' ); ?>" autocomplete="name">
+				<label class="sr-only" for="strip-name"><?php metadoc_the_text( 'form_label_name' ); ?></label>
+				<input id="strip-name" name="name" type="text" required class="<?php echo esc_attr( $input_cls ); ?>" placeholder="<?php echo esc_attr( metadoc_text( 'form_label_name' ) ); ?>" autocomplete="name">
 			</div>
 			<div class="md:col-span-3">
-				<label class="sr-only" for="strip-phone"><?php esc_html_e( 'טלפון', 'metadoc' ); ?></label>
-				<input id="strip-phone" name="phone" type="tel" inputmode="tel" required class="<?php echo esc_attr( $input_cls ); ?>" placeholder="<?php esc_attr_e( 'טלפון', 'metadoc' ); ?>" autocomplete="tel">
+				<label class="sr-only" for="strip-phone"><?php metadoc_the_text( 'form_label_phone' ); ?></label>
+				<input id="strip-phone" name="phone" type="tel" inputmode="tel" required class="<?php echo esc_attr( $input_cls ); ?>" placeholder="<?php echo esc_attr( metadoc_text( 'form_label_phone' ) ); ?>" autocomplete="tel">
 			</div>
 			<div class="md:col-span-4">
-				<label class="sr-only" for="strip-note"><?php esc_html_e( 'פרטים נוספים', 'metadoc' ); ?></label>
-				<input id="strip-note" name="note" type="text" class="<?php echo esc_attr( $input_cls ); ?>" placeholder="<?php esc_attr_e( 'פרטים נוספים (לא חובה)', 'metadoc' ); ?>">
+				<label class="sr-only" for="strip-note"><?php metadoc_the_text( 'form_label_note' ); ?></label>
+				<input id="strip-note" name="note" type="text" class="<?php echo esc_attr( $input_cls ); ?>" placeholder="<?php echo esc_attr( metadoc_text( 'form_ph_note' ) ); ?>">
 			</div>
 			<div class="md:col-span-2">
 				<button type="submit" class="md-btn w-full text-black font-extrabold py-3 rounded-xl text-[15px] disabled:opacity-60 flex items-center justify-center gap-2" style="background:linear-gradient(135deg, #ff7a00 0%, #ff9a3c 100%)">
@@ -46,7 +46,7 @@ $input_cls = 'w-full text-center bg-white border border-white/20 rounded-xl px-4
 		</form>
 		<p class="text-[11px] text-white/50 mt-3 text-center flex items-center justify-center gap-1.5">
 			<?php metadoc_icon( 'shield-check', array( 'class' => 'size-3' ) ); ?>
-			<?php esc_html_e( 'ללא התחייבות · דיסקרטיות מלאה · מענה תוך 24 שעות', 'metadoc' ); ?>
+			<?php metadoc_the_text( 'strip_badges' ); ?>
 		</p>
 	</div>
 </section>

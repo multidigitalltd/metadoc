@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 $c = metadoc_contact();
 ?>
 <header class="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-neutral-200 px-5 md:px-10 py-2 flex justify-between items-center" role="banner">
-	<a href="#top" class="flex items-center gap-3 group" aria-label="<?php esc_attr_e( 'מטאדוק — חזרה לראש העמוד', 'metadoc' ); ?>">
+	<a href="<?php echo esc_url( home_url( '/' ) ); ?>" class="flex items-center gap-3 group" aria-label="<?php esc_attr_e( 'מטאדוק — דף הבית', 'metadoc' ); ?>">
 		<img src="<?php echo esc_url( metadoc_logo_url() ); ?>" alt="<?php esc_attr_e( 'מטאדוק - נדל״ן, מימון, פיננסים', 'metadoc' ); ?>" width="260" height="100" class="h-14 md:h-16 w-auto object-contain transition-transform group-hover:scale-[1.04]" decoding="async" fetchpriority="high">
 	</a>
 	<nav class="flex items-center gap-2" aria-label="<?php esc_attr_e( 'פעולות ראשיות', 'metadoc' ); ?>">

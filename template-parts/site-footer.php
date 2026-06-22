@@ -38,7 +38,7 @@ $schema = array(
 			<p class="text-white/60 text-sm leading-relaxed max-w-[34ch]"><?php metadoc_the_text( 'footer_tagline' ); ?></p>
 		</div>
 		<div>
-			<h2 class="text-[10px] font-bold tracking-[0.3em] uppercase text-white/40 mb-4"><?php esc_html_e( 'צרו קשר', 'metadoc' ); ?></h2>
+			<h2 class="text-[10px] font-bold tracking-[0.3em] uppercase text-white/40 mb-4"><?php metadoc_the_text( 'footer_col_contact' ); ?></h2>
 			<div class="space-y-3 text-[14px]">
 				<a href="tel:<?php echo esc_attr( $c['phone_tel'] ); ?>" class="flex items-center gap-2 text-white/80 hover:text-white transition-colors">
 					<?php metadoc_icon( 'phone', array( 'class' => 'size-4 text-[#ff7a00]' ) ); ?> <?php echo esc_html( $c['phone_display'] ); ?>
@@ -52,14 +52,14 @@ $schema = array(
 			</div>
 		</div>
 		<div>
-			<h2 class="text-[10px] font-bold tracking-[0.3em] uppercase text-white/40 mb-4"><?php esc_html_e( 'כתובת', 'metadoc' ); ?></h2>
+			<h2 class="text-[10px] font-bold tracking-[0.3em] uppercase text-white/40 mb-4"><?php metadoc_the_text( 'footer_col_address' ); ?></h2>
 			<div class="flex items-start gap-2 text-[14px] text-white/70">
 				<?php metadoc_icon( 'map-pin', array( 'class' => 'size-4 mt-0.5 shrink-0 text-[#ff7a00]' ) ); ?>
 				<span><?php echo esc_html( $c['address'] ); ?></span>
 			</div>
 		</div>
 		<div>
-			<h2 class="text-[10px] font-bold tracking-[0.3em] uppercase text-white/40 mb-4"><?php esc_html_e( 'שעות פעילות', 'metadoc' ); ?></h2>
+			<h2 class="text-[10px] font-bold tracking-[0.3em] uppercase text-white/40 mb-4"><?php metadoc_the_text( 'footer_col_hours' ); ?></h2>
 			<div class="text-[14px] text-white/70 space-y-1">
 				<div><?php echo esc_html( $c['hours_week'] ); ?></div>
 				<div><?php echo esc_html( $c['hours_fri'] ); ?></div>
@@ -68,7 +68,7 @@ $schema = array(
 	</div>
 	<div class="border-t border-white/10">
 		<div class="max-w-7xl mx-auto px-6 md:px-10 py-5 text-[11px] text-white/40 flex flex-wrap gap-3 justify-between items-center">
-			<p>&copy; <?php echo esc_html( (string) gmdate( 'Y' ) ); ?> <?php esc_html_e( 'מטאדוק. כל הזכויות שמורות.', 'metadoc' ); ?></p>
+			<p>&copy; <?php echo esc_html( (string) gmdate( 'Y' ) ); ?> <?php metadoc_the_text( 'footer_copyright' ); ?></p>
 			<nav class="flex flex-wrap gap-3 items-center" aria-label="<?php esc_attr_e( 'קישורי תחתית', 'metadoc' ); ?>">
 				<a href="<?php echo esc_url( home_url( '/accessibility-statement/' ) ); ?>" class="hover:text-white transition-colors"><?php esc_html_e( 'הצהרת נגישות', 'metadoc' ); ?></a>
 				<?php if ( $privacy ) : ?>
