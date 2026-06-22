@@ -73,13 +73,13 @@
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
   }
-  /* מניעת גלילה אופקית כתוצאה מאלמנטים דקורטיביים/צפים.
-   * overflow-x: clip בטוח ל-position: sticky (אינו יוצר scroll container).
-   * נפילה ל-hidden ברמת ה-html עבור דפדפנים ישנים (iOS Safari < 16). */
+  /* מניעת גלילה אופקית. ברמת השורש (html) משתמשים ב-hidden שמוגדר היטב
+   * ובטוח ל-position: sticky (html הוא ה-scroll root). על body נוסף clip
+   * כשכבת הגנה נוספת. כך הכפתורים הצפים (fixed) לא "בורחים" מהמסך במובייל. */
   html {
     overflow-x: hidden;
+    max-width: 100%;
   }
-  html,
   body {
     overflow-x: clip;
     max-width: 100%;
