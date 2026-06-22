@@ -127,14 +127,20 @@ function metadoc_resource_hints(): void {
 	if ( ! is_front_page() ) {
 		return;
 	}
-	$fonts = array( 'barlev-bold', 'atlas-regular', 'atlas-medium' );
+	// פונטים קריטיים ל-LCP: כותרת ה-Hero (Anomalia) וטקסט הגוף (Atlas).
+	$fonts = array( 'anomalia-bold', 'atlas-regular', 'atlas-medium' );
 	foreach ( $fonts as $font ) {
-		$path = '/assets/fonts/' . $font . '.woff';
-		if ( is_readable( METADOC_DIR . $path ) ) {
-			printf(
-				'<link rel="preload" href="%s" as="font" type="font/woff" crossorigin>' . "\n",
-				esc_url( METADOC_URI . $path )
-			);
+		// העדפת woff2; נפילה ל-woff. טוענים מראש רק את הקובץ שקיים בפועל.
+		foreach ( array( 'woff2', 'woff' ) as $ext ) {
+			$path = '/assets/fonts/' . $font . '.' . $ext;
+			if ( is_readable( METADOC_DIR . $path ) ) {
+				printf(
+					'<link rel="preload" href="%s" as="font" type="font/%s" crossorigin>' . "\n",
+					esc_url( METADOC_URI . $path ),
+					esc_attr( $ext )
+				);
+				break;
+			}
 		}
 	}
 }

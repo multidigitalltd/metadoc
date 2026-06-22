@@ -4,59 +4,58 @@
 @source "../**/*.php";
 
 /* ---------------------------------------------------------------------------
- * פונטים מקומיים — Barlev (כותרות), Atlas (גוף), Anomalia (חלופי).
- * קבצי .woff מונחים ב-assets/fonts. עד להעלאתם, נופלים ל-Assistant.
+ * פונטים מקומיים — Anomalia (כותרות), Atlas (גוף).
+ * woff2 ראשון עם woff כגיבוי. קבצים מונחים ב-assets/fonts.
+ * עד להעלאתם, נופלים ל-Assistant.
  * ------------------------------------------------------------------------- */
-@font-face {
-  font-family: "Barlev";
-  font-style: normal;
-  font-weight: 700;
-  font-display: swap;
-  src: url("../fonts/barlev-bold.woff") format("woff");
-}
 @font-face {
   font-family: "Atlas";
   font-style: normal;
   font-weight: 400;
   font-display: swap;
-  src: url("../fonts/atlas-regular.woff") format("woff");
+  src: url("../fonts/atlas-regular.woff2") format("woff2"),
+    url("../fonts/atlas-regular.woff") format("woff");
 }
 @font-face {
   font-family: "Atlas";
   font-style: normal;
   font-weight: 500;
   font-display: swap;
-  src: url("../fonts/atlas-medium.woff") format("woff");
+  src: url("../fonts/atlas-medium.woff2") format("woff2"),
+    url("../fonts/atlas-medium.woff") format("woff");
 }
 @font-face {
   font-family: "Atlas";
   font-style: normal;
   font-weight: 600;
   font-display: swap;
-  src: url("../fonts/atlas-medium.woff") format("woff");
+  src: url("../fonts/atlas-medium.woff2") format("woff2"),
+    url("../fonts/atlas-medium.woff") format("woff");
 }
 @font-face {
   font-family: "Anomalia";
   font-style: normal;
   font-weight: 600;
   font-display: swap;
-  src: url("../fonts/anomalia-demibold.woff") format("woff");
+  src: url("../fonts/anomalia-demibold.woff2") format("woff2"),
+    url("../fonts/anomalia-demibold.woff") format("woff");
 }
 @font-face {
   font-family: "Anomalia";
   font-style: normal;
   font-weight: 700;
   font-display: swap;
-  src: url("../fonts/anomalia-bold.woff") format("woff");
+  src: url("../fonts/anomalia-bold.woff2") format("woff2"),
+    url("../fonts/anomalia-bold.woff") format("woff");
 }
 
 @theme {
   --font-sans: "Atlas", "Assistant", system-ui, sans-serif;
-  --font-display: "Barlev", "Atlas", "Assistant", system-ui, sans-serif;
+  --font-display: "Anomalia", "Atlas", "Assistant", system-ui, sans-serif;
 }
 
 :root {
-  --md-display: "Barlev", "Atlas", "Assistant", system-ui, sans-serif;
+  --md-display: "Anomalia", "Atlas", "Assistant", system-ui, sans-serif;
   --md-orange: #ff7a00;
   --md-orange-soft: #ff9a3c;
   --md-orange-muted: #d96a10;
