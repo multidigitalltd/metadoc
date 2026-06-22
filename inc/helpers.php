@@ -12,6 +12,16 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
+ * מחזיר את היעד לעוגן טופס הלידים.
+ * בעמוד הבית — עוגן מקומי (#form). בעמודים אחרים — ניווט לעמוד הבית + עוגן.
+ *
+ * @return string
+ */
+function metadoc_form_url(): string {
+	return is_front_page() ? '#form' : home_url( '/#form' );
+}
+
+/**
  * מחזיר URL לנכס מדיה בתבנית, עם העדפת WebP אם קיים.
  *
  * @param string $file שם קובץ יחסי ל-assets/img (למשל 'family-home.jpg').

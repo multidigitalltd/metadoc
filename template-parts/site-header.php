@@ -22,7 +22,7 @@ $c = metadoc_contact();
 			<?php metadoc_icon( 'phone', array( 'class' => 'size-4 text-[#ff7a00]' ) ); ?>
 			<?php echo esc_html( $c['phone_display'] ); ?>
 		</a>
-		<a href="#form" class="md-btn text-white px-4 py-2 rounded-full text-sm font-extrabold flex items-center gap-1.5 shadow-sm bg-[#0a0a0a]">
+		<a href="<?php echo esc_url( metadoc_form_url() ); ?>" class="md-btn text-white px-4 py-2 rounded-full text-sm font-extrabold flex items-center gap-1.5 shadow-sm bg-[#0a0a0a]">
 			<?php esc_html_e( 'בדיקת זכאות', 'metadoc' ); ?>
 			<?php metadoc_icon( 'arrow-left', array( 'class' => 'size-3.5' ) ); ?>
 		</a>

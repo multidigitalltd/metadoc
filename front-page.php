@@ -12,7 +12,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 get_header();
-get_template_part( 'template-parts/site-header' );
 ?>
 <main id="main">
 	<?php
@@ -36,7 +35,4 @@ get_template_part( 'template-parts/site-header' );
 	?>
 </main>
 <?php
-get_template_part( 'template-parts/site-footer' );
-get_template_part( 'template-parts/floating' );
-get_template_part( 'template-parts/accessibility-widget' );
 get_footer();

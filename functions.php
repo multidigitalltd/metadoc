@@ -61,16 +61,11 @@ function metadoc_asset_ver( string $relative_path ): string {
 }
 
 /**
- * טעינת CSS/JS — מותנית לעמוד הבית בלבד (תקן הביצועים).
+ * טעינת CSS/JS לכל עמודי הפרונט.
+ * נטענים סטית-וויד כי הניווט, הפוטר וווידג'ט הנגישות מופיעים בכל עמוד.
+ * חבילה אחת מוקטנת (CSS ~48KB + JS קטן), בהתאם לתקן הביצועים.
  */
 function metadoc_enqueue_assets(): void {
-	// טוענים את חבילת הנחיתה רק היכן שהיא מוצגת.
-	if ( ! is_front_page() && ! is_page_template() ) {
-		// סגנון בסיסי מינימלי לעמודים אחרים (הצהרת נגישות וכו').
-		wp_enqueue_style( 'metadoc-app', METADOC_URI . '/assets/css/app.min.css', array(), metadoc_asset_ver( 'assets/css/app.min.css' ) );
-		return;
-	}
-
 	wp_enqueue_style(
 		'metadoc-app',
 		METADOC_URI . '/assets/css/app.min.css',

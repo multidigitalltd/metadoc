@@ -22,3 +22,4 @@ if ( ! defined( 'ABSPATH' ) ) {
 <?php wp_body_open(); ?>
 <a class="skip-link" href="#main"><?php esc_html_e( 'דילוג לתוכן הראשי', 'metadoc' ); ?></a>
 <div id="top" class="bg-white text-neutral-900 min-h-screen pb-28 md:pb-0 overflow-x-hidden antialiased font-body">
+<?php get_template_part( 'template-parts/site-header' ); ?>

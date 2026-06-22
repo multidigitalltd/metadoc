@@ -11,6 +11,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 ?>
+<?php
+get_template_part( 'template-parts/site-footer' );
+get_template_part( 'template-parts/floating' );
+get_template_part( 'template-parts/accessibility-widget' );
+?>
 </div><!-- #top -->
 <?php wp_footer(); ?>
 </body>
