@@ -11,7 +11,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-$input_cls = 'w-full bg-white border border-white/20 rounded-xl px-4 py-3 focus:outline-none focus:border-[#ff7a00] placeholder:text-neutral-400 text-neutral-900 text-[15px] transition-colors shadow-sm';
+$input_cls = 'w-full text-center bg-white border border-white/20 rounded-xl px-4 py-3 focus:outline-none focus:border-[#ff7a00] placeholder:text-neutral-400 text-neutral-900 text-[15px] transition-colors shadow-sm';
 ?>
 <section class="bg-black text-white border-y border-white/10 relative overflow-hidden">
 	<div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[34rem] h-[34rem] rounded-full blur-[160px] opacity-20 bg-[#ff7a00]" aria-hidden="true"></div>

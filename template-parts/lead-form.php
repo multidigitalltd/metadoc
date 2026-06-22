@@ -12,7 +12,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 $c        = metadoc_contact();
-$input    = 'w-full bg-white/5 border border-white/15 rounded-xl px-4 py-3.5 focus:outline-none focus:border-[#ff7a00] focus:bg-white/10 placeholder:text-white/35 text-white transition-colors';
+$input    = 'w-full text-center bg-white/5 border border-white/15 rounded-xl px-4 py-3.5 focus:outline-none focus:border-[#ff7a00] focus:bg-white/10 placeholder:text-white/35 text-white transition-colors';
 $label    = 'block text-[11px] mb-1.5 text-white/60 font-bold mr-1 tracking-wider uppercase';
 $benefits = array( 'leadform_benefit_1', 'leadform_benefit_2', 'leadform_benefit_3', 'leadform_benefit_4' );
 ?>
