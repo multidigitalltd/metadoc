@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit; // לא לאפשר גישה ישירה.
 }
 
-define( 'METADOC_VERSION', '1.1.0' );
+define( 'METADOC_VERSION', '1.2.0' );
 define( 'METADOC_DIR', get_template_directory() );
 define( 'METADOC_URI', get_template_directory_uri() );
 
@@ -73,15 +73,16 @@ function metadoc_ensure_font_faces(): void {
 add_action( 'after_setup_theme', 'metadoc_ensure_font_faces' );
 
 /**
- * מחזיר מחרוזת גרסה מבוססת זמן-שינוי לשבירת מטמון, עם נפילה לגרסת התבנית.
+ * מחזיר מחרוזת גרסה לשבירת מטמון: גרסת התבנית + זמן-שינוי הקובץ.
+ * כך שבירת מטמון מובטחת גם בעדכון גרסה וגם בשינוי קובץ.
  *
  * @param string $relative_path נתיב יחסי לשורש התבנית.
  * @return string
  */
 function metadoc_asset_ver( string $relative_path ): string {
-	$file = METADOC_DIR . '/' . ltrim( $relative_path, '/' );
+	$file  = METADOC_DIR . '/' . ltrim( $relative_path, '/' );
 	$mtime = is_readable( $file ) ? filemtime( $file ) : false;
-	return $mtime ? (string) $mtime : METADOC_VERSION;
+	return $mtime ? METADOC_VERSION . '-' . $mtime : METADOC_VERSION;
 }
 
 /**

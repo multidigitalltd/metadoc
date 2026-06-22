@@ -1,6 +1,8 @@
 <?php
 /**
- * עמוד הגדרות התבנית — מפתחות Cloudflare Turnstile (CAPTCHA לטופס).
+ * הגדרות התבנית — תחת "התאמה אישית" (Customizer).
+ * מאוחסן באופציה אחת (metadoc_settings) ונקרא דרך Metadoc_Settings::get().
+ * כולל: יעד מייל לידים, פרטי שולח, Webhook, ומפתחות Cloudflare Turnstile.
  *
  * @package Metadoc
  */
@@ -17,27 +19,24 @@ if ( ! defined( 'ABSPATH' ) ) {
 final class Metadoc_Settings {
 
 	private const OPTION = 'metadoc_settings';
-	private const GROUP  = 'metadoc_settings_group';
-	private const PAGE   = 'metadoc-settings';
 
 	/**
 	 * אתחול.
 	 */
 	public static function init(): void {
-		add_action( 'admin_menu', array( __CLASS__, 'menu' ) );
-		add_action( 'admin_init', array( __CLASS__, 'register' ) );
+		add_action( 'customize_register', array( __CLASS__, 'customize' ) );
 	}
 
 	/**
-	 * מחזיר ערך הגדרה.
+	 * מחזיר ערך הגדרה מהאופציה.
 	 *
-	 * @param string $key   מפתח.
+	 * @param string $key           מפתח.
 	 * @param string $default_value ברירת מחדל.
 	 * @return string
 	 */
 	public static function get( string $key, string $default_value = '' ): string {
 		$opts = get_option( self::OPTION, array() );
-		return isset( $opts[ $key ] ) ? (string) $opts[ $key ] : $default_value;
+		return ( is_array( $opts ) && isset( $opts[ $key ] ) ) ? (string) $opts[ $key ] : $default_value;
 	}
 
 	/**
@@ -50,119 +49,109 @@ final class Metadoc_Settings {
 	}
 
 	/**
-	 * רישום תפריט עליון "מטאדוק" בלוח הבקרה.
+	 * סניטציה לכתובת Webhook (http/https בלבד).
+	 *
+	 * @param string $value קלט.
+	 * @return string
 	 */
-	public static function menu(): void {
-		add_menu_page(
-			__( 'הגדרות מטאדוק', 'metadoc' ),
-			__( 'מטאדוק', 'metadoc' ),
-			'manage_options',
-			self::PAGE,
-			array( __CLASS__, 'render' ),
-			'dashicons-admin-settings',
-			26
-		);
+	public static function sanitize_webhook( $value ): string {
+		return esc_url_raw( trim( (string) $value ), array( 'http', 'https' ) );
 	}
 
 	/**
-	 * רישום ההגדרות (Settings API).
+	 * רישום פאנל, סקשנים ובקרות ב-Customizer.
+	 *
+	 * @param WP_Customize_Manager $wp_customize מנהל ה-Customizer.
 	 */
-	public static function register(): void {
-		register_setting(
-			self::GROUP,
-			self::OPTION,
+	public static function customize( $wp_customize ): void {
+		$wp_customize->add_panel(
+			'metadoc_panel',
 			array(
-				'type'              => 'array',
-				'sanitize_callback' => array( __CLASS__, 'sanitize' ),
-				'default'           => array(),
+				'title'    => __( 'מטאדוק — הגדרות', 'metadoc' ),
+				'priority' => 30,
 			)
 		);
 
-		// סקשן לידים — יעד מייל, שולח, Webhook.
-		add_settings_section( 'metadoc_leads', __( 'טופס לידים', 'metadoc' ), array( __CLASS__, 'section_leads' ), self::PAGE );
-		add_settings_field( 'lead_email', __( 'כתובת לקבלת הלידים', 'metadoc' ), array( __CLASS__, 'field_text' ), self::PAGE, 'metadoc_leads', array( 'key' => 'lead_email', 'type' => 'email', 'placeholder' => 'office@metadoc.co.il' ) );
-		add_settings_field( 'from_name', __( 'שם השולח (From)', 'metadoc' ), array( __CLASS__, 'field_text' ), self::PAGE, 'metadoc_leads', array( 'key' => 'from_name', 'placeholder' => get_bloginfo( 'name' ) ) );
-		add_settings_field( 'from_email', __( 'כתובת השולח (From)', 'metadoc' ), array( __CLASS__, 'field_text' ), self::PAGE, 'metadoc_leads', array( 'key' => 'from_email', 'type' => 'email', 'placeholder' => 'no-reply@' . wp_parse_url( home_url(), PHP_URL_HOST ) ) );
-		add_settings_field( 'webhook_url', __( 'כתובת Webhook (אופציונלי)', 'metadoc' ), array( __CLASS__, 'field_text' ), self::PAGE, 'metadoc_leads', array( 'key' => 'webhook_url', 'type' => 'url', 'placeholder' => 'https://...' ) );
-
-		// סקשן Turnstile.
-		add_settings_section( 'metadoc_turnstile', __( 'Cloudflare Turnstile (CAPTCHA)', 'metadoc' ), array( __CLASS__, 'section_intro' ), self::PAGE );
-		add_settings_field( 'turnstile_site_key', __( 'Site Key', 'metadoc' ), array( __CLASS__, 'field_text' ), self::PAGE, 'metadoc_turnstile', array( 'key' => 'turnstile_site_key' ) );
-		add_settings_field( 'turnstile_secret_key', __( 'Secret Key', 'metadoc' ), array( __CLASS__, 'field_text' ), self::PAGE, 'metadoc_turnstile', array( 'key' => 'turnstile_secret_key', 'secret' => true ) );
-	}
-
-	/**
-	 * סניטציה של ההגדרות.
-	 *
-	 * @param mixed $input קלט גולמי.
-	 * @return array
-	 */
-	public static function sanitize( $input ): array {
-		$input = is_array( $input ) ? $input : array();
-		return array(
-			'lead_email'           => isset( $input['lead_email'] ) ? sanitize_email( $input['lead_email'] ) : '',
-			'from_name'            => isset( $input['from_name'] ) ? sanitize_text_field( $input['from_name'] ) : '',
-			'from_email'           => isset( $input['from_email'] ) ? sanitize_email( $input['from_email'] ) : '',
-			'webhook_url'          => isset( $input['webhook_url'] ) ? esc_url_raw( trim( (string) $input['webhook_url'] ), array( 'http', 'https' ) ) : '',
-			'turnstile_site_key'   => isset( $input['turnstile_site_key'] ) ? sanitize_text_field( $input['turnstile_site_key'] ) : '',
-			'turnstile_secret_key' => isset( $input['turnstile_secret_key'] ) ? sanitize_text_field( $input['turnstile_secret_key'] ) : '',
+		// --- סקשן לידים ---
+		$wp_customize->add_section(
+			'metadoc_leads',
+			array(
+				'title'       => __( 'טופס לידים', 'metadoc' ),
+				'panel'       => 'metadoc_panel',
+				'description' => __( 'יעד הפניות, פרטי השולח, ו-Webhook אופציונלי.', 'metadoc' ),
+			)
 		);
-	}
 
-	/**
-	 * תיאור סקשן הלידים.
-	 */
-	public static function section_leads(): void {
-		echo '<p>' . esc_html__( 'קביעת כתובת לקבלת פניות מהטופס, פרטי השולח, ושליחת Webhook אופציונלי לכל ליד.', 'metadoc' ) . '</p>';
-	}
-
-	/**
-	 * תיאור הסקשן.
-	 */
-	public static function section_intro(): void {
-		echo '<p>' . esc_html__( 'הזינו את מפתחות Turnstile מחשבון Cloudflare כדי להפעיל הגנת CAPTCHA על טפסי האתר. השאירו ריק כדי להשבית.', 'metadoc' ) . '</p>';
-	}
-
-	/**
-	 * שדה טקסט.
-	 *
-	 * @param array $args ארגומנטים.
-	 */
-	public static function field_text( array $args ): void {
-		$key         = (string) ( $args['key'] ?? '' );
-		$secret      = ! empty( $args['secret'] );
-		$type        = $secret ? 'password' : (string) ( $args['type'] ?? 'text' );
-		$placeholder = (string) ( $args['placeholder'] ?? '' );
-		$value       = self::get( $key );
-		printf(
-			'<input type="%1$s" name="%2$s[%3$s]" value="%4$s" placeholder="%5$s" class="regular-text" autocomplete="off" />',
-			esc_attr( $type ),
-			esc_attr( self::OPTION ),
-			esc_attr( $key ),
-			esc_attr( $value ),
-			esc_attr( $placeholder )
+		$fields = array(
+			'lead_email' => array(
+				'label'    => __( 'כתובת לקבלת הלידים', 'metadoc' ),
+				'section'  => 'metadoc_leads',
+				'sanitize' => 'sanitize_email',
+				'type'     => 'email',
+			),
+			'from_name'  => array(
+				'label'    => __( 'שם השולח (From)', 'metadoc' ),
+				'section'  => 'metadoc_leads',
+				'sanitize' => 'sanitize_text_field',
+				'type'     => 'text',
+			),
+			'from_email' => array(
+				'label'    => __( 'כתובת השולח (From)', 'metadoc' ),
+				'section'  => 'metadoc_leads',
+				'sanitize' => 'sanitize_email',
+				'type'     => 'email',
+			),
+			'webhook_url' => array(
+				'label'    => __( 'כתובת Webhook (אופציונלי)', 'metadoc' ),
+				'section'  => 'metadoc_leads',
+				'sanitize' => array( __CLASS__, 'sanitize_webhook' ),
+				'type'     => 'url',
+			),
+			'turnstile_site_key' => array(
+				'label'    => __( 'Turnstile Site Key', 'metadoc' ),
+				'section'  => 'metadoc_turnstile',
+				'sanitize' => 'sanitize_text_field',
+				'type'     => 'text',
+			),
+			'turnstile_secret_key' => array(
+				'label'    => __( 'Turnstile Secret Key', 'metadoc' ),
+				'section'  => 'metadoc_turnstile',
+				'sanitize' => 'sanitize_text_field',
+				'type'     => 'text',
+			),
 		);
-	}
 
-	/**
-	 * רינדור עמוד ההגדרות.
-	 */
-	public static function render(): void {
-		if ( ! current_user_can( 'manage_options' ) ) {
-			return;
+		// --- סקשן Turnstile ---
+		$wp_customize->add_section(
+			'metadoc_turnstile',
+			array(
+				'title'       => __( 'Cloudflare Turnstile (CAPTCHA)', 'metadoc' ),
+				'panel'       => 'metadoc_panel',
+				'description' => __( 'הזינו מפתחות מחשבון Cloudflare כדי להפעיל CAPTCHA על הטפסים. ריק = מושבת.', 'metadoc' ),
+			)
+		);
+
+		foreach ( $fields as $key => $field ) {
+			$id = self::OPTION . '[' . $key . ']';
+			$wp_customize->add_setting(
+				$id,
+				array(
+					'type'              => 'option',
+					'capability'        => 'manage_options',
+					'default'           => '',
+					'sanitize_callback' => $field['sanitize'],
+					'transport'         => 'refresh',
+				)
+			);
+			$wp_customize->add_control(
+				$id,
+				array(
+					'label'   => $field['label'],
+					'section' => $field['section'],
+					'type'    => $field['type'],
+				)
+			);
 		}
-		?>
-		<div class="wrap">
-			<h1><?php echo esc_html( get_admin_page_title() ); ?></h1>
-			<form method="post" action="options.php">
-				<?php
-				settings_fields( self::GROUP );
-				do_settings_sections( self::PAGE );
-				submit_button();
-				?>
-			</form>
-		</div>
-		<?php
 	}
 }
 
