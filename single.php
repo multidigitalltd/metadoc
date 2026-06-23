@@ -90,6 +90,7 @@ while ( have_posts() ) :
 			</nav>
 		</div>
 	</article>
+	<?php get_template_part( 'template-parts/lead-form' ); ?>
 </main>
 	<?php
 endwhile;
