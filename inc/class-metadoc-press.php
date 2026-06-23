@@ -50,10 +50,10 @@ final class Metadoc_Press {
 					'edit_item'     => __( 'עריכת כתבה', 'metadoc' ),
 				),
 				'public'       => true,
-				'has_archive'  => true,
+				'has_archive'  => false,
 				'menu_icon'    => 'dashicons-megaphone',
 				'menu_position' => 24,
-				'rewrite'      => array( 'slug' => 'press' ),
+				'rewrite'      => array( 'slug' => 'press-item' ),
 				'supports'     => array( 'title', 'thumbnail', 'excerpt', 'page-attributes' ),
 				'show_in_rest' => true,
 			)
@@ -64,9 +64,9 @@ final class Metadoc_Press {
 	 * ריענון חד-פעמי של חוקי ה-rewrite כדי ש-/press/ יעבוד.
 	 */
 	public static function maybe_flush(): void {
-		if ( '1' !== get_option( 'metadoc_press_rewrite_v1' ) ) {
+		if ( '1' !== get_option( 'metadoc_press_rewrite_v2' ) ) {
 			flush_rewrite_rules( false );
-			update_option( 'metadoc_press_rewrite_v1', '1' );
+			update_option( 'metadoc_press_rewrite_v2', '1' );
 		}
 	}
 
