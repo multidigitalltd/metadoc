@@ -3,7 +3,8 @@
  * Template Name: עמוד אודות
  *
  * עמוד "אודות" מעוצב: סיפור החברה (תוכן העמוד), ערכים והצוות שלנו.
- * שבצו אותו על עמוד האודות דרך מאפייני עמוד → תבנית.
+ * הערכים והצוות דינמיים — נשלפים מסוגי התוכן "ערכים ויתרונות" ו"הצוות שלנו".
+ * אם לא הוגדרו פריטים, נופלים לערכי ברירת המחדל מ"התאמה אישית".
  *
  * @package Metadoc
  */
@@ -21,17 +22,63 @@ $about_img = metadoc_text( 'about_image' );
 $about_img = '' !== $about_img ? $about_img : metadoc_img_url( 'advisor.jpg' );
 $content   = trim( get_the_content() );
 
-$values = array(
-	array( 'shield-check', 'about_value_1_title', 'about_value_1_desc' ),
-	array( 'heart-handshake', 'about_value_2_title', 'about_value_2_desc' ),
-	array( 'award', 'about_value_3_title', 'about_value_3_desc' ),
-);
+// ערכים — דינמי (CPT) עם נפילה לשדות התאמה אישית.
+$value_items = array();
+foreach ( Metadoc_Value::all() as $vp ) {
+	$value_items[] = array(
+		'icon'  => Metadoc_Value::icon( $vp->ID ),
+		'title' => get_the_title( $vp ),
+		'desc'  => $vp->post_excerpt,
+	);
+}
+if ( empty( $value_items ) ) {
+	$fallback_values = array(
+		array( 'shield-check', 'about_value_1_title', 'about_value_1_desc' ),
+		array( 'heart-handshake', 'about_value_2_title', 'about_value_2_desc' ),
+		array( 'award', 'about_value_3_title', 'about_value_3_desc' ),
+	);
+	foreach ( $fallback_values as $v ) {
+		$value_items[] = array(
+			'icon'  => $v[0],
+			'title' => metadoc_text( $v[1] ),
+			'desc'  => metadoc_text( $v[2] ),
+		);
+	}
+}
 
-$team = array(
-	array( 'about_team_1_name', 'about_team_1_role', 'about_team_1_bio', 'about_team_1_photo' ),
-	array( 'about_team_2_name', 'about_team_2_role', 'about_team_2_bio', 'about_team_2_photo' ),
-	array( 'about_team_3_name', 'about_team_3_role', 'about_team_3_bio', 'about_team_3_photo' ),
-);
+// צוות — דינמי (CPT) עם נפילה לשדות התאמה אישית.
+$team_items = array();
+foreach ( Metadoc_Team::all() as $tp ) {
+	$name = get_the_title( $tp );
+	if ( '' === trim( $name ) ) {
+		continue;
+	}
+	$team_items[] = array(
+		'name'  => $name,
+		'role'  => Metadoc_Team::role( $tp->ID ),
+		'bio'   => $tp->post_excerpt,
+		'photo' => (string) get_the_post_thumbnail_url( $tp->ID, 'medium' ),
+	);
+}
+if ( empty( $team_items ) ) {
+	$fallback_team = array(
+		array( 'about_team_1_name', 'about_team_1_role', 'about_team_1_bio', 'about_team_1_photo' ),
+		array( 'about_team_2_name', 'about_team_2_role', 'about_team_2_bio', 'about_team_2_photo' ),
+		array( 'about_team_3_name', 'about_team_3_role', 'about_team_3_bio', 'about_team_3_photo' ),
+	);
+	foreach ( $fallback_team as $m ) {
+		$name = metadoc_text( $m[0] );
+		if ( '' === trim( $name ) ) {
+			continue;
+		}
+		$team_items[] = array(
+			'name'  => $name,
+			'role'  => metadoc_text( $m[1] ),
+			'bio'   => metadoc_text( $m[2] ),
+			'photo' => metadoc_text( $m[3] ),
+		);
+	}
+}
 ?>
 <main id="main">
 	<?php
@@ -77,24 +124,27 @@ $team = array(
 	</section>
 
 	<!-- ערכים -->
+	<?php if ( ! empty( $value_items ) ) : ?>
 	<section class="bg-neutral-50">
 		<div class="max-w-7xl mx-auto px-6 md:px-10 py-16 md:py-24">
 			<?php metadoc_section_heading( esc_html( metadoc_text( 'about_values_title' ) ), 'text-center mb-12 md:mb-16' ); ?>
-			<div class="grid md:grid-cols-3 gap-6">
-				<?php foreach ( $values as $v ) : ?>
+			<div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+				<?php foreach ( $value_items as $v ) : ?>
 					<div class="bg-white border border-neutral-200 rounded-2xl p-8 text-center hover:shadow-[0_24px_60px_-30px_rgba(0,0,0,0.25)] hover:border-neutral-300 transition-all">
 						<span class="inline-grid place-items-center size-14 rounded-2xl bg-[#ff7a00]/10 text-[#ff7a00] mb-5">
-							<?php metadoc_icon( $v[0], array( 'class' => 'size-7' ) ); ?>
+							<?php metadoc_icon( $v['icon'], array( 'class' => 'size-7' ) ); ?>
 						</span>
-						<h3 class="text-xl font-bold text-neutral-900 mb-2 font-display"><?php metadoc_the_text( $v[1] ); ?></h3>
-						<p class="text-[15px] text-neutral-600 leading-relaxed"><?php metadoc_the_text( $v[2] ); ?></p>
+						<h3 class="text-xl font-bold text-neutral-900 mb-2 font-display"><?php echo esc_html( $v['title'] ); ?></h3>
+						<p class="text-[15px] text-neutral-600 leading-relaxed"><?php echo esc_html( $v['desc'] ); ?></p>
 					</div>
 				<?php endforeach; ?>
 			</div>
 		</div>
 	</section>
+	<?php endif; ?>
 
 	<!-- הצוות שלנו -->
+	<?php if ( ! empty( $team_items ) ) : ?>
 	<section class="bg-white">
 		<div class="max-w-7xl mx-auto px-6 md:px-10 py-16 md:py-24">
 			<div class="text-center max-w-2xl mx-auto mb-12 md:mb-16">
@@ -102,25 +152,24 @@ $team = array(
 				<p class="text-lg text-neutral-600 leading-relaxed"><?php metadoc_the_text( 'about_team_subtitle' ); ?></p>
 			</div>
 			<div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
-				<?php
-				foreach ( $team as $member ) :
-					$name = metadoc_text( $member[0] );
-					if ( '' === trim( $name ) ) {
-						continue;
-					}
-					?>
+				<?php foreach ( $team_items as $member ) : ?>
 					<article class="group text-center">
 						<div class="relative mx-auto w-44 h-44 rounded-full overflow-hidden border-4 border-neutral-100 shadow-lg mb-5 ring-1 ring-neutral-200">
-							<?php metadoc_team_avatar( metadoc_text( $member[3] ), $name ); ?>
+							<?php metadoc_team_avatar( $member['photo'], $member['name'] ); ?>
 						</div>
-						<h3 class="text-xl font-bold text-neutral-900 font-display"><?php echo esc_html( $name ); ?></h3>
-						<div class="text-[13px] font-extrabold tracking-wide text-[#ff7a00] mt-1 mb-3"><?php metadoc_the_text( $member[1] ); ?></div>
-						<p class="text-[14px] text-neutral-600 leading-relaxed max-w-xs mx-auto"><?php metadoc_the_text( $member[2] ); ?></p>
+						<h3 class="text-xl font-bold text-neutral-900 font-display"><?php echo esc_html( $member['name'] ); ?></h3>
+						<?php if ( '' !== $member['role'] ) : ?>
+							<div class="text-[13px] font-extrabold tracking-wide text-[#ff7a00] mt-1 mb-3"><?php echo esc_html( $member['role'] ); ?></div>
+						<?php endif; ?>
+						<?php if ( '' !== $member['bio'] ) : ?>
+							<p class="text-[14px] text-neutral-600 leading-relaxed max-w-xs mx-auto"><?php echo esc_html( $member['bio'] ); ?></p>
+						<?php endif; ?>
 					</article>
 				<?php endforeach; ?>
 			</div>
 		</div>
 	</section>
+	<?php endif; ?>
 
 	<?php get_template_part( 'template-parts/lead-form' ); ?>
 </main>
