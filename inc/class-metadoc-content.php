@@ -222,6 +222,10 @@ function metadoc_content_config(): array {
 				'about_team_3_role'   => $t( __( 'חבר/ת צוות 3 – תפקיד', 'metadoc' ), 'מנהל/ת קשרי לקוחות' ),
 				'about_team_3_bio'    => $t( __( 'חבר/ת צוות 3 – אודות', 'metadoc' ), 'מלווה את הלקוחות לאורך כל התהליך ודואג/ת לשירות אישי, זמין ושקוף מהפנייה ועד החתימה.', 'textarea' ),
 				'about_team_3_photo'  => $t( __( 'חבר/ת צוות 3 – תמונה', 'metadoc' ), '', 'image' ),
+				'about_team_4_name'   => $t( __( 'חבר/ת צוות 4 – שם', 'metadoc' ), 'שם מלא' ),
+				'about_team_4_role'   => $t( __( 'חבר/ת צוות 4 – תפקיד', 'metadoc' ), 'יועץ/ת מימון' ),
+				'about_team_4_bio'    => $t( __( 'חבר/ת צוות 4 – אודות', 'metadoc' ), 'מתמחה בליווי לקוחות עם אתגרי אשראי ובמציאת מסלולי מימון מותאמים אישית.', 'textarea' ),
+				'about_team_4_photo'  => $t( __( 'חבר/ת צוות 4 – תמונה', 'metadoc' ), '', 'image' ),
 			),
 		),
 		'leadform'   => array(

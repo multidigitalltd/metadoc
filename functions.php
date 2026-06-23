@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit; // לא לאפשר גישה ישירה.
 }
 
-define( 'METADOC_VERSION', '1.3.8' );
+define( 'METADOC_VERSION', '1.3.9' );
 define( 'METADOC_DIR', get_template_directory() );
 define( 'METADOC_URI', get_template_directory_uri() );
 
@@ -24,8 +24,6 @@ require_once METADOC_DIR . '/inc/class-metadoc-content.php';
 require_once METADOC_DIR . '/inc/class-metadoc-settings.php';
 require_once METADOC_DIR . '/inc/class-metadoc-leads.php';
 require_once METADOC_DIR . '/inc/class-metadoc-press.php';
-require_once METADOC_DIR . '/inc/class-metadoc-team.php';
-require_once METADOC_DIR . '/inc/class-metadoc-value.php';
 require_once METADOC_DIR . '/inc/class-metadoc-branding.php';
 require_once METADOC_DIR . '/inc/class-metadoc-setup.php';
 
