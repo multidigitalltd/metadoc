@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit; // לא לאפשר גישה ישירה.
 }
 
-define( 'METADOC_VERSION', '1.3.4' );
+define( 'METADOC_VERSION', '1.3.5' );
 define( 'METADOC_DIR', get_template_directory() );
 define( 'METADOC_URI', get_template_directory_uri() );
 
@@ -157,6 +157,12 @@ function metadoc_resource_hints(): void {
 	if ( ! is_front_page() ) {
 		return;
 	}
+	// תמונת ה-LCP של ה-Hero — preload כדי להתחיל הורדה לפני פענוח ה-CSS (שיפור LCP במובייל).
+	printf(
+		'<link rel="preload" href="%s" as="image" fetchpriority="high">' . "\n",
+		esc_url( metadoc_img_url( 'rejection.jpg' ) )
+	);
+
 	// פונטים קריטיים ל-LCP: כותרת ה-Hero (Anomalia) וטקסט הגוף (Atlas).
 	$fonts = array( 'anomalia-bold', 'atlas-regular', 'atlas-medium' );
 	foreach ( $fonts as $font ) {
