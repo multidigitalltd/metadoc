@@ -71,6 +71,7 @@ $schema = array(
 			<p>&copy; <?php echo esc_html( (string) gmdate( 'Y' ) ); ?> <?php metadoc_the_text( 'footer_copyright' ); ?></p>
 			<nav class="flex flex-wrap gap-3 items-center" aria-label="<?php esc_attr_e( 'קישורי תחתית', 'metadoc' ); ?>">
 				<a href="<?php echo esc_url( home_url( '/accessibility-statement/' ) ); ?>" class="hover:text-white transition-colors"><?php esc_html_e( 'הצהרת נגישות', 'metadoc' ); ?></a>
+				<a href="<?php echo esc_url( metadoc_terms_url() ); ?>" class="hover:text-white transition-colors"><?php esc_html_e( 'תקנון האתר', 'metadoc' ); ?></a>
 				<?php if ( $privacy ) : ?>
 					<a href="<?php echo esc_url( $privacy ); ?>" class="hover:text-white transition-colors"><?php esc_html_e( 'מדיניות פרטיות', 'metadoc' ); ?></a>
 				<?php endif; ?>

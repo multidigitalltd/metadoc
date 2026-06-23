@@ -33,6 +33,17 @@ function metadoc_privacy_url(): string {
 }
 
 /**
+ * מחזיר את כתובת עמוד תקנון האתר.
+ * מעדיף את העמוד שנוצר (slug: terms), אחרת נופל ל-/terms/.
+ *
+ * @return string
+ */
+function metadoc_terms_url(): string {
+	$page = get_page_by_path( 'terms' );
+	return $page instanceof WP_Post ? (string) get_permalink( $page ) : home_url( '/terms/' );
+}
+
+/**
  * מחזיר URL לנכס מדיה בתבנית, עם העדפת WebP אם קיים.
  *
  * @param string $file שם קובץ יחסי ל-assets/img (למשל 'family-home.jpg').
