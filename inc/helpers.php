@@ -105,6 +105,33 @@ function metadoc_image( string $file, string $alt, int $width, int $height, stri
 }
 
 /**
+ * הדפסת אווטאר לחבר צוות — תמונה אם הוגדרה, אחרת עיגול עם ראשי תיבות.
+ *
+ * @param string $photo_url כתובת תמונה (ריק = ללא).
+ * @param string $name      שם לחישוב ראשי תיבות + alt.
+ */
+function metadoc_team_avatar( string $photo_url, string $name ): void {
+	if ( '' !== $photo_url ) {
+		printf(
+			'<img src="%1$s" alt="%2$s" width="320" height="320" class="w-full h-full object-cover" loading="lazy" decoding="async" />',
+			esc_url( $photo_url ),
+			esc_attr( $name )
+		);
+		return;
+	}
+	// נפילה: ראשי תיבות מהמילה/ות הראשונות.
+	$parts   = preg_split( '/\s+/', trim( $name ) ) ?: array();
+	$initial = '';
+	foreach ( array_slice( $parts, 0, 2 ) as $part ) {
+		$initial .= function_exists( 'mb_substr' ) ? mb_substr( $part, 0, 1 ) : substr( $part, 0, 1 );
+	}
+	printf(
+		'<span class="w-full h-full grid place-items-center bg-neutral-900 text-white text-4xl font-black font-display" aria-hidden="true">%s</span>',
+		esc_html( '' !== $initial ? $initial : '★' )
+	);
+}
+
+/**
  * תווית סקשן ("01 / נשמע מוכר?").
  *
  * @param string $num     מספר הסקשן.
