@@ -1,7 +1,6 @@
 <?php
 /**
- * תבנית ברירת מחדל (fallback). עמוד הבית הוא front-page.php;
- * רשימות פוסטים מטופלות ב-home.php/archive.php.
+ * ארכיון (קטגוריה/תגית/תאריך/מחבר) — רשת כרטיסים מעוצבת.
  *
  * @package Metadoc
  */
@@ -20,8 +19,9 @@ get_header();
 		'template-parts/page-hero',
 		null,
 		array(
-			'eyebrow' => get_bloginfo( 'name' ),
-			'title'   => __( 'כתבות', 'metadoc' ),
+			'eyebrow'  => get_bloginfo( 'name' ),
+			'title'    => wp_strip_all_tags( get_the_archive_title() ),
+			'subtitle' => wp_strip_all_tags( get_the_archive_description() ),
 		)
 	);
 	get_template_part( 'template-parts/posts-loop' );

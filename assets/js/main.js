@@ -275,6 +275,27 @@
 	}
 
 	/* ------------------------------------------------------------------ */
+	/* תפריט מובייל                                                        */
+	/* ------------------------------------------------------------------ */
+	function setupMobileNav() {
+		var toggle = document.getElementById('md-nav-toggle');
+		var panel = document.getElementById('md-mobile-nav');
+		if (!toggle || !panel) { return; }
+		toggle.addEventListener('click', function () {
+			var open = panel.hidden;
+			panel.hidden = !open;
+			toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+		});
+		// סגירה בלחיצה על קישור.
+		panel.addEventListener('click', function (e) {
+			if (e.target.closest('a')) {
+				panel.hidden = true;
+				toggle.setAttribute('aria-expanded', 'false');
+			}
+		});
+	}
+
+	/* ------------------------------------------------------------------ */
 	function init() {
 		document.querySelectorAll('.md-lead-form').forEach(handleForm);
 		loadState();
@@ -282,6 +303,7 @@
 		setupA11y();
 		setupCookie();
 		setupSuccessModal();
+		setupMobileNav();
 	}
 
 	if (document.readyState === 'loading') {

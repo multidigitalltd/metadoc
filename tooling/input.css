@@ -251,3 +251,113 @@
   z-index: 9998;
   display: none;
 }
+
+/* ---------------------------------------------------------------------------
+ * טיפוגרפיית תוכן (עמודים/פוסטים) — the_content
+ * ------------------------------------------------------------------------- */
+.md-prose {
+  color: #404040;
+  line-height: 1.85;
+  font-size: 1.0625rem;
+}
+.md-prose > :first-child { margin-top: 0; }
+.md-prose p,
+.md-prose ul,
+.md-prose ol,
+.md-prose blockquote,
+.md-prose figure,
+.md-prose table,
+.md-prose pre { margin-top: 1.25rem; }
+.md-prose h2 {
+  font-family: var(--md-display);
+  font-weight: 700;
+  font-size: 1.875rem;
+  line-height: 1.2;
+  color: #0a0a0a;
+  margin-top: 2.5rem;
+  margin-bottom: 0.5rem;
+}
+.md-prose h3 {
+  font-family: var(--md-display);
+  font-weight: 700;
+  font-size: 1.375rem;
+  line-height: 1.3;
+  color: #171717;
+  margin-top: 2rem;
+  margin-bottom: 0.5rem;
+}
+.md-prose h4 {
+  font-weight: 700;
+  font-size: 1.125rem;
+  color: #171717;
+  margin-top: 1.5rem;
+}
+.md-prose a {
+  color: var(--md-orange-muted);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.md-prose a:hover { color: var(--md-orange); }
+.md-prose strong { color: #0a0a0a; font-weight: 700; }
+.md-prose ul,
+.md-prose ol { padding-inline-start: 1.5rem; }
+.md-prose ul { list-style: disc; }
+.md-prose ol { list-style: decimal; }
+.md-prose li { margin-top: 0.4rem; }
+.md-prose li::marker { color: var(--md-orange); }
+.md-prose blockquote {
+  border-inline-start: 3px solid var(--md-orange);
+  padding-inline-start: 1.25rem;
+  font-weight: 600;
+  color: #0a0a0a;
+}
+.md-prose img,
+.md-prose video { border-radius: 1rem; height: auto; }
+.md-prose figure img { margin-inline: auto; }
+.md-prose figcaption { font-size: 0.875rem; color: #737373; text-align: center; margin-top: 0.5rem; }
+.md-prose hr { border: 0; border-top: 1px solid #e5e5e5; margin-block: 2.5rem; }
+
+/* תפריט ניווט ראשי */
+.md-nav a {
+  font-weight: 700;
+  font-size: 0.9375rem;
+  color: #404040;
+  transition: color 0.2s ease;
+}
+.md-nav a:hover,
+.md-nav .current-menu-item > a,
+.md-nav .current_page_item > a,
+.md-nav .current-menu-ancestor > a {
+  color: var(--md-orange-muted);
+}
+.md-nav-mobile a {
+  display: block;
+  padding: 0.625rem 0.5rem;
+  border-radius: 0.5rem;
+  font-size: 1rem;
+}
+.md-nav-mobile a:hover {
+  background: #f5f5f5;
+}
+
+/* פאגינציה (ארכיון/חיפוש) */
+.md-pagination { display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center; margin-top: 3rem; }
+.md-pagination .page-numbers {
+  display: inline-grid;
+  place-items: center;
+  min-width: 2.75rem;
+  height: 2.75rem;
+  padding: 0 0.5rem;
+  border-radius: 0.75rem;
+  border: 1px solid #e5e5e5;
+  font-weight: 700;
+  color: #171717;
+  transition: all 0.2s ease;
+}
+.md-pagination a.page-numbers:hover { border-color: var(--md-orange); color: var(--md-orange); }
+.md-pagination .page-numbers.current {
+  background: var(--md-ink);
+  border-color: var(--md-ink);
+  color: #fff;
+}
+

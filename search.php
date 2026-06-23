@@ -1,7 +1,6 @@
 <?php
 /**
- * תבנית ברירת מחדל (fallback). עמוד הבית הוא front-page.php;
- * רשימות פוסטים מטופלות ב-home.php/archive.php.
+ * תוצאות חיפוש.
  *
  * @package Metadoc
  */
@@ -20,8 +19,10 @@ get_header();
 		'template-parts/page-hero',
 		null,
 		array(
-			'eyebrow' => get_bloginfo( 'name' ),
-			'title'   => __( 'כתבות', 'metadoc' ),
+			'eyebrow'  => __( 'חיפוש באתר', 'metadoc' ),
+			'title'    => __( 'תוצאות חיפוש', 'metadoc' ),
+			/* translators: %s: search query. */
+			'subtitle' => sprintf( __( 'עבור: %s', 'metadoc' ), get_search_query() ),
 		)
 	);
 	get_template_part( 'template-parts/posts-loop' );
