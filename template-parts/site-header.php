@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 $c        = metadoc_contact();
 $has_menu = has_nav_menu( 'primary' );
 ?>
-<header class="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-neutral-200 px-5 md:px-10 py-2 flex justify-between items-center gap-4" role="banner">
+<header class="relative z-50 bg-white/95 backdrop-blur-md border-b border-neutral-200 px-5 md:px-10 py-2 flex justify-between items-center gap-4" role="banner">
 	<a href="<?php echo esc_url( home_url( '/' ) ); ?>" class="flex items-center gap-3 group shrink-0" aria-label="<?php esc_attr_e( 'מטאדוק — דף הבית', 'metadoc' ); ?>">
 		<img src="<?php echo esc_url( metadoc_logo_url() ); ?>" alt="<?php esc_attr_e( 'מטאדוק - נדל״ן, מימון, פיננסים', 'metadoc' ); ?>" width="260" height="100" class="h-14 md:h-16 w-auto object-contain transition-transform group-hover:scale-[1.04]" decoding="async" fetchpriority="high">
 	</a>
@@ -52,7 +52,7 @@ $has_menu = has_nav_menu( 'primary' );
 	</div>
 </header>
 <?php if ( $has_menu ) : ?>
-	<nav id="md-mobile-nav" hidden class="md-nav md-nav-mobile lg:hidden sticky top-[4.75rem] z-40 bg-white border-b border-neutral-200 px-5 py-3 shadow-lg" aria-label="<?php esc_attr_e( 'תפריט מובייל', 'metadoc' ); ?>">
+	<nav id="md-mobile-nav" hidden class="md-nav md-nav-mobile lg:hidden relative z-40 bg-white border-b border-neutral-200 px-5 py-3 shadow-lg" aria-label="<?php esc_attr_e( 'תפריט מובייל', 'metadoc' ); ?>">
 		<?php
 		wp_nav_menu(
 			array(
