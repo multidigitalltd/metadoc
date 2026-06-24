@@ -81,6 +81,10 @@
 				.then(function (result) {
 					if (result.ok) {
 						setStatus(statusEl, '', true);
+						// אירוע ליד מוצלח — לשימוש אופציונלי של סקריפט מעקב קמפיין (אם נטען).
+						try {
+							document.dispatchEvent(new CustomEvent('metadoc:lead', { detail: { name: name, phone: phone, note: note } }));
+						} catch (e) {}
 						form.reset();
 						openSuccessModal();
 					} else {

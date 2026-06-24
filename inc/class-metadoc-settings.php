@@ -49,6 +49,25 @@ final class Metadoc_Settings {
 	}
 
 	/**
+	 * האם מעקב הקמפיין (שליחת לידים ל-CRM חיצוני) מופעל.
+	 *
+	 * @return bool
+	 */
+	public static function campaign_enabled(): bool {
+		return '1' === self::get( 'campaign_tracking' ) && '' !== self::get( 'campaign_endpoint' );
+	}
+
+	/**
+	 * סניטציה לצ'קבוקס — '1' או ריק.
+	 *
+	 * @param mixed $value קלט.
+	 * @return string
+	 */
+	public static function sanitize_checkbox( $value ): string {
+		return ( '1' === (string) $value || 1 === $value || true === $value ) ? '1' : '';
+	}
+
+	/**
 	 * סניטציה לכתובת Webhook (http/https בלבד).
 	 *
 	 * @param string $value קלט.
@@ -81,6 +100,18 @@ final class Metadoc_Settings {
 			'webhook_url'          => array( 'label' => __( 'כתובת Webhook (אופציונלי)', 'metadoc' ), 'sanitize' => array( __CLASS__, 'sanitize_webhook' ) ),
 			'turnstile_site_key'   => array( 'label' => __( 'Cloudflare Turnstile — Site Key', 'metadoc' ), 'sanitize' => 'sanitize_text_field' ),
 			'turnstile_secret_key' => array( 'label' => __( 'Cloudflare Turnstile — Secret Key', 'metadoc' ), 'sanitize' => 'sanitize_text_field' ),
+			'campaign_tracking'    => array(
+				'label'    => __( 'מעקב קמפיין — שליחת לידים ל-CRM חיצוני (זמני)', 'metadoc' ),
+				'sanitize' => array( __CLASS__, 'sanitize_checkbox' ),
+				'type'     => 'checkbox',
+				'default'  => '',
+			),
+			'campaign_endpoint'    => array(
+				'label'    => __( 'מעקב קמפיין — כתובת ה-CRM', 'metadoc' ),
+				'sanitize' => array( __CLASS__, 'sanitize_webhook' ),
+				'type'     => 'url',
+				'default'  => 'https://ext.bhol.co.il/lead.php',
+			),
 		);
 
 		$priority = 10;
@@ -91,7 +122,7 @@ final class Metadoc_Settings {
 				array(
 					'type'              => 'option',
 					'capability'        => 'edit_theme_options',
-					'default'           => '',
+					'default'           => $field['default'] ?? '',
 					'sanitize_callback' => $field['sanitize'],
 					'transport'         => 'refresh',
 				)
@@ -101,7 +132,7 @@ final class Metadoc_Settings {
 				array(
 					'label'    => $field['label'],
 					'section'  => 'metadoc_settings_section',
-					'type'     => 'text',
+					'type'     => $field['type'] ?? 'text',
 					'priority' => $priority,
 				)
 			);

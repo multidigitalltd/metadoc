@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit; // לא לאפשר גישה ישירה.
 }
 
-define( 'METADOC_VERSION', '1.3.9' );
+define( 'METADOC_VERSION', '1.4.0' );
 define( 'METADOC_DIR', get_template_directory() );
 define( 'METADOC_URI', get_template_directory_uri() );
 
@@ -111,6 +111,22 @@ function metadoc_enqueue_assets(): void {
 	// סקריפט Turnstile של Cloudflare — רק כשהוגדר site key.
 	if ( Metadoc_Settings::turnstile_enabled() ) {
 		wp_enqueue_script( 'cf-turnstile', 'https://challenges.cloudflare.com/turnstile/v0/api.js', array(), null, true ); // phpcs:ignore WordPress.WP.EnqueuedResourceParameters.MissingVersion -- צד שלישי ללא גרסה.
+	}
+
+	// מעקב קמפיין (זמני) — נטען רק כשמופעל בהגדרות. שולח ליד מוצלח ל-CRM חיצוני.
+	if ( Metadoc_Settings::campaign_enabled() ) {
+		wp_enqueue_script(
+			'metadoc-campaign',
+			METADOC_URI . '/assets/js/campaign-tracking.js',
+			array( 'metadoc-main' ),
+			metadoc_asset_ver( 'assets/js/campaign-tracking.js' ),
+			true
+		);
+		wp_localize_script(
+			'metadoc-campaign',
+			'metadocCampaign',
+			array( 'endpoint' => esc_url_raw( Metadoc_Settings::get( 'campaign_endpoint' ) ) )
+		);
 	}
 
 	wp_localize_script(
