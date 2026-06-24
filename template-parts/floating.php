@@ -15,11 +15,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 $c = metadoc_contact();
 ?>
+<?php if ( ! Metadoc_Landing::hide_whatsapp() ) : ?>
 <div class="fixed bottom-24 md:bottom-6 left-4 md:left-6 z-[55]">
 	<a href="<?php echo esc_url( $c['whatsapp'] ); ?>" target="_blank" rel="noopener noreferrer" aria-label="<?php esc_attr_e( 'שלחו וואטסאפ', 'metadoc' ); ?>" class="size-14 rounded-full bg-[#25D366] shadow-[0_8px_24px_rgba(37,211,102,0.4)] grid place-items-center active:scale-90 hover:scale-105 transition">
 		<?php metadoc_icon( 'message-circle', array( 'class' => 'size-7 text-white' ) ); ?>
 	</a>
 </div>
+<?php endif; ?>
 
 <div class="hidden md:block fixed bottom-44 md:bottom-24 left-4 md:left-6 z-[55]">
 	<a href="<?php echo esc_url( metadoc_form_url() ); ?>" aria-label="<?php esc_attr_e( 'בדיקת זכאות חינם', 'metadoc' ); ?>" class="md-btn inline-flex items-center gap-2 px-4 py-2.5 rounded-full text-black font-black text-[13px] md:text-[14px] hover:scale-105 transition font-display" style="background:linear-gradient(135deg, #ff7a00 0%, #ff9a3c 100%);box-shadow:0 12px 28px -8px #ff7a00cc, 0 0 0 3px rgba(255,122,0,0.18)">

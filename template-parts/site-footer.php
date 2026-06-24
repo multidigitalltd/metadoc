@@ -43,12 +43,16 @@ $schema = array(
 				<a href="tel:<?php echo esc_attr( $c['phone_tel'] ); ?>" class="flex items-center gap-2 text-white/80 hover:text-white transition-colors">
 					<?php metadoc_icon( 'phone', array( 'class' => 'size-4 text-[#ff7a00]' ) ); ?> <?php echo esc_html( $c['phone_display'] ); ?>
 				</a>
-				<a href="mailto:<?php echo esc_attr( $c['email'] ); ?>" class="flex items-center gap-2 text-white/80 hover:text-white transition-colors break-all">
-					<?php metadoc_icon( 'mail', array( 'class' => 'size-4 shrink-0 text-[#ff7a00]' ) ); ?> <?php echo esc_html( $c['email'] ); ?>
-				</a>
-				<a href="<?php echo esc_url( $c['whatsapp'] ); ?>" target="_blank" rel="noopener noreferrer" class="flex items-center gap-2 text-white/80 hover:text-white transition-colors">
-					<?php metadoc_icon( 'message-circle', array( 'class' => 'size-4 text-[#ff7a00]' ) ); ?> <?php esc_html_e( 'WhatsApp', 'metadoc' ); ?>
-				</a>
+				<?php if ( ! Metadoc_Landing::hide_email() ) : ?>
+					<a href="mailto:<?php echo esc_attr( $c['email'] ); ?>" class="flex items-center gap-2 text-white/80 hover:text-white transition-colors break-all">
+						<?php metadoc_icon( 'mail', array( 'class' => 'size-4 shrink-0 text-[#ff7a00]' ) ); ?> <?php echo esc_html( $c['email'] ); ?>
+					</a>
+				<?php endif; ?>
+				<?php if ( ! Metadoc_Landing::hide_whatsapp() ) : ?>
+					<a href="<?php echo esc_url( $c['whatsapp'] ); ?>" target="_blank" rel="noopener noreferrer" class="flex items-center gap-2 text-white/80 hover:text-white transition-colors">
+						<?php metadoc_icon( 'message-circle', array( 'class' => 'size-4 text-[#ff7a00]' ) ); ?> <?php esc_html_e( 'WhatsApp', 'metadoc' ); ?>
+					</a>
+				<?php endif; ?>
 			</div>
 		</div>
 		<div>

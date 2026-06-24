@@ -327,7 +327,14 @@ function metadoc_content_defaults(): array {
 function metadoc_text( string $key ): string {
 	$defaults = metadoc_content_defaults();
 	$default  = $defaults[ $key ] ?? '';
-	return (string) get_theme_mod( 'metadoc_' . $key, $default );
+	$value    = (string) get_theme_mod( 'metadoc_' . $key, $default );
+	/**
+	 * אפשרות לעקוף טקסט לפי הקשר (למשל טלפון מותאם לעמוד נחיתה/קמפיין).
+	 *
+	 * @param string $value הערך.
+	 * @param string $key   מפתח השדה.
+	 */
+	return (string) apply_filters( 'metadoc_text', $value, $key );
 }
 
 /**
