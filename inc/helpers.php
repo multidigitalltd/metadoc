@@ -13,12 +13,16 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 /**
  * מחזיר את היעד לעוגן טופס הלידים.
- * בעמוד הבית — עוגן מקומי (#form). בעמודים אחרים — ניווט לעמוד הבית + עוגן.
+ * בכל עמוד שמכיל את הטופס (#form) — עוגן מקומי, כדי להישאר באותו עמוד.
+ * בעמודים ללא טופס — ניווט לעמוד הבית + עוגן.
  *
  * @return string
  */
 function metadoc_form_url(): string {
-	return is_front_page() ? '#form' : home_url( '/#form' );
+	$has_form = is_front_page()
+		|| is_singular( 'post' )
+		|| is_page_template( array( 'template-landing.php', 'template-about.php' ) );
+	return $has_form ? '#form' : home_url( '/#form' );
 }
 
 /**
