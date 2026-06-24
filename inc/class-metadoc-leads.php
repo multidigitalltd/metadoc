@@ -81,6 +81,25 @@ final class Metadoc_Leads {
 		}
 		echo '</tbody></table>';
 
+		// מקור הגעה.
+		$src_rows = '';
+		foreach ( self::source_labels() as $meta => $label ) {
+			$value = (string) get_post_meta( $post->ID, $meta, true );
+			if ( '' === $value ) {
+				continue;
+			}
+			$display   = ( 0 === strpos( $value, 'http' ) )
+				? '<a href="' . esc_url( $value ) . '" target="_blank" rel="noopener noreferrer">' . esc_html( $value ) . '</a>'
+				: esc_html( $value );
+			$src_rows .= sprintf( '<tr><th style="width:170px;text-align:right">%s</th><td>%s</td></tr>', esc_html( $label ), $display );
+		}
+		echo '<h2 style="margin:18px 0 6px;font-size:14px">' . esc_html__( 'מקור הגעה', 'metadoc' ) . '</h2>';
+		if ( '' !== $src_rows ) {
+			echo '<table class="widefat striped"><tbody>' . $src_rows . '</tbody></table>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- כל שורה נבנתה עם esc_html/esc_url.
+		} else {
+			echo '<p>' . esc_html__( 'ישיר / לא ידוע (ללא פרמטרי מעקב).', 'metadoc' ) . '</p>';
+		}
+
 		$phone = (string) get_post_meta( $post->ID, '_md_phone', true );
 		$wa    = preg_replace( '/\D/', '', '972' . ltrim( $phone, '0' ) );
 		printf(
@@ -137,9 +156,10 @@ final class Metadoc_Leads {
 				'callback'            => array( __CLASS__, 'handle' ),
 				'permission_callback' => array( __CLASS__, 'permission' ),
 				'args'                => array(
-					'name'  => array( 'required' => true, 'type' => 'string' ),
-					'phone' => array( 'required' => true, 'type' => 'string' ),
-					'note'  => array( 'required' => false, 'type' => 'string' ),
+					'name'   => array( 'required' => true, 'type' => 'string' ),
+					'phone'  => array( 'required' => true, 'type' => 'string' ),
+					'note'   => array( 'required' => false, 'type' => 'string' ),
+					'source' => array( 'required' => false ), // אופציונלי — מקור הגעה; לעולם לא חוסם שליחה.
 				),
 			)
 		);
@@ -236,20 +256,29 @@ final class Metadoc_Leads {
 			return $captcha;
 		}
 
+		// מקור הגעה (UTM / referrer / קמפיין) — מהדפדפן, מסונן בצד שרת.
+		$src  = self::sanitize_source( (array) $request->get_param( 'source' ) );
+		$meta = array(
+			'_md_name'    => $name,
+			'_md_phone'   => $phone,
+			'_md_note'    => $note,
+			'_md_consent' => '1',
+			'_md_ip'      => $ip,
+			'_md_ua'      => sanitize_text_field( (string) $request->get_header( 'user_agent' ) ),
+		);
+		foreach ( $src as $sk => $sv ) {
+			if ( '' !== $sv ) {
+				$meta[ '_md_src_' . $sk ] = $sv;
+			}
+		}
+
 		// שמירה כ-CPT.
 		$post_id = wp_insert_post(
 			array(
 				'post_type'   => self::CPT,
 				'post_status' => 'private',
 				'post_title'  => sprintf( '%s · %s', $name, $phone ),
-				'meta_input'  => array(
-					'_md_name'    => $name,
-					'_md_phone'   => $phone,
-					'_md_note'    => $note,
-					'_md_consent' => '1',
-					'_md_ip'      => $ip,
-					'_md_ua'      => sanitize_text_field( (string) $request->get_header( 'user_agent' ) ),
-				),
+				'meta_input'  => $meta,
 			),
 			true
 		);
@@ -259,13 +288,14 @@ final class Metadoc_Leads {
 		}
 
 		set_transient( $key, 1, self::RATE_SECONDS );
-		self::notify( $name, $phone, $note );
+		self::notify( $name, $phone, $note, $src );
 		self::send_webhook(
 			array(
 				'name'       => $name,
 				'phone'      => $phone,
 				'note'       => $note,
-				'source'     => home_url( '/' ),
+				'source'     => $src,
+				'site'       => home_url( '/' ),
 				'created_at' => current_time( 'c' ),
 			)
 		);
@@ -352,7 +382,7 @@ final class Metadoc_Leads {
 	 * @param string $phone טלפון.
 	 * @param string $note  הערה.
 	 */
-	private static function notify( string $name, string $phone, string $note ): void {
+	private static function notify( string $name, string $phone, string $note, array $src = array() ): void {
 		$contact = metadoc_contact();
 
 		// יעד: מההגדרות אם תקין, אחרת ברירת המחדל. ניתן לעקיפה דרך פילטר.
@@ -370,9 +400,17 @@ final class Metadoc_Leads {
 			'שם: ' . $name,
 			'טלפון: ' . $phone,
 			'פרטים: ' . ( '' !== $note ? $note : '—' ),
-			'',
-			'נשלח מ-' . home_url( '/' ),
 		);
+
+		$src_lines = self::source_email_lines( $src );
+		if ( ! empty( $src_lines ) ) {
+			$lines[] = '';
+			$lines[] = '— מקור הגעה —';
+			$lines   = array_merge( $lines, $src_lines );
+		}
+
+		$lines[] = '';
+		$lines[] = 'נשלח מ-' . home_url( '/' );
 
 		$headers = array( 'Content-Type: text/plain; charset=UTF-8' );
 
@@ -385,6 +423,87 @@ final class Metadoc_Leads {
 		}
 
 		wp_mail( $to, $subject, implode( "\n", $lines ), $headers );
+	}
+
+	/**
+	 * סניטציה לנתוני מקור ההגעה (מהדפדפן — לא אמין).
+	 *
+	 * @param array $s קלט גולמי.
+	 * @return array<string,string>
+	 */
+	private static function sanitize_source( array $s ): array {
+		$url = static function ( $v ): string {
+			return mb_substr( esc_url_raw( trim( (string) $v ) ), 0, 300 );
+		};
+		$txt = static function ( $v ): string {
+			return mb_substr( sanitize_text_field( (string) $v ), 0, 150 );
+		};
+		return array(
+			'page'         => $url( $s['page'] ?? '' ),
+			'landing'      => $url( $s['landing'] ?? '' ),
+			'referrer'     => $url( $s['referrer'] ?? '' ),
+			'utm_source'   => $txt( $s['utm_source'] ?? '' ),
+			'utm_medium'   => $txt( $s['utm_medium'] ?? '' ),
+			'utm_campaign' => $txt( $s['utm_campaign'] ?? '' ),
+			'utm_term'     => $txt( $s['utm_term'] ?? '' ),
+			'utm_content'  => $txt( $s['utm_content'] ?? '' ),
+			'cId'          => $txt( $s['cId'] ?? '' ),
+			'sId'          => $txt( $s['sId'] ?? '' ),
+			'aId'          => $txt( $s['aId'] ?? '' ),
+			'type'         => $txt( $s['type'] ?? '' ),
+		);
+	}
+
+	/**
+	 * תוויות תצוגה לשדות מקור ההגעה (meta key => label).
+	 *
+	 * @return array<string,string>
+	 */
+	private static function source_labels(): array {
+		return array(
+			'_md_src_utm_source'   => __( 'מקור (utm_source)', 'metadoc' ),
+			'_md_src_utm_medium'   => __( 'מדיום (utm_medium)', 'metadoc' ),
+			'_md_src_utm_campaign' => __( 'קמפיין (utm_campaign)', 'metadoc' ),
+			'_md_src_utm_term'     => __( 'utm_term', 'metadoc' ),
+			'_md_src_utm_content'  => __( 'utm_content', 'metadoc' ),
+			'_md_src_referrer'     => __( 'Referrer', 'metadoc' ),
+			'_md_src_landing'      => __( 'דף כניסה', 'metadoc' ),
+			'_md_src_page'         => __( 'דף השליחה', 'metadoc' ),
+			'_md_src_cId'          => __( 'מזהה קמפיין (cId)', 'metadoc' ),
+			'_md_src_sId'          => __( 'מזהה sId', 'metadoc' ),
+			'_md_src_aId'          => __( 'מזהה aId', 'metadoc' ),
+			'_md_src_type'         => __( 'סוג (type)', 'metadoc' ),
+		);
+	}
+
+	/**
+	 * שורות מקור הגעה למייל (לא ריקות בלבד).
+	 *
+	 * @param array $src נתוני מקור.
+	 * @return string[]
+	 */
+	private static function source_email_lines( array $src ): array {
+		$map = array(
+			'utm_source'   => 'מקור',
+			'utm_medium'   => 'מדיום',
+			'utm_campaign' => 'קמפיין',
+			'utm_term'     => 'utm_term',
+			'utm_content'  => 'utm_content',
+			'referrer'     => 'Referrer',
+			'landing'      => 'דף כניסה',
+			'page'         => 'דף השליחה',
+			'cId'          => 'cId',
+			'sId'          => 'sId',
+			'aId'          => 'aId',
+			'type'         => 'type',
+		);
+		$out = array();
+		foreach ( $map as $key => $label ) {
+			if ( ! empty( $src[ $key ] ) ) {
+				$out[] = $label . ': ' . $src[ $key ];
+			}
+		}
+		return $out;
 	}
 
 	/**
@@ -407,8 +526,9 @@ final class Metadoc_Leads {
 		$new = array( 'cb' => $cols['cb'] ?? '' );
 		$new['md_name']  = __( 'שם', 'metadoc' );
 		$new['md_phone'] = __( 'טלפון', 'metadoc' );
-		$new['md_note']  = __( 'פרטים', 'metadoc' );
-		$new['date']     = __( 'התקבל', 'metadoc' );
+		$new['md_note']   = __( 'פרטים', 'metadoc' );
+		$new['md_source'] = __( 'מקור', 'metadoc' );
+		$new['date']      = __( 'התקבל', 'metadoc' );
 		return $new;
 	}
 
@@ -426,6 +546,21 @@ final class Metadoc_Leads {
 		);
 		if ( isset( $map[ $column ] ) ) {
 			echo esc_html( (string) get_post_meta( $post_id, $map[ $column ], true ) );
+			return;
+		}
+		if ( 'md_source' === $column ) {
+			$utm = (string) get_post_meta( $post_id, '_md_src_utm_source', true );
+			if ( '' !== $utm ) {
+				echo esc_html( $utm );
+				return;
+			}
+			$ref = (string) get_post_meta( $post_id, '_md_src_referrer', true );
+			if ( '' !== $ref ) {
+				$host = wp_parse_url( $ref, PHP_URL_HOST );
+				echo esc_html( $host ? (string) $host : $ref );
+				return;
+			}
+			echo esc_html__( 'ישיר', 'metadoc' );
 		}
 	}
 }

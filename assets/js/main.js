@@ -31,6 +31,55 @@
 			.catch(function () { return data.nonce; });
 	}
 
+	/* ---- מקור הגעה (UTM / referrer / קמפיין) — אופציונלי, לעולם לא חוסם שליחה ---- */
+	function captureSource() {
+		var KEY = 'md-src';
+		var stored = {};
+		try { stored = JSON.parse(sessionStorage.getItem(KEY) || '{}'); } catch (e) {}
+		if (!stored || !stored.captured) {
+			try {
+				var qs = new URLSearchParams(window.location.search);
+				stored = {
+					captured: 1,
+					landing: window.location.href,
+					referrer: document.referrer || '',
+					utm_source: qs.get('utm_source') || '',
+					utm_medium: qs.get('utm_medium') || '',
+					utm_campaign: qs.get('utm_campaign') || '',
+					utm_term: qs.get('utm_term') || '',
+					utm_content: qs.get('utm_content') || '',
+					cId: qs.get('UcId') || '',
+					sId: qs.get('UsId') || '',
+					aId: qs.get('UaId') || '',
+					type: qs.get('Utype') || ''
+				};
+				sessionStorage.setItem(KEY, JSON.stringify(stored));
+			} catch (e) { stored = {}; }
+		}
+		return stored || {};
+	}
+	// לכידה מיידית (first-touch) לפני ניווט פנימי. עטוף — כשל לא משפיע על דבר.
+	var mdSource = {};
+	try { mdSource = captureSource(); } catch (e) { mdSource = {}; }
+
+	function getSource() {
+		var s = mdSource || {};
+		return {
+			page: window.location.href,
+			landing: s.landing || '',
+			referrer: s.referrer || '',
+			utm_source: s.utm_source || '',
+			utm_medium: s.utm_medium || '',
+			utm_campaign: s.utm_campaign || '',
+			utm_term: s.utm_term || '',
+			utm_content: s.utm_content || '',
+			cId: s.cId || '',
+			sId: s.sId || '',
+			aId: s.aId || '',
+			type: s.type || ''
+		};
+	}
+
 	function setStatus(el, msg, ok) {
 		if (!el) return;
 		el.textContent = msg;
@@ -67,12 +116,15 @@
 
 			// שולפים nonce טרי בזמן ריצה כדי לא להישען על ה-nonce המוטמע ב-HTML,
 			// שעלול להיות במטמון full-page (LiteSpeed/Cloudflare/WP Rocket) ולפוג.
+			var srcData = {};
+			try { srcData = getSource(); } catch (e) { srcData = {}; }
+
 			getFreshNonce()
 				.then(function (nonce) {
 					return fetch(data.restUrl, {
 						method: 'POST',
 						headers: { 'Content-Type': 'application/json' },
-						body: JSON.stringify({ name: name, phone: phone, note: note, website: hp, consent: consent ? 1 : 0, captcha: captcha, md_nonce: nonce })
+						body: JSON.stringify({ name: name, phone: phone, note: note, website: hp, consent: consent ? 1 : 0, captcha: captcha, md_nonce: nonce, source: srcData })
 					});
 				})
 				.then(function (res) {

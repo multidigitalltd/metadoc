@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit; // לא לאפשר גישה ישירה.
 }
 
-define( 'METADOC_VERSION', '1.5.1' );
+define( 'METADOC_VERSION', '1.6.0' );
 define( 'METADOC_DIR', get_template_directory() );
 define( 'METADOC_URI', get_template_directory_uri() );
 
