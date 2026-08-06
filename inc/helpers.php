@@ -109,28 +109,34 @@ function metadoc_image( string $file, string $alt, int $width, int $height, stri
 }
 
 /**
- * הדפסת אווטאר לחבר צוות — תמונה אם הוגדרה, אחרת עיגול עם ראשי תיבות.
+ * הדפסת דיוקן לחבר צוות — תמונה אם הוגדרה, אחרת ראשי תיבות על רקע כהה.
+ * הדיוקן ממלא את המסגרת שעוטפת אותו (aspect-ratio נקבע במסגרת), כך שאין CLS.
  *
- * @param string $photo_url כתובת תמונה (ריק = ללא).
- * @param string $name      שם לחישוב ראשי תיבות + alt.
+ * @param string               $photo_url כתובת תמונה (ריק = ללא).
+ * @param string               $name      שם לחישוב ראשי תיבות + alt.
+ * @param array<string,string> $args      width, height (מידות מקור), initials_class.
  */
-function metadoc_team_avatar( string $photo_url, string $name ): void {
+function metadoc_team_avatar( string $photo_url, string $name, array $args = array() ): void {
 	if ( '' !== $photo_url ) {
+		// object-top: בתמונות דיוקן החיתוך שומר על הראש גם ביחסי-רוחב שונים.
 		printf(
-			'<img src="%1$s" alt="%2$s" width="320" height="320" class="w-full h-full object-cover" loading="lazy" decoding="async" />',
+			'<img src="%1$s" alt="%2$s" width="%3$d" height="%4$d" class="w-full h-full object-cover object-top" loading="lazy" decoding="async" itemprop="image" />',
 			esc_url( $photo_url ),
-			esc_attr( $name )
+			esc_attr( $name ),
+			isset( $args['width'] ) ? (int) $args['width'] : 320,
+			isset( $args['height'] ) ? (int) $args['height'] : 320
 		);
 		return;
 	}
-	// נפילה: ראשי תיבות מהמילה/ות הראשונות.
+	// נפילה: ראשי תיבות מהמילה/ות הראשונות, על רקע כהה מדורג.
 	$parts   = preg_split( '/\s+/', trim( $name ) ) ?: array();
 	$initial = '';
 	foreach ( array_slice( $parts, 0, 2 ) as $part ) {
 		$initial .= function_exists( 'mb_substr' ) ? mb_substr( $part, 0, 1 ) : substr( $part, 0, 1 );
 	}
 	printf(
-		'<span class="w-full h-full grid place-items-center bg-neutral-900 text-white text-4xl font-black font-display" aria-hidden="true">%s</span>',
+		'<span class="w-full h-full grid place-items-center bg-gradient-to-br from-neutral-800 via-neutral-900 to-black text-white/85 font-black font-display %1$s" aria-hidden="true">%2$s</span>',
+		esc_attr( isset( $args['initials_class'] ) ? (string) $args['initials_class'] : 'text-4xl' ),
 		esc_html( '' !== $initial ? $initial : '★' )
 	);
 }
