@@ -1,0 +1,136 @@
+@import "tailwindcss" source(none);
+@source "../src";
+@import "tw-animate-css";
+
+@font-face {
+  font-family: "Barlev";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("/__l5e/assets-v1/b3d4ce65-d98b-4ebe-b091-0da4b176d0b7/barlev-bold.woff") format("woff");
+}
+@font-face {
+  font-family: "Atlas";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/__l5e/assets-v1/17e93be0-4e0a-4e2b-a232-9b93ec90a121/atlas-regular.woff") format("woff");
+}
+@font-face {
+  font-family: "Atlas";
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("/__l5e/assets-v1/24a96100-9d3b-49d4-a3ea-77bf3fe8a231/atlas-medium.woff") format("woff");
+}
+@font-face {
+  font-family: "Atlas";
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("/__l5e/assets-v1/24a96100-9d3b-49d4-a3ea-77bf3fe8a231/atlas-medium.woff") format("woff");
+}
+@font-face {
+  font-family: "Anomalia";
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("/__l5e/assets-v1/1f8a1bc9-9e79-4967-87c5-b212614b1190/anomalia-demibold.woff") format("woff");
+}
+@font-face {
+  font-family: "Anomalia";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("/__l5e/assets-v1/abcd46b7-b47f-48b6-9de8-81e9663dc17c/anomalia-bold.woff") format("woff");
+}
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+  --radius-3xl: calc(var(--radius) + 12px);
+  --radius-4xl: calc(var(--radius) + 16px);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-ring-offset-background: var(--background);
+  --color-surface: var(--surface);
+  --color-whatsapp: var(--whatsapp);
+  --font-sans: "Atlas", "Assistant", system-ui, sans-serif;
+  --font-display: "Barlev", "Atlas", "Assistant", system-ui, sans-serif;
+  --shadow-cta: 0 12px 30px -10px color-mix(in oklab, var(--secondary) 55%, transparent);
+  --shadow-card: 0 1px 2px 0 oklch(0 0 0 / 0.04), 0 8px 24px -12px oklch(0 0 0 / 0.10);
+}
+
+:root {
+  --radius: 0.875rem;
+
+  /* Navy / amber trust palette */
+  --background: oklch(0.985 0.005 250);          /* near-white surface */
+  --surface: oklch(0.975 0.008 250);             /* slate-50 */
+  --foreground: oklch(0.20 0.03 260);            /* slate-900 */
+
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.20 0.03 260);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.20 0.03 260);
+
+  --primary: oklch(0.32 0.13 265);               /* deep navy #1e3a8a */
+  --primary-foreground: oklch(0.985 0.005 250);
+
+  --secondary: oklch(0.62 0.16 55);              /* amber #b45309 */
+  --secondary-foreground: oklch(1 0 0);
+
+  --muted: oklch(0.96 0.008 250);
+  --muted-foreground: oklch(0.50 0.025 260);
+
+  --accent: oklch(0.94 0.04 60);                 /* amber tint */
+  --accent-foreground: oklch(0.40 0.12 50);
+
+  --destructive: oklch(0.577 0.245 27.325);
+  --destructive-foreground: oklch(0.984 0.003 247.858);
+
+  --border: oklch(0.91 0.012 255);
+  --input: oklch(0.92 0.012 255);
+  --ring: oklch(0.62 0.16 55);
+
+  --whatsapp: oklch(0.72 0.18 150);
+}
+
+@layer base {
+  * {
+    border-color: var(--color-border);
+  }
+
+  html {
+    direction: rtl;
+  }
+
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+}

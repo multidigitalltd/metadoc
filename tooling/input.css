@@ -1,0 +1,363 @@
+@import "tailwindcss" source(none);
+
+/* סריקת קבצי התבנית לאיתור מחלקות Tailwind בשימוש */
+@source "../**/*.php";
+
+/* ---------------------------------------------------------------------------
+ * פונטים מקומיים — Anomalia (כותרות), Atlas (גוף).
+ * woff2 ראשון עם woff כגיבוי. קבצים מונחים ב-assets/fonts.
+ * עד להעלאתם, נופלים ל-Assistant.
+ * ------------------------------------------------------------------------- */
+@font-face {
+  font-family: "Atlas";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("../fonts/atlas-regular.woff2") format("woff2"),
+    url("../fonts/atlas-regular.woff") format("woff");
+}
+@font-face {
+  font-family: "Atlas";
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("../fonts/atlas-medium.woff2") format("woff2"),
+    url("../fonts/atlas-medium.woff") format("woff");
+}
+@font-face {
+  font-family: "Atlas";
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("../fonts/atlas-medium.woff2") format("woff2"),
+    url("../fonts/atlas-medium.woff") format("woff");
+}
+@font-face {
+  font-family: "Anomalia";
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("../fonts/anomalia-demibold.woff2") format("woff2"),
+    url("../fonts/anomalia-demibold.woff") format("woff");
+}
+@font-face {
+  font-family: "Anomalia";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("../fonts/anomalia-bold.woff2") format("woff2"),
+    url("../fonts/anomalia-bold.woff") format("woff");
+}
+
+/* שמות המשפחה כפי שנרשמו ב-Font Library של וורדפרס מופיעים ראשונים,
+ * ואחריהם שמות ה-@font-face המקומיים (אם יועלו קבצים לתיקיית assets/fonts)
+ * ולבסוף נפילה ל-Assistant. התאמת font-family אינה תלוית-רישיות. */
+@theme {
+  --font-sans: "Atlas DL 3.1 AAA", "Atlas", "Assistant", system-ui, sans-serif;
+  --font-display: "Anomalia ML v2 AAA", "Anomalia", "Atlas DL 3.1 AAA", "Atlas", "Assistant", system-ui, sans-serif;
+}
+
+:root {
+  --md-display: "Anomalia ML v2 AAA", "Anomalia", "Atlas DL 3.1 AAA", "Atlas", "Assistant", system-ui, sans-serif;
+  --md-orange: #ff7a00;
+  --md-orange-soft: #ff9a3c;
+  --md-orange-muted: #d96a10;
+  --md-ink: #0a0a0a;
+}
+
+@layer base {
+  html {
+    direction: rtl;
+  }
+  body {
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+  /* מניעת גלילה אופקית. ברמת השורש (html) משתמשים ב-hidden שמוגדר היטב
+   * ובטוח ל-position: sticky (html הוא ה-scroll root). על body נוסף clip
+   * כשכבת הגנה נוספת. כך הכפתורים הצפים (fixed) לא "בורחים" מהמסך במובייל. */
+  html {
+    overflow-x: hidden;
+    max-width: 100%;
+  }
+  body {
+    overflow-x: clip;
+    max-width: 100%;
+    position: relative;
+  }
+
+  /* התכונה hidden חייבת לגבור על מחלקות display של Tailwind (grid/flex/block)
+   * אחרת מודאלים/פאנלים עם class="grid hidden..." יוצגו תמיד. */
+  [hidden] {
+    display: none !important;
+  }
+
+  /* נגישות: קישור דילוג לתוכן + מצבי פוקוס נראים */
+  .skip-link {
+    position: absolute;
+    left: -9999px;
+    top: 0;
+    z-index: 100;
+    background: #000;
+    color: #fff;
+    padding: 0.75rem 1.25rem;
+    border-radius: 0 0 0.5rem 0;
+    font-weight: 700;
+  }
+  .skip-link:focus {
+    left: 0;
+  }
+  a:focus-visible,
+  button:focus-visible,
+  input:focus-visible,
+  textarea:focus-visible,
+  [tabindex]:focus-visible {
+    outline: 3px solid var(--md-orange);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+}
+
+@layer utilities {
+  .font-display {
+    font-family: var(--md-display);
+  }
+  .font-body {
+    font-family: var(--font-sans);
+  }
+}
+
+/* ---------------------------------------------------------------------------
+ * אנימציות ואינטראקציות מהעיצוב המקורי (מועבר 1:1).
+ * ------------------------------------------------------------------------- */
+@keyframes md-fade-up {
+  0% { opacity: 0; transform: translateY(24px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+@keyframes md-fade-in {
+  0% { opacity: 0; }
+  100% { opacity: 1; }
+}
+@keyframes md-slide-right {
+  0% { opacity: 0; transform: translateX(28px); }
+  100% { opacity: 1; transform: translateX(0); }
+}
+@keyframes md-pop {
+  0% { opacity: 0; transform: scale(0.92); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+/* רכיבי אינטראקציה ב-@layer components כדי שמחלקות Utility של Tailwind
+ * (כמו .fixed / .relative) יגברו עליהם בעת הצורך. */
+@layer components {
+  .md-reveal { opacity: 0; animation: md-fade-up 0.8s ease-out forwards; }
+  .md-reveal-in { opacity: 0; animation: md-fade-in 1s ease-out forwards; }
+  .md-reveal-right { opacity: 0; animation: md-slide-right 0.8s ease-out forwards; }
+  .md-reveal-pop { opacity: 0; animation: md-pop 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
+
+  .md-card-hover {
+    transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.35s ease,
+      border-color 0.35s ease, background-color 0.35s ease;
+  }
+  .md-card-hover:hover { transform: translateY(-6px); }
+
+  .md-img-hover img { transition: transform 0.8s cubic-bezier(0.2, 0.8, 0.2, 1); }
+  .md-img-hover:hover img { transform: scale(1.06); }
+
+  .md-btn {
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
+    transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.35s ease, filter 0.35s ease;
+  }
+  .md-btn:hover { transform: translateY(-2px); filter: brightness(1.05); }
+  .md-btn:active { transform: translateY(0); }
+  .md-btn::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: linear-gradient(120deg, transparent 30%, rgba(255, 255, 255, 0.55) 50%, transparent 70%);
+    transform: translateX(-120%);
+    transition: transform 0.8s ease;
+  }
+  .md-btn:hover::before { transform: translateX(120%); }
+
+  .md-btn-ghost {
+    transition: background-color 0.3s ease, border-color 0.3s ease, transform 0.3s ease, color 0.3s ease;
+  }
+  .md-btn-ghost:hover { transform: translateY(-2px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .md-reveal,
+  .md-reveal-in,
+  .md-reveal-right,
+  .md-reveal-pop {
+    animation: none;
+    opacity: 1;
+  }
+  .md-btn::before { display: none; }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+ * ווידג'ט נגישות (ת"י 5568) — מצבים מופעלים ע"י main.js
+ * ------------------------------------------------------------------------- */
+.md-a11y-contrast {
+  filter: contrast(1.35);
+}
+.md-a11y-grayscale {
+  filter: grayscale(1);
+}
+.md-a11y-invert {
+  filter: invert(1) hue-rotate(180deg);
+}
+.md-a11y-invert img,
+.md-a11y-invert video {
+  filter: invert(1) hue-rotate(180deg);
+}
+.md-a11y-links a {
+  text-decoration: underline !important;
+  text-underline-offset: 2px;
+}
+.md-a11y-highlight-headings :is(h1, h2, h3) {
+  outline: 2px dashed var(--md-orange);
+  outline-offset: 3px;
+}
+.md-a11y-readable * {
+  font-family: Arial, "Assistant", sans-serif !important;
+  letter-spacing: 0.01em;
+}
+.md-a11y-stop-anim *,
+.md-a11y-stop-anim *::before {
+  animation: none !important;
+  transition: none !important;
+}
+.md-reading-guide {
+  position: fixed;
+  left: 0;
+  right: 0;
+  height: 2.25rem;
+  background: rgba(255, 122, 0, 0.18);
+  border-top: 2px solid var(--md-orange);
+  border-bottom: 2px solid var(--md-orange);
+  pointer-events: none;
+  z-index: 9998;
+  display: none;
+}
+
+/* ---------------------------------------------------------------------------
+ * טיפוגרפיית תוכן (עמודים/פוסטים) — the_content
+ * ------------------------------------------------------------------------- */
+.md-prose {
+  color: #404040;
+  line-height: 1.85;
+  font-size: 1.0625rem;
+}
+.md-prose > :first-child { margin-top: 0; }
+.md-prose p,
+.md-prose ul,
+.md-prose ol,
+.md-prose blockquote,
+.md-prose figure,
+.md-prose table,
+.md-prose pre { margin-top: 1.25rem; }
+.md-prose h2 {
+  font-family: var(--md-display);
+  font-weight: 700;
+  font-size: 1.875rem;
+  line-height: 1.2;
+  color: #0a0a0a;
+  margin-top: 2.5rem;
+  margin-bottom: 0.5rem;
+}
+.md-prose h3 {
+  font-family: var(--md-display);
+  font-weight: 700;
+  font-size: 1.375rem;
+  line-height: 1.3;
+  color: #171717;
+  margin-top: 2rem;
+  margin-bottom: 0.5rem;
+}
+.md-prose h4 {
+  font-weight: 700;
+  font-size: 1.125rem;
+  color: #171717;
+  margin-top: 1.5rem;
+}
+.md-prose a {
+  color: var(--md-orange-muted);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.md-prose a:hover { color: var(--md-orange); }
+.md-prose strong { color: #0a0a0a; font-weight: 700; }
+.md-prose ul,
+.md-prose ol { padding-inline-start: 1.5rem; }
+.md-prose ul { list-style: disc; }
+.md-prose ol { list-style: decimal; }
+.md-prose li { margin-top: 0.4rem; }
+.md-prose li::marker { color: var(--md-orange); }
+.md-prose blockquote {
+  border-inline-start: 3px solid var(--md-orange);
+  padding-inline-start: 1.25rem;
+  font-weight: 600;
+  color: #0a0a0a;
+}
+.md-prose img,
+.md-prose video { border-radius: 1rem; height: auto; }
+.md-prose figure img { margin-inline: auto; }
+.md-prose figcaption { font-size: 0.875rem; color: #737373; text-align: center; margin-top: 0.5rem; }
+.md-prose hr { border: 0; border-top: 1px solid #e5e5e5; margin-block: 2.5rem; }
+
+/* תפריט ניווט ראשי */
+.md-nav a {
+  font-weight: 700;
+  font-size: 0.9375rem;
+  color: #404040;
+  transition: color 0.2s ease;
+}
+.md-nav a:hover,
+.md-nav .current-menu-item > a,
+.md-nav .current_page_item > a,
+.md-nav .current-menu-ancestor > a {
+  color: var(--md-orange-muted);
+}
+.md-nav-mobile a {
+  display: block;
+  padding: 0.625rem 0.5rem;
+  border-radius: 0.5rem;
+  font-size: 1rem;
+}
+.md-nav-mobile a:hover {
+  background: #f5f5f5;
+}
+
+/* פאגינציה (ארכיון/חיפוש) */
+.md-pagination { display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center; margin-top: 3rem; }
+.md-pagination .page-numbers {
+  display: inline-grid;
+  place-items: center;
+  min-width: 2.75rem;
+  height: 2.75rem;
+  padding: 0 0.5rem;
+  border-radius: 0.75rem;
+  border: 1px solid #e5e5e5;
+  font-weight: 700;
+  color: #171717;
+  transition: all 0.2s ease;
+}
+.md-pagination a.page-numbers:hover { border-color: var(--md-orange); color: var(--md-orange); }
+.md-pagination .page-numbers.current {
+  background: var(--md-ink);
+  border-color: var(--md-ink);
+  color: #fff;
+}
+
