@@ -20,7 +20,6 @@ const METADOC_TEAM_MAX = 4;
 
 /**
  * שדות חברי הצוות בעמוד "אודות" — נבנים בלולאה כדי למנוע כפילות.
- * שדות יצירת הקשר (טלפון/דוא"ל/לינקדאין) אופציונליים ומוצגים רק כשמולאו.
  *
  * @param callable $t בונה שדה: ( label, default, type ).
  * @return array<string,array{label:string,type:string,default:string}>
@@ -40,13 +39,10 @@ function metadoc_team_fields_config( callable $t ): array {
 		/* translators: 1: מספר חבר/ת הצוות. 2: שם השדה (שם, תפקיד, תמונה...). */
 		$label = static fn( string $suffix ): string => sprintf( __( 'חבר/ת צוות %1$d – %2$s', 'metadoc' ), $i, $suffix );
 
-		$fields[ 'about_team_' . $i . '_name' ]     = $t( $label( __( 'שם', 'metadoc' ) ), __( 'שם מלא', 'metadoc' ) );
-		$fields[ 'about_team_' . $i . '_role' ]     = $t( $label( __( 'תפקיד', 'metadoc' ) ), $preset[0] );
-		$fields[ 'about_team_' . $i . '_bio' ]      = $t( $label( __( 'אודות', 'metadoc' ) ), $preset[1], 'textarea' );
-		$fields[ 'about_team_' . $i . '_photo' ]    = $t( $label( __( 'תמונה', 'metadoc' ) ), '', 'image' );
-		$fields[ 'about_team_' . $i . '_phone' ]    = $t( $label( __( 'טלפון (לא חובה)', 'metadoc' ) ), '' );
-		$fields[ 'about_team_' . $i . '_email' ]    = $t( $label( __( 'דוא"ל (לא חובה)', 'metadoc' ) ), '', 'email' );
-		$fields[ 'about_team_' . $i . '_linkedin' ] = $t( $label( __( 'לינקדאין (לא חובה)', 'metadoc' ) ), '', 'url' );
+		$fields[ 'about_team_' . $i . '_name' ]  = $t( $label( __( 'שם', 'metadoc' ) ), __( 'שם מלא', 'metadoc' ) );
+		$fields[ 'about_team_' . $i . '_role' ]  = $t( $label( __( 'תפקיד', 'metadoc' ) ), $preset[0] );
+		$fields[ 'about_team_' . $i . '_bio' ]   = $t( $label( __( 'אודות', 'metadoc' ) ), $preset[1], 'textarea' );
+		$fields[ 'about_team_' . $i . '_photo' ] = $t( $label( __( 'תמונה', 'metadoc' ) ), '', 'image' );
 	}
 	return $fields;
 }
@@ -415,15 +411,9 @@ final class Metadoc_Content {
 			// סניטציה וסוג פקד לפי סוג השדה (ברירת מחדל: טקסט חופשי).
 			$sanitizers = array(
 				'image'    => 'esc_url_raw',
-				'url'      => 'esc_url_raw',
-				'email'    => 'sanitize_email',
 				'textarea' => 'sanitize_textarea_field',
 			);
-			$controls   = array(
-				'textarea' => 'textarea',
-				'url'      => 'url',
-				'email'    => 'email',
-			);
+			$controls   = array( 'textarea' => 'textarea' );
 
 			$priority_field = 10;
 			foreach ( $section['fields'] as $key => $field ) {
