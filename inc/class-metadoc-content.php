@@ -15,6 +15,42 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+/** מספר חברי הצוות הניתנים לעריכה בעמוד "אודות". */
+const METADOC_TEAM_MAX = 4;
+
+/**
+ * שדות חברי הצוות בעמוד "אודות" — נבנים בלולאה כדי למנוע כפילות.
+ * שדות יצירת הקשר (טלפון/דוא"ל/לינקדאין) אופציונליים ומוצגים רק כשמולאו.
+ *
+ * @param callable $t בונה שדה: ( label, default, type ).
+ * @return array<string,array{label:string,type:string,default:string}>
+ */
+function metadoc_team_fields_config( callable $t ): array {
+	// ברירות מחדל לתפקיד ולתיאור, לכל חבר/ת צוות לפי הסדר.
+	$presets = array(
+		array( 'מנכ"ל ומייסד', 'מעל 15 שנות ניסיון בעולם המשכנתאות והמימון, עם התמחות במקרים מורכבים ובסירובי בנקים.' ),
+		array( 'יועץ/ת משכנתאות בכיר/ה', 'מומחה/ית בבניית פתרונות מימון יצירתיים ובליווי לקוחות מול הבנקים והגופים החוץ-בנקאיים.' ),
+		array( 'מנהל/ת קשרי לקוחות', 'מלווה את הלקוחות לאורך כל התהליך ודואג/ת לשירות אישי, זמין ושקוף מהפנייה ועד החתימה.' ),
+		array( 'יועץ/ת מימון', 'מתמחה בליווי לקוחות עם אתגרי אשראי ובמציאת מסלולי מימון מותאמים אישית.' ),
+	);
+
+	$fields = array();
+	for ( $i = 1; $i <= METADOC_TEAM_MAX; $i++ ) {
+		$preset = $presets[ $i - 1 ] ?? array( '', '' );
+		/* translators: 1: מספר חבר/ת הצוות. 2: שם השדה (שם, תפקיד, תמונה...). */
+		$label = static fn( string $suffix ): string => sprintf( __( 'חבר/ת צוות %1$d – %2$s', 'metadoc' ), $i, $suffix );
+
+		$fields[ 'about_team_' . $i . '_name' ]     = $t( $label( __( 'שם', 'metadoc' ) ), __( 'שם מלא', 'metadoc' ) );
+		$fields[ 'about_team_' . $i . '_role' ]     = $t( $label( __( 'תפקיד', 'metadoc' ) ), $preset[0] );
+		$fields[ 'about_team_' . $i . '_bio' ]      = $t( $label( __( 'אודות', 'metadoc' ) ), $preset[1], 'textarea' );
+		$fields[ 'about_team_' . $i . '_photo' ]    = $t( $label( __( 'תמונה', 'metadoc' ) ), '', 'image' );
+		$fields[ 'about_team_' . $i . '_phone' ]    = $t( $label( __( 'טלפון (לא חובה)', 'metadoc' ) ), '' );
+		$fields[ 'about_team_' . $i . '_email' ]    = $t( $label( __( 'דוא"ל (לא חובה)', 'metadoc' ) ), '', 'email' );
+		$fields[ 'about_team_' . $i . '_linkedin' ] = $t( $label( __( 'לינקדאין (לא חובה)', 'metadoc' ) ), '', 'url' );
+	}
+	return $fields;
+}
+
 /**
  * הגדרת כל הסקשנים והשדות הניתנים לעריכה.
  *
@@ -195,37 +231,29 @@ function metadoc_content_config(): array {
 		),
 		'about'      => array(
 			'label'  => __( 'עמוד אודות', 'metadoc' ),
-			'fields' => array(
-				'about_eyebrow'       => $t( __( 'תווית עליונה', 'metadoc' ), 'אודות מטאדוק' ),
-				'about_subtitle'      => $t( __( 'תת-כותרת (מתחת לכותרת)', 'metadoc' ), 'מומחים למימון ולמשכנתאות למסורבי בנקים — מעל 15 שנות ניסיון בפתרון תיקים מורכבים.', 'textarea' ),
-				'about_image'         => $t( __( 'תמונה ראשית', 'metadoc' ), '', 'image' ),
-				'about_lead'          => $t( __( 'פסקת פתיחה (מודגשת)', 'metadoc' ), 'מטאדוק הוקמה מתוך אמונה פשוטה: לכל אדם מגיעה הזדמנות הוגנת למימון — גם כשהבנק אמר "לא".', 'textarea' ),
-				'about_quote'         => $t( __( 'ציטוט מודגש', 'metadoc' ), 'אנחנו לא מסתפקים בתשובה הראשונה — אנחנו מחפשים את הדרך שבה כן אפשר.', 'textarea' ),
-				'about_values_title'  => $t( __( 'ערכים – כותרת', 'metadoc' ), 'הערכים שמובילים אותנו' ),
-				'about_value_1_title' => $t( __( 'ערך 1 – כותרת', 'metadoc' ), 'מקצועיות' ),
-				'about_value_1_desc'  => $t( __( 'ערך 1 – תיאור', 'metadoc' ), 'ידע מעמיק וניסיון מוכח בטיפול בתיקים מורכבים מול כלל גופי המימון בישראל.', 'textarea' ),
-				'about_value_2_title' => $t( __( 'ערך 2 – כותרת', 'metadoc' ), 'אמינות ושקיפות' ),
-				'about_value_2_desc'  => $t( __( 'ערך 2 – תיאור', 'metadoc' ), 'אתם תמיד יודעים בדיוק היכן התיק עומד, מה הצעדים הבאים ומה העלויות הצפויות.', 'textarea' ),
-				'about_value_3_title' => $t( __( 'ערך 3 – כותרת', 'metadoc' ), 'מחויבות אישית' ),
-				'about_value_3_desc'  => $t( __( 'ערך 3 – תיאור', 'metadoc' ), 'איש קשר אחד שמלווה אתכם מההתחלה ועד החתימה, ונלחם על כל לקוח עד הפתרון.', 'textarea' ),
-				'about_team_title'    => $t( __( 'צוות – כותרת', 'metadoc' ), 'הצוות שלנו' ),
-				'about_team_subtitle' => $t( __( 'צוות – תת-כותרת', 'metadoc' ), 'אנשי מקצוע מנוסים שמלווים אתכם אישית לאורך כל הדרך.', 'textarea' ),
-				'about_team_1_name'   => $t( __( 'חבר/ת צוות 1 – שם', 'metadoc' ), 'שם מלא' ),
-				'about_team_1_role'   => $t( __( 'חבר/ת צוות 1 – תפקיד', 'metadoc' ), 'מנכ"ל ומייסד' ),
-				'about_team_1_bio'    => $t( __( 'חבר/ת צוות 1 – אודות', 'metadoc' ), 'מעל 15 שנות ניסיון בעולם המשכנתאות והמימון, עם התמחות במקרים מורכבים ובסירובי בנקים.', 'textarea' ),
-				'about_team_1_photo'  => $t( __( 'חבר/ת צוות 1 – תמונה', 'metadoc' ), '', 'image' ),
-				'about_team_2_name'   => $t( __( 'חבר/ת צוות 2 – שם', 'metadoc' ), 'שם מלא' ),
-				'about_team_2_role'   => $t( __( 'חבר/ת צוות 2 – תפקיד', 'metadoc' ), 'יועץ/ת משכנתאות בכיר/ה' ),
-				'about_team_2_bio'    => $t( __( 'חבר/ת צוות 2 – אודות', 'metadoc' ), 'מומחה/ית בבניית פתרונות מימון יצירתיים ובליווי לקוחות מול הבנקים והגופים החוץ-בנקאיים.', 'textarea' ),
-				'about_team_2_photo'  => $t( __( 'חבר/ת צוות 2 – תמונה', 'metadoc' ), '', 'image' ),
-				'about_team_3_name'   => $t( __( 'חבר/ת צוות 3 – שם', 'metadoc' ), 'שם מלא' ),
-				'about_team_3_role'   => $t( __( 'חבר/ת צוות 3 – תפקיד', 'metadoc' ), 'מנהל/ת קשרי לקוחות' ),
-				'about_team_3_bio'    => $t( __( 'חבר/ת צוות 3 – אודות', 'metadoc' ), 'מלווה את הלקוחות לאורך כל התהליך ודואג/ת לשירות אישי, זמין ושקוף מהפנייה ועד החתימה.', 'textarea' ),
-				'about_team_3_photo'  => $t( __( 'חבר/ת צוות 3 – תמונה', 'metadoc' ), '', 'image' ),
-				'about_team_4_name'   => $t( __( 'חבר/ת צוות 4 – שם', 'metadoc' ), 'שם מלא' ),
-				'about_team_4_role'   => $t( __( 'חבר/ת צוות 4 – תפקיד', 'metadoc' ), 'יועץ/ת מימון' ),
-				'about_team_4_bio'    => $t( __( 'חבר/ת צוות 4 – אודות', 'metadoc' ), 'מתמחה בליווי לקוחות עם אתגרי אשראי ובמציאת מסלולי מימון מותאמים אישית.', 'textarea' ),
-				'about_team_4_photo'  => $t( __( 'חבר/ת צוות 4 – תמונה', 'metadoc' ), '', 'image' ),
+			'fields' => array_merge(
+				array(
+					'about_eyebrow'        => $t( __( 'תווית עליונה', 'metadoc' ), 'אודות מטאדוק' ),
+					'about_subtitle'       => $t( __( 'תת-כותרת (מתחת לכותרת)', 'metadoc' ), 'מומחים למימון ולמשכנתאות למסורבי בנקים — מעל 15 שנות ניסיון בפתרון תיקים מורכבים.', 'textarea' ),
+					'about_image'          => $t( __( 'תמונה ראשית', 'metadoc' ), '', 'image' ),
+					'about_story_eyebrow'  => $t( __( 'סיפור – תווית', 'metadoc' ), 'הסיפור שלנו' ),
+					'about_story_title'    => $t( __( 'סיפור – כותרת', 'metadoc' ), 'למה הקמנו את מטאדוק' ),
+					'about_lead'           => $t( __( 'פסקת פתיחה (מודגשת)', 'metadoc' ), 'מטאדוק הוקמה מתוך אמונה פשוטה: לכל אדם מגיעה הזדמנות הוגנת למימון — גם כשהבנק אמר "לא".', 'textarea' ),
+					'about_quote'          => $t( __( 'ציטוט מודגש', 'metadoc' ), 'אנחנו לא מסתפקים בתשובה הראשונה — אנחנו מחפשים את הדרך שבה כן אפשר.', 'textarea' ),
+					'about_quote_author'   => $t( __( 'ציטוט – ייחוס', 'metadoc' ), 'צוות מטאדוק' ),
+					'about_values_eyebrow' => $t( __( 'ערכים – תווית', 'metadoc' ), 'הערכים שלנו' ),
+					'about_values_title'   => $t( __( 'ערכים – כותרת', 'metadoc' ), 'הערכים שמובילים אותנו' ),
+					'about_value_1_title'  => $t( __( 'ערך 1 – כותרת', 'metadoc' ), 'מקצועיות' ),
+					'about_value_1_desc'   => $t( __( 'ערך 1 – תיאור', 'metadoc' ), 'ידע מעמיק וניסיון מוכח בטיפול בתיקים מורכבים מול כלל גופי המימון בישראל.', 'textarea' ),
+					'about_value_2_title'  => $t( __( 'ערך 2 – כותרת', 'metadoc' ), 'אמינות ושקיפות' ),
+					'about_value_2_desc'   => $t( __( 'ערך 2 – תיאור', 'metadoc' ), 'אתם תמיד יודעים בדיוק היכן התיק עומד, מה הצעדים הבאים ומה העלויות הצפויות.', 'textarea' ),
+					'about_value_3_title'  => $t( __( 'ערך 3 – כותרת', 'metadoc' ), 'מחויבות אישית' ),
+					'about_value_3_desc'   => $t( __( 'ערך 3 – תיאור', 'metadoc' ), 'איש קשר אחד שמלווה אתכם מההתחלה ועד החתימה, ונלחם על כל לקוח עד הפתרון.', 'textarea' ),
+					'about_team_eyebrow'   => $t( __( 'צוות – תווית', 'metadoc' ), 'הצוות' ),
+					'about_team_title'     => $t( __( 'צוות – כותרת', 'metadoc' ), 'הצוות שלנו' ),
+					'about_team_subtitle'  => $t( __( 'צוות – תת-כותרת', 'metadoc' ), 'אנשי מקצוע מנוסים שמלווים אתכם אישית לאורך כל הדרך.', 'textarea' ),
+				),
+				metadoc_team_fields_config( $t )
 			),
 		),
 		'leadform'   => array(
@@ -384,18 +412,30 @@ final class Metadoc_Content {
 			);
 			$priority_section += 10;
 
+			// סניטציה וסוג פקד לפי סוג השדה (ברירת מחדל: טקסט חופשי).
+			$sanitizers = array(
+				'image'    => 'esc_url_raw',
+				'url'      => 'esc_url_raw',
+				'email'    => 'sanitize_email',
+				'textarea' => 'sanitize_textarea_field',
+			);
+			$controls   = array(
+				'textarea' => 'textarea',
+				'url'      => 'url',
+				'email'    => 'email',
+			);
+
 			$priority_field = 10;
 			foreach ( $section['fields'] as $key => $field ) {
-				$type        = $field['type'];
-				$is_textarea = ( 'textarea' === $type );
-				$is_image    = ( 'image' === $type );
+				$type     = $field['type'];
+				$is_image = ( 'image' === $type );
 				$wp_customize->add_setting(
 					'metadoc_' . $key,
 					array(
 						'type'              => 'theme_mod',
 						'capability'        => 'edit_theme_options',
 						'default'           => $field['default'],
-						'sanitize_callback' => $is_image ? 'esc_url_raw' : ( $is_textarea ? 'sanitize_textarea_field' : 'sanitize_text_field' ),
+						'sanitize_callback' => $sanitizers[ $type ] ?? 'sanitize_text_field',
 						'transport'         => 'refresh',
 					)
 				);
@@ -417,7 +457,7 @@ final class Metadoc_Content {
 						array(
 							'label'    => $field['label'],
 							'section'  => 'metadoc_content_' . $section_id,
-							'type'     => $is_textarea ? 'textarea' : 'text',
+							'type'     => $controls[ $type ] ?? 'text',
 							'priority' => $priority_field,
 						)
 					);
