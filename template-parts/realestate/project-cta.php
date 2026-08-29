@@ -70,6 +70,7 @@ $slots = array(
 						</select>
 					</div>
 					<?php get_template_part( 'template-parts/realestate/consent', null, array( 'id' => 'book' ) ); ?>
+					<?php get_template_part( 'template-parts/realestate/turnstile', null, array( 'light' => true ) ); ?>
 					<button type="submit" class="md-re-btn md-re-btn--grad">
 						<span class="md-btn-label"><?php esc_html_e( 'קבעו לי פגישה', 'metadoc' ); ?></span>
 					</button>

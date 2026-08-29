@@ -104,6 +104,7 @@ $areas = array(
 						</div>
 						<div class="md-re-wide">
 							<?php get_template_part( 'template-parts/realestate/consent', null, array( 'id' => 'contact', 'dark' => true ) ); ?>
+							<?php get_template_part( 'template-parts/realestate/turnstile' ); ?>
 						</div>
 					</div>
 					<div class="md-re-contact-foot">

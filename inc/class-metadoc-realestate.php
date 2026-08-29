@@ -242,12 +242,24 @@ final class Metadoc_RealEstate {
 		);
 
 		foreach ( $pages as $slug => $page ) {
-			$existing = get_page_by_path( $slug );
-			if ( $existing instanceof WP_Post ) {
-				update_post_meta( $existing->ID, '_wp_page_template', $page['template'] );
+			// רק עמוד *מפורסם* נחשב קיים. עמוד טיוטה/פרטי/באשפה באותו slug אינו
+			// נגיש לגולשים, ולכן יוצרים עמוד חדש (וורדפרס יבחר slug פנוי).
+			$existing = get_posts(
+				array(
+					'post_type'        => 'page',
+					'post_status'      => 'publish',
+					'name'             => $slug,
+					'posts_per_page'   => 1,
+					'fields'           => 'ids',
+					'no_found_rows'    => true,
+					'suppress_filters' => false,
+				)
+			);
+			if ( ! empty( $existing ) ) {
+				update_post_meta( (int) $existing[0], '_wp_page_template', $page['template'] );
 				continue;
 			}
-			$id = wp_insert_post(
+			wp_insert_post(
 				array(
 					'post_title'  => $page['title'],
 					'post_name'   => $slug,
@@ -256,7 +268,6 @@ final class Metadoc_RealEstate {
 					'meta_input'  => array( '_wp_page_template' => $page['template'] ),
 				)
 			);
-			unset( $id );
 		}
 
 		self::flush_urls();

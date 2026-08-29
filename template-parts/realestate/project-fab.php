@@ -38,6 +38,7 @@ $wa_ic = '<svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" ar
 			</a>
 			<button type="button" class="md-pr-fab-x" data-md-fab-toggle aria-label="<?php esc_attr_e( 'סגירת הטופס', 'metadoc' ); ?>">×</button>
 		</div>
+		<?php get_template_part( 'template-parts/realestate/turnstile', null, array( 'light' => true ) ); ?>
 		<?php get_template_part( 'template-parts/form-honeypot' ); ?>
 		<p class="md-re-status md-form-status" role="status" aria-live="polite"></p>
 	</form>

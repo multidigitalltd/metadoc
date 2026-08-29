@@ -99,6 +99,7 @@ $logo_img = METADOC_URI . '/assets/img/re/metadoc-logo-full.png';
 								</select>
 							</div>
 							<?php get_template_part( 'template-parts/realestate/consent', null, array( 'id' => 'club', 'dark' => true ) ); ?>
+							<?php get_template_part( 'template-parts/realestate/turnstile' ); ?>
 							<button type="submit" class="md-re-btn md-re-btn--pill">
 								<span class="md-btn-label"><?php esc_html_e( 'הצטרפו למועדון ←', 'metadoc' ); ?></span>
 							</button>

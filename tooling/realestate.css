@@ -95,6 +95,10 @@ html[data-md-anim="1"] .md-re [data-rv] { opacity: 0; transform: translateY(20px
 html[data-md-anim="1"] .md-re [data-rv].rv-in { opacity: 1; transform: none; }
 
 /* הודעת מצב לטפסים */
+/* ווידג'ט Turnstile (מודפס רק כשהוא מופעל בהגדרות) */
+.md-re-turnstile { max-width: 100%; overflow: hidden; }
+.md-pr-fab .md-re-turnstile { max-width: 1220px; margin: 0 auto; padding: 0 4% 10px; }
+
 .md-re-status { font-size: 13.5px; font-weight: 700; margin: 12px 0 0; min-height: 1em; }
 .md-re-status:empty { margin: 0; min-height: 0; }
 
@@ -790,8 +794,11 @@ html[data-md-anim="1"] .md-pr [data-chart].rv-in [data-ch-dot]:nth-child(3) { tr
 @media (max-width: 620px) {
   .md-re-club-title { font-size: 34px; }
   .md-re-asset-panel { grid-template-columns: 1fr; }
-  .md-pr-fab-bar { grid-template-columns: 1fr auto auto auto auto; gap: 10px; }
-  .md-pr-fab-name { display: none; }
+  /* שדה השם נשאר גלוי: הוא חובה בוולידציה, והסתרתו הייתה חוסמת כל שליחה. */
+  .md-pr-fab-bar { grid-template-columns: 1fr 1fr auto auto auto auto; gap: 8px; padding: 12px 3%; }
+  .md-pr-fab-in { padding: 12px 10px; font-size: 15px; }
+  .md-pr-fab-send { padding: 13px 14px; font-size: 15px; }
+  .md-pr-wa { width: 44px; height: 44px; }
   .md-pr-fab-consent { max-width: none; font-size: 0; gap: 0; }
   .md-pr-fab-consent span { display: none; }
 }
