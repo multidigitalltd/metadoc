@@ -43,6 +43,13 @@ $wa_ic = '<svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" ar
 		<p class="md-re-status md-form-status" role="status" aria-live="polite"></p>
 	</form>
 
+	<div class="md-pr-fab-mobile">
+		<a class="md-pr-fab-open" href="#interest"><?php esc_html_e( 'לפרטים נוספים', 'metadoc' ); ?></a>
+		<a class="md-pr-wa md-pr-wa--round" href="<?php echo esc_url( $wa ); ?>" target="_blank" rel="noopener noreferrer" aria-label="<?php esc_attr_e( 'שליחת הודעת וואטסאפ', 'metadoc' ); ?>">
+			<?php echo $wa_ic; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- SVG קבוע בקוד. ?>
+		</a>
+	</div>
+
 	<div class="md-pr-fab-mini" data-md-fab-mini hidden>
 		<span><?php esc_html_e( 'מעניין אתכם הפרויקט? השאירו פרטים ונחזור אליכם', 'metadoc' ); ?></span>
 		<div class="md-pr-fab-mini-side">

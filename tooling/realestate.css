@@ -14,12 +14,11 @@
   --acc: #fb7a00;
   --acc-lt: #fd9433;
   --acc-hv: #e56e00;
-  /* כתום המותג (#fb7a00) עומד בניגודיות רק על רקע כהה. לטקסט כתום על רקע
-   * בהיר נדרשת הכהיה כדי לעמוד ב-AA (ת"י 5568 / WCAG 2.2):
-   * --acc-txt לטקסט קטן (4.5:1), --acc-txt-lg לכותרות גדולות (3:1).
-   * לשחזור צבע העיצוב המקורי במדויק: הציבו כאן var(--acc) בשתי השורות. */
-  --acc-txt: #b35100;
-  --acc-txt-lg: #d16600;
+  /* כתום אחיד לכל האתר, לפי החלטת הלקוח. שימו לב: #fb7a00 על רקע בהיר
+   * נותן 2.66:1 ואינו עומד ב-AA כטקסט. חלופה נגישה (5.1:1 / 3.7:1):
+   * --acc-txt: #b35100;  --acc-txt-lg: #d16600; */
+  --acc-txt: var(--acc);
+  --acc-txt-lg: var(--acc);
   --ink: #1b1712;
   --deep: #14110e;
   --black: #0b0a08;
@@ -55,12 +54,6 @@
   position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
   overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
 }
-/* מקטעים כהים: על רקע כהה כתום המותג עומד בניגושיות, ולכן חוזרים אליו. */
-.md-re-hero, .md-re-club, .md-re-process, .md-re-contact, .md-re-band-in,
-.md-re-strip, .md-re-foot, .md-pr-hero, .md-pr-scen-sec { --acc-txt: var(--acc); --acc-txt-lg: var(--acc); }
-/* כרטיסים בהירים בתוך מקטע כהה — חוזרים לגרסה הכהה של הכתום. */
-.md-re-deal-card, .md-pr-fab { --acc-txt: #b35100; --acc-txt-lg: #d16600; }
-
 .md-re-in { max-width: 1220px; margin: 0 auto; }
 .md-re-eyebrow { font-size: 13px; font-weight: 700; color: var(--acc-txt); letter-spacing: 4px; margin-bottom: 14px; }
 .md-re-h2 { font-size: 44px; margin: 0 0 16px; line-height: 1.15; }
@@ -506,7 +499,8 @@ html[data-md-anim="1"] .md-re [data-rv].rv-in { opacity: 1; transform: none; }
 .md-pr-hdr { position: sticky; top: 0; z-index: 60; background: #ffffffee; backdrop-filter: blur(10px); border-bottom: 1px solid var(--line); padding: 14px 5%; display: flex; align-items: center; justify-content: space-between; gap: 20px; }
 .md-pr-back { display: inline-flex; align-items: center; gap: 8px; color: var(--grey); font-size: 15px; font-weight: 500; }
 .md-pr-back:hover { color: var(--acc-txt); }
-.md-pr-hdr .md-re-btn--grad { padding: 11px 24px; font-size: 15px; box-shadow: 0 8px 22px #fb7a0030; }
+.md-pr-hdr .md-re-btn--grad { padding: 11px 24px; font-size: 15px; box-shadow: 0 8px 22px #fb7a0030; white-space: nowrap; }
+.md-pr-cta-short { display: none; }
 
 /* --- Hero -------------------------------------------------------------- */
 @keyframes mdPrHeroFade { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
@@ -698,10 +692,13 @@ html[data-md-anim="1"] .md-pr [data-chart].rv-in [data-ch-dot]:nth-child(3) { tr
 .md-pr-fab-consent { display: flex; align-items: center; gap: 7px; font-size: 11.5px; line-height: 1.35; color: var(--grey); max-width: 96px; }
 .md-pr-fab-consent input { margin: 0; inline-size: 16px; block-size: 16px; flex: none; accent-color: var(--acc); }
 .md-pr-fab-consent a { color: var(--acc-txt); text-decoration: underline; }
+.md-pr-fab-mobile { display: none; max-width: 1220px; margin: 0 auto; padding: 12px 4%; align-items: center; justify-content: center; gap: 12px; }
+.md-pr-fab-mobile .md-pr-fab-open { flex: 1 1 auto; text-align: center; }
 .md-pr-fab-mini { max-width: 1220px; margin: 0 auto; padding: 12px 4%; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
 .md-pr-fab-mini > span { font-size: 16px; font-weight: 700; }
 .md-pr-fab-mini-side { display: flex; align-items: center; gap: 10px; flex: none; }
-.md-pr-fab-open { background: linear-gradient(180deg, var(--acc-lt), var(--acc)); color: var(--deep); border: none; padding: 12px 26px; border-radius: 99px; font-weight: 700; font-size: 16px; white-space: nowrap; cursor: pointer; box-shadow: 0 8px 22px #fb7a0038; }
+.md-pr-fab-open { display: inline-block; background: linear-gradient(180deg, var(--acc-lt), var(--acc)); color: var(--deep); border: none; padding: 13px 26px; border-radius: 99px; font-weight: 700; font-size: 16px; white-space: nowrap; cursor: pointer; box-shadow: 0 8px 22px #fb7a0038; }
+.md-pr-fab-open:hover { color: var(--deep); filter: brightness(1.06); }
 .md-pr-fab-open:hover { filter: brightness(1.06); }
 .md-pr-fab .md-re-status { padding: 0 4% 10px; max-width: 1220px; margin: 0 auto; text-align: center; }
 
@@ -771,6 +768,18 @@ html[data-md-anim="1"] .md-pr [data-chart].rv-in [data-ch-dot]:nth-child(3) { tr
   .md-pr-fab-email { display: none; }
 }
 @media (max-width: 760px) {
+  /* הסרגל הקבוע מצטמצם לכפתור אחד שמפנה לטופס שבתחתית העמוד + וואטסאפ. */
+  .md-pr-fab form, .md-pr-fab-mini { display: none !important; }
+  .md-pr-fab-mobile { display: flex; }
+  .md-pr-foot-in, .md-pr-foot-in.is-open { padding-bottom: 88px; }
+
+  /* הכותרת נגללת עם העמוד במובייל, והכפתור מתקצר לשורה אחת. */
+  .md-pr-hdr { position: static; padding: 12px 5%; gap: 12px; }
+  .md-pr-back { font-size: 14px; }
+  .md-pr-back span:last-child { white-space: nowrap; }
+  .md-pr-hdr .md-re-btn--grad { padding: 11px 18px; font-size: 14.5px; }
+  .md-pr-cta-full { display: none; }
+  .md-pr-cta-short { display: inline; }
   .md-re-hstats { grid-template-columns: repeat(2, 1fr); }
   .md-pr-hstats { grid-template-columns: 1fr 1fr; gap: 20px 24px; }
   .md-pr-h1 { font-size: 36px; }
@@ -794,13 +803,6 @@ html[data-md-anim="1"] .md-pr [data-chart].rv-in [data-ch-dot]:nth-child(3) { tr
 @media (max-width: 620px) {
   .md-re-club-title { font-size: 34px; }
   .md-re-asset-panel { grid-template-columns: 1fr; }
-  /* שדה השם נשאר גלוי: הוא חובה בוולידציה, והסתרתו הייתה חוסמת כל שליחה. */
-  .md-pr-fab-bar { grid-template-columns: 1fr 1fr auto auto auto auto; gap: 8px; padding: 12px 3%; }
-  .md-pr-fab-in { padding: 12px 10px; font-size: 15px; }
-  .md-pr-fab-send { padding: 13px 14px; font-size: 15px; }
-  .md-pr-wa { width: 44px; height: 44px; }
-  .md-pr-fab-consent { max-width: none; font-size: 0; gap: 0; }
-  .md-pr-fab-consent span { display: none; }
 }
 @media (max-width: 560px) {
   .md-re-deal { display: none; }
