@@ -1,6 +1,7 @@
 # Metadoc — תבנית וורדפרס (Multi Digital)
 
-עמוד נחיתה יחיד בעברית (RTL) ל"מטאדוק" — משכנתאות והלוואות למסורבי בנקים.
+עמוד נחיתה בעברית (RTL) ל"מטאדוק" — משכנתאות והלוואות למסורבי בנקים, ובנוסף
+שני עמודי מחלקת הנדל"ן וההשקעות (עמוד מחלקה עם מועדון המשקיעים, ועמוד פרויקט).
 התבנית פותחה מתוך עיצוב Lovable (React + Tailwind v4) והומרה לתבנית וורדפרס
 קסטום, תוך הצמדות 1:1 לעיצוב (פונטים, משקלים, צבעים, מרווחים).
 
@@ -11,6 +12,10 @@
 - **תבנית קלאסית קסטום** (`front-page.php` + `template-parts/`).
 - **Tailwind v4 מקומפל** לקובץ CSS מוקטן יחיד `assets/css/app.min.css`.
   אין Tailwind בזמן ריצה ואין CDN. בנייה דרך `tooling/` (ראה למטה).
+- **עמודי הנדל"ן** (`template-realestate.php`, `template-project.php`) הם המרה
+  hi-fi של אב-טיפוס עם ערכי עיצוב מדויקים, ולכן אינם משתמשים ב-Tailwind אלא
+  ב-CSS קסטום כתוב-יד (`tooling/realestate.css` → `assets/css/realestate.min.css`)
+  שנטען **מותנה** רק בשתי התבניות האלה, יחד עם `assets/js/realestate.js`.
 - **JavaScript וניל בלבד** (`assets/js/main.js`). אין jQuery, אין ספריות צד ג'.
 - **אייקונים** — inline SVG (`inc/icons.php`), אין ספריית אייקונים.
 - **טופס לידים** — REST endpoint עם Nonce + Sanitization + Honeypot,
@@ -24,12 +29,17 @@ functions.php        טעינות מותנות, theme support, אבטחה, בי�
 front-page.php       הרכבת עמוד הנחיתה מ-template-parts
 header.php/footer.php עטיפת ה-<html>, skip link, ווידג'טים צפים
 template-parts/      סקשן לכל בלוק עיצוב
-inc/                 לוגיקה: לידים (REST+CPT), אייקונים, helpers
+template-parts/realestate/  סקשנים של שני עמודי הנדל"ן
+header-realestate.php / footer-realestate.php  עטיפה עצמאית לעמודי הנדל"ן
+template-realestate.php / template-project.php  שתי תבניות העמוד
+inc/                 לוגיקה: לידים (REST+CPT), אייקונים, helpers, מחלקת נדל"ן
 assets/css/app.min.css  Tailwind מקומפל (commit-ed, לא דורש build בפרודקשן)
+assets/css/realestate.min.css  CSS עמודי הנדל"ן (טעינה מותנית)
 assets/js/main.js    reveal-on-scroll, טופס, ווידג'ט נגישות
-assets/fonts/        קבצי .woff (Barlev / Atlas / Anomalia)
-assets/img/          תמונות התוכן + לוגו
-tooling/             מקור ה-Tailwind + סקריפט build
+assets/js/realestate.js  אינטראקציות עמודי הנדל"ן (טעינה מותנית)
+assets/fonts/        Atlas / Anomalia — woff2 + woff
+assets/img/          תמונות התוכן + לוגו (assets/img/re/ — נכסי הנדל"ן)
+tooling/             מקורות ה-CSS + סקריפטים (build, images, fonts)
 ```
 
 ## בנייה מחדש של ה-CSS
@@ -39,6 +49,14 @@ tooling/             מקור ה-Tailwind + סקריפט build
 cd tooling && npm install && npm run build
 ```
 זה סורק את כל קבצי ה-`.php` ומפיק `assets/css/app.min.css` מוקטן.
+
+לאחר שינוי ב-`tooling/realestate.css` (עמודי הנדל"ן):
+```
+cd tooling && npm run build:re     # או npm run build:all לשניהם
+```
+
+עוד סקריפטים: `npm run images` (המרת תמונות ל-WebP, כולל תיקיות משנה),
+`npm run fonts` (המרת `.woff` ל-`.woff2` ב-assets/fonts).
 
 ## תקן הפיתוח — Multi Digital (חובה)
 
@@ -73,6 +91,14 @@ cd tooling && npm install && npm run build
 - מודאלים: trap focus, ESC, החזרת פוקוס. `prefers-reduced-motion` מכובד.
 - טקסט מתכוונן עד 200%. ווידג'ט נגישות (גודל טקסט, ניגודיות, עצירת אנימציות,
   הדגשת קישורים, מדריך קריאה) עם שמירה ב-localStorage. עמוד הצהרת נגישות.
+
+### עמודי הנדל"ן — כללי עבודה
+- הקופי, המספרים והערכים העיצוביים אושרו מול הלקוח — אין לשנותם ללא אישור.
+- טקסט כתום על רקע בהיר משתמש ב-`--acc-txt` / `--acc-txt-lg` (הכהיה לצורך AA);
+  על רקע כהה נשאר `#fb7a00`. אין להשתמש ב-`var(--acc)` לטקסט על רקע בהיר.
+- מציין-המקום של תמונה (`.md-re-ph`) ממוקם `absolute` — כל מכל תמונה חייב
+  להישאר `position: relative` גם בנקודות שבירה.
+- החשיפה בגלילה נעולה מאחורי `html[data-md-anim="1"]`: בלי JS שום דבר אינו מוסתר.
 
 ### SEO
 - HTML סמנטי, H1 יחיד, היררכיית כותרות, Open Graph, Schema, URL ידידותי,

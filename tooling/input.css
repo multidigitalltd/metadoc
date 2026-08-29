@@ -11,6 +11,14 @@
 @font-face {
   font-family: "Atlas";
   font-style: normal;
+  font-weight: 300;
+  font-display: swap;
+  src: url("../fonts/atlas-light.woff2") format("woff2"),
+    url("../fonts/atlas-light.woff") format("woff");
+}
+@font-face {
+  font-family: "Atlas";
+  font-style: normal;
   font-weight: 400;
   font-display: swap;
   src: url("../fonts/atlas-regular.woff2") format("woff2"),
@@ -31,6 +39,30 @@
   font-display: swap;
   src: url("../fonts/atlas-medium.woff2") format("woff2"),
     url("../fonts/atlas-medium.woff") format("woff");
+}
+@font-face {
+  font-family: "Atlas";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("../fonts/atlas-bold.woff2") format("woff2"),
+    url("../fonts/atlas-bold.woff") format("woff");
+}
+@font-face {
+  font-family: "Anomalia";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("../fonts/anomalia-regular.woff2") format("woff2"),
+    url("../fonts/anomalia-regular.woff") format("woff");
+}
+@font-face {
+  font-family: "Anomalia";
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("../fonts/anomalia-medium.woff2") format("woff2"),
+    url("../fonts/anomalia-medium.woff") format("woff");
 }
 @font-face {
   font-family: "Anomalia";

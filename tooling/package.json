@@ -6,11 +6,15 @@
   "scripts": {
     "build": "tailwindcss -i ./input.css -o ../assets/css/app.min.css --minify",
     "watch": "tailwindcss -i ./input.css -o ../assets/css/app.min.css --watch",
-    "images": "node convert-images.mjs"
+    "images": "node convert-images.mjs",
+    "build:re": "tailwindcss -i ./realestate.css -o ../assets/css/realestate.min.css --minify",
+    "build:all": "npm run build && npm run build:re",
+    "fonts": "node fonts-to-woff2.mjs"
   },
   "devDependencies": {
     "@tailwindcss/cli": "^4.1.0",
     "sharp": "^0.35.2",
-    "tailwindcss": "^4.1.0"
+    "tailwindcss": "^4.1.0",
+    "wawoff2": "^2.0.1"
   }
 }

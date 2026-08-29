@@ -62,6 +62,7 @@ final class Metadoc_Leads {
 		$fields = array(
 			'_md_name'    => __( 'שם', 'metadoc' ),
 			'_md_phone'   => __( 'טלפון', 'metadoc' ),
+			'_md_email'   => __( 'אימייל', 'metadoc' ),
 			'_md_note'    => __( 'פרטים', 'metadoc' ),
 			'_md_consent' => __( 'אישור מדיניות פרטיות', 'metadoc' ),
 			'_md_ip'      => __( 'כתובת IP', 'metadoc' ),
@@ -101,14 +102,26 @@ final class Metadoc_Leads {
 		}
 
 		$phone = (string) get_post_meta( $post->ID, '_md_phone', true );
-		$wa    = preg_replace( '/\D/', '', '972' . ltrim( $phone, '0' ) );
-		printf(
-			'<p style="margin-top:12px"><a class="button button-primary" href="tel:%1$s">%2$s</a> <a class="button" href="https://wa.me/%3$s" target="_blank" rel="noopener noreferrer">%4$s</a></p>',
-			esc_attr( $phone ),
-			esc_html__( 'חיוג ללקוח', 'metadoc' ),
-			esc_attr( (string) $wa ),
-			esc_html__( 'וואטסאפ', 'metadoc' )
-		);
+		$email = (string) get_post_meta( $post->ID, '_md_email', true );
+		echo '<p style="margin-top:12px">';
+		if ( '' !== $phone ) {
+			$wa = preg_replace( '/\D/', '', '972' . ltrim( $phone, '0' ) );
+			printf(
+				'<a class="button button-primary" href="tel:%1$s">%2$s</a> <a class="button" href="https://wa.me/%3$s" target="_blank" rel="noopener noreferrer">%4$s</a> ',
+				esc_attr( $phone ),
+				esc_html__( 'חיוג ללקוח', 'metadoc' ),
+				esc_attr( (string) $wa ),
+				esc_html__( 'וואטסאפ', 'metadoc' )
+			);
+		}
+		if ( '' !== $email ) {
+			printf(
+				'<a class="button" href="mailto:%1$s">%2$s</a>',
+				esc_attr( $email ),
+				esc_html__( 'שליחת מייל', 'metadoc' )
+			);
+		}
+		echo '</p>';
 	}
 
 	/**
@@ -157,7 +170,9 @@ final class Metadoc_Leads {
 				'permission_callback' => array( __CLASS__, 'permission' ),
 				'args'                => array(
 					'name'   => array( 'required' => true, 'type' => 'string' ),
-					'phone'  => array( 'required' => true, 'type' => 'string' ),
+					// טלפון או אימייל — לפחות אחד מהם חובה, נבדק ב-handle().
+					'phone'  => array( 'required' => false, 'type' => 'string' ),
+					'email'  => array( 'required' => false, 'type' => 'string' ),
 					'note'   => array( 'required' => false, 'type' => 'string' ),
 					'source' => array( 'required' => false ), // אופציונלי — מקור הגעה; לעולם לא חוסם שליחה.
 				),
@@ -230,6 +245,7 @@ final class Metadoc_Leads {
 		// Sanitization.
 		$name  = sanitize_text_field( (string) $request->get_param( 'name' ) );
 		$phone = sanitize_text_field( (string) $request->get_param( 'phone' ) );
+		$email = sanitize_email( (string) $request->get_param( 'email' ) );
 		$note  = sanitize_textarea_field( (string) $request->get_param( 'note' ) );
 
 		// אימות צד-שרת (לא לסמוך על הדפדפן).
@@ -237,9 +253,23 @@ final class Metadoc_Leads {
 			return new WP_Error( 'metadoc_name', __( 'נא להזין שם מלא', 'metadoc' ), array( 'status' => 422 ) );
 		}
 		// אימות טלפון לפי ספרות בלבד — תומך מקומי (0...) ובינלאומי (972...).
-		$phone_digits = preg_replace( '/\D/', '', $phone );
-		if ( ! preg_match( '/^0\d{7,9}$/', $phone_digits ) && ! preg_match( '/^972\d{8,9}$/', $phone_digits ) ) {
-			return new WP_Error( 'metadoc_phone', __( 'מספר טלפון לא תקין', 'metadoc' ), array( 'status' => 422 ) );
+		$phone_digits = (string) preg_replace( '/\D/', '', $phone );
+		$phone_ok     = ( '' !== $phone_digits )
+			&& ( preg_match( '/^0\d{7,9}$/', $phone_digits ) || preg_match( '/^972\d{8,9}$/', $phone_digits ) );
+		$email_ok     = ( '' !== $email && is_email( $email ) );
+
+		// לפחות אמצעי קשר אחד תקין. הטפסים הקצרים מאפשרים אימייל במקום טלפון.
+		if ( ! $phone_ok && ! $email_ok ) {
+			$message = '' !== $email
+				? __( 'נא להזין טלפון או אימייל תקינים', 'metadoc' )
+				: __( 'מספר טלפון לא תקין', 'metadoc' );
+			return new WP_Error( 'metadoc_phone', $message, array( 'status' => 422 ) );
+		}
+		if ( ! $phone_ok ) {
+			$phone = '';
+		}
+		if ( ! $email_ok ) {
+			$email = '';
 		}
 		if ( mb_strlen( $note ) > 1000 ) {
 			$note = mb_substr( $note, 0, 1000 );
@@ -261,6 +291,7 @@ final class Metadoc_Leads {
 		$meta = array(
 			'_md_name'    => $name,
 			'_md_phone'   => $phone,
+			'_md_email'   => $email,
 			'_md_note'    => $note,
 			'_md_consent' => '1',
 			'_md_ip'      => $ip,
@@ -277,7 +308,7 @@ final class Metadoc_Leads {
 			array(
 				'post_type'   => self::CPT,
 				'post_status' => 'private',
-				'post_title'  => sprintf( '%s · %s', $name, $phone ),
+				'post_title'  => sprintf( '%s · %s', $name, '' !== $phone ? $phone : $email ),
 				'meta_input'  => $meta,
 			),
 			true
@@ -288,11 +319,12 @@ final class Metadoc_Leads {
 		}
 
 		set_transient( $key, 1, self::RATE_SECONDS );
-		self::notify( $name, $phone, $note, $src );
+		self::notify( $name, $phone, $note, $src, $email );
 		self::send_webhook(
 			array(
 				'name'       => $name,
 				'phone'      => $phone,
+				'email'      => $email,
 				'note'       => $note,
 				'source'     => $src,
 				'site'       => home_url( '/' ),
@@ -382,7 +414,7 @@ final class Metadoc_Leads {
 	 * @param string $phone טלפון.
 	 * @param string $note  הערה.
 	 */
-	private static function notify( string $name, string $phone, string $note, array $src = array() ): void {
+	private static function notify( string $name, string $phone, string $note, array $src = array(), string $email = '' ): void {
 		$contact = metadoc_contact();
 
 		// יעד: מההגדרות אם תקין, אחרת ברירת המחדל. ניתן לעקיפה דרך פילטר.
@@ -398,7 +430,8 @@ final class Metadoc_Leads {
 			'התקבלה פנייה חדשה לבדיקת זכאות:',
 			'',
 			'שם: ' . $name,
-			'טלפון: ' . $phone,
+			'טלפון: ' . ( '' !== $phone ? $phone : '—' ),
+			'אימייל: ' . ( '' !== $email ? $email : '—' ),
 			'פרטים: ' . ( '' !== $note ? $note : '—' ),
 		);
 
@@ -526,6 +559,7 @@ final class Metadoc_Leads {
 		$new = array( 'cb' => $cols['cb'] ?? '' );
 		$new['md_name']  = __( 'שם', 'metadoc' );
 		$new['md_phone'] = __( 'טלפון', 'metadoc' );
+		$new['md_email']  = __( 'אימייל', 'metadoc' );
 		$new['md_note']   = __( 'פרטים', 'metadoc' );
 		$new['md_source'] = __( 'מקור', 'metadoc' );
 		$new['date']      = __( 'התקבל', 'metadoc' );
@@ -542,6 +576,7 @@ final class Metadoc_Leads {
 		$map = array(
 			'md_name'  => '_md_name',
 			'md_phone' => '_md_phone',
+			'md_email' => '_md_email',
 			'md_note'  => '_md_note',
 		);
 		if ( isset( $map[ $column ] ) ) {
