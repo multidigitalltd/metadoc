@@ -194,8 +194,12 @@
 				.finally(function () {
 					if (button) { button.disabled = '1' === form.getAttribute('data-md-sent'); }
 					if (label) { label.textContent = labelText; }
+					// איפוס הווידג'ט של הטופס הזה בלבד. ללא מזהה, Cloudflare מאפסת את
+					// הווידג'ט הראשון בעמוד — ובעמוד עם שני טפסים זה משאיר את הטופס
+					// שנשלח עם טוקן שנוצל, וכל ניסיון חוזר נכשל.
 					if (window.turnstile && typeof window.turnstile.reset === 'function') {
-						try { window.turnstile.reset(); } catch (e) {}
+						var tsEl = form.querySelector('.cf-turnstile');
+						try { tsEl ? window.turnstile.reset(tsEl) : window.turnstile.reset(); } catch (e) {}
 					}
 				});
 		});

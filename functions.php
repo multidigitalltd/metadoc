@@ -113,6 +113,15 @@ function metadoc_enqueue_assets(): void {
 	// סקריפט Turnstile של Cloudflare — רק כשהוגדר site key.
 	if ( Metadoc_Settings::turnstile_enabled() ) {
 		wp_enqueue_script( 'cf-turnstile', 'https://challenges.cloudflare.com/turnstile/v0/api.js', array(), null, true ); // phpcs:ignore WordPress.WP.EnqueuedResourceParameters.MissingVersion -- צד שלישי ללא גרסה.
+
+		// ווידג'ט Turnstile רגיל הוא ברוחב 300px וגולש ממכלי טפסים צרים במובייל.
+		// מעבר לגרסה הקומפקטית (150px) חייב לקרות לפני הרינדור האוטומטי — ולכן
+		// הסקריפט מודפס מיד לפני סקריפט Cloudflare.
+		wp_add_inline_script(
+			'cf-turnstile',
+			'(function(){try{if(window.innerWidth>430){return;}var n=document.querySelectorAll(".cf-turnstile");for(var i=0;i<n.length;i++){if(!n[i].getAttribute("data-size")){n[i].setAttribute("data-size","compact");}}}catch(e){}})();',
+			'before'
+		);
 	}
 
 	wp_localize_script(
