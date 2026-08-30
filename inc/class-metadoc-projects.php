@@ -117,6 +117,10 @@ final class Metadoc_Projects {
 	 * @return array<string,array{title:string,fields:array<string,array>}>
 	 */
 	public static function schema(): array {
+		static $cache = null;
+		if ( null !== $cache ) {
+			return $cache;
+		}
 		$icons = array_keys( self::fact_icons() );
 
 		$facts = array(
@@ -175,7 +179,7 @@ final class Metadoc_Projects {
 			}
 		}
 
-		return array(
+		$cache = array(
 			'hero' => array(
 				'title'  => __( 'ראש העמוד', 'metadoc' ),
 				'fields' => array(
@@ -283,6 +287,8 @@ final class Metadoc_Projects {
 				),
 			),
 		);
+
+		return $cache;
 	}
 
 	/**
@@ -550,6 +556,9 @@ final class Metadoc_Projects {
 			}
 			$type = $field['type'] ?? 'text';
 			$raw  = wp_unslash( $_POST[ $name ] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- מסונן מיד לפי סוג.
+			if ( is_array( $raw ) ) {
+				continue; // כל השדות סקלריים; מערך הוא קלט זדוני.
+			}
 			if ( 'media' === $type ) {
 				$value = (string) absint( $raw );
 				$value = '0' === $value ? '' : $value;
