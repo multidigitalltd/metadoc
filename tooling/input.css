@@ -93,7 +93,9 @@
   --md-display: "Anomalia ML v2 AAA", "Anomalia", "Atlas DL 3.1 AAA", "Atlas", "Assistant", system-ui, sans-serif;
   --md-orange: #ff7a00;
   --md-orange-soft: #ff9a3c;
-  --md-orange-muted: #d96a10;
+  /* גרסת הכתום לטקסט על רקע לבן. הוכהה מ-#d96a10 (3.48:1, נכשל ב-AA)
+   * ל-#bd5500 (4.67:1) — משמש בקישורי תוכן ובפריט התפריט הפעיל. */
+  --md-orange-muted: #bd5500;
   --md-ink: #0a0a0a;
 }
 
@@ -362,6 +364,30 @@
 .md-nav .current-menu-ancestor > a {
   color: var(--md-orange-muted);
 }
+/* "מחלקת נדל"ן" — פריט קבוע בתפריט, מודגש ככפתור. הסלקטור דו-מחלקתי
+ * כדי לגבור על `.md-nav a` בלי !important.
+ * הטקסט כהה ולא לבן: לבן על #ff7a00 נותן 2.6:1 ואינו עומד ב-AA, ואילו
+ * ‎#0a0a0a‎ על אותו כתום נותן 7.6:1 — הכתום המותג נשמר במילוי. */
+.md-nav .md-nav-re {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.5rem 1rem;
+  border-radius: 9999px;
+  color: var(--md-ink);
+  background: var(--md-orange);
+  box-shadow: 0 6px 18px rgba(255, 122, 0, 0.28);
+  white-space: nowrap;
+  transition: background-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+}
+.md-nav .md-nav-re:hover {
+  color: var(--md-ink);
+  background: var(--md-orange-soft);
+  box-shadow: 0 8px 22px rgba(255, 122, 0, 0.38);
+  transform: translateY(-1px);
+}
+.md-nav-mobile .md-nav-re { margin-top: 0.5rem; }
+
 .md-nav-mobile a {
   display: block;
   padding: 0.625rem 0.5rem;

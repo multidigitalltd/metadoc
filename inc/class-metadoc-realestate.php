@@ -30,6 +30,11 @@ final class Metadoc_RealEstate {
 	 */
 	public static function image_groups(): array {
 		return array(
+			'home' => array(
+				'title' => __( 'עמוד הבית', 'metadoc' ),
+				'desc'  => __( 'שלוש תמונות התוכן של עמוד הנחיתה. חריץ ריק מציג את התמונה המצורפת לתבנית. הלוגו מוחלף בהתאמה אישית ← זהות האתר.', 'metadoc' ),
+				'keys'  => array( 'home_hero', 'home_solution', 'home_success' ),
+			),
 			'dept' => array(
 				'title' => __( 'עמוד מחלקת הנדל"ן', 'metadoc' ),
 				'desc'  => __( 'התמונות של עמוד המחלקה. חריץ ריק מציג מסגרת מציין-מקום ואינו שובר את הפריסה.', 'metadoc' ),
@@ -44,16 +49,26 @@ final class Metadoc_RealEstate {
 	}
 
 	/**
-	 * הוספת מסך התמונות תחת התפריט "מחלקת נדל\"ן".
+	 * מסך התמונות — נרשם תחת התפריט "מחלקת נדל\"ן", ומקוצר גם מתוך
+	 * "מראה" כדי שמי שמחפש את תמונות עמוד הבית ימצא אותו במקום המתבקש.
 	 */
 	public static function admin_menu(): void {
 		add_submenu_page(
 			'metadoc-realestate',
-			__( 'תמונות', 'metadoc' ),
-			__( 'תמונות', 'metadoc' ),
+			__( 'תמונות האתר', 'metadoc' ),
+			__( 'תמונות האתר', 'metadoc' ),
 			'edit_theme_options',
 			'metadoc-re-images',
 			array( __CLASS__, 'render_images_page' )
+		);
+
+		// slug שהוא כתובת = פריט תפריט שמקשר למסך הקיים, בלי לרשום אותו פעמיים.
+		add_submenu_page(
+			'themes.php',
+			__( 'תמונות האתר', 'metadoc' ),
+			__( 'תמונות האתר', 'metadoc' ),
+			'edit_theme_options',
+			'admin.php?page=metadoc-re-images'
 		);
 	}
 
@@ -76,7 +91,7 @@ final class Metadoc_RealEstate {
 		$slots = self::image_slots();
 		?>
 		<div class="wrap">
-			<h1><?php esc_html_e( 'תמונות מחלקת הנדל"ן', 'metadoc' ); ?></h1>
+			<h1><?php esc_html_e( 'תמונות האתר', 'metadoc' ); ?></h1>
 			<?php if ( isset( $_GET['updated'] ) ) : // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- הודעת מצב בלבד. ?>
 				<div class="notice notice-success is-dismissible"><p><?php esc_html_e( 'התמונות נשמרו.', 'metadoc' ); ?></p></div>
 			<?php endif; ?>
@@ -106,7 +121,7 @@ final class Metadoc_RealEstate {
 								<span class="description" style="display:block;margin-bottom:10px"><?php echo esc_html( $slot['desc'] ); ?></span>
 								<div class="md-pr-thumb" style="min-height:40px"><?php echo $img; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- פלט ליבה מאובטח. ?></div>
 								<?php if ( '' === $img && '' !== (string) $slot['file'] ) : ?>
-									<img src="<?php echo esc_url( METADOC_URI . '/assets/img/' . $slot['file'] ); ?>" alt="" style="max-width:100%;height:auto;display:block;border-radius:4px;opacity:.65">
+									<img src="<?php echo esc_url( metadoc_img_url( $slot['file'] ) ); ?>" alt="" style="max-width:100%;height:auto;display:block;border-radius:4px;opacity:.65">
 									<span class="description"><?php esc_html_e( 'ברירת המחדל המצורפת לתבנית', 'metadoc' ); ?></span>
 								<?php endif; ?>
 								<input type="hidden" name="md_img[<?php echo esc_attr( $key ); ?>]" value="<?php echo (int) $id; ?>">
@@ -159,6 +174,21 @@ final class Metadoc_RealEstate {
 	 */
 	public static function image_slots(): array {
 		return array(
+			'home_hero'     => array(
+				'label' => __( 'עמוד הבית — סירוב מהבנק (ריבוע)', 'metadoc' ),
+				'desc'  => __( 'התמונה שלצד הכותרת הראשית. מומלץ 1024×1024.', 'metadoc' ),
+				'file'  => 'rejection.jpg',
+			),
+			'home_solution' => array(
+				'label' => __( 'עמוד הבית — לחיצת יד (ריבוע)', 'metadoc' ),
+				'desc'  => __( 'התמונה במקטע הפתרון. מומלץ 1024×1024.', 'metadoc' ),
+				'file'  => 'handshake.jpg',
+			),
+			'home_success'  => array(
+				'label' => __( 'עמוד הבית — משפחה בבית חדש (יחס 4:3)', 'metadoc' ),
+				'desc'  => __( 'התמונה במקטע הצלחות הלקוחות. מומלץ 1200×896.', 'metadoc' ),
+				'file'  => 'family-home.jpg',
+			),
 			'hero'     => array(
 				'label' => __( 'ראשי — פנורמה (יחס 16:5.5)', 'metadoc' ),
 				'desc'  => __( 'תמונה רחבה של פרויקט או קו רקיע. מומלץ 2400×825.', 'metadoc' ),
@@ -282,37 +312,51 @@ final class Metadoc_RealEstate {
 	 * @param WP_Customize_Manager $wp_customize מנהל ההתאמה האישית.
 	 */
 	public static function customize( $wp_customize ): void {
-		$wp_customize->add_section(
-			'metadoc_realestate',
-			array(
-				'title'       => __( 'מחלקת נדל"ן — תמונות', 'metadoc' ),
-				'priority'    => 45,
-				'description' => __( 'תמונות עמוד מחלקת הנדל"ן ועמוד הפרויקט. חריץ ריק מציג מסגרת מציין-מקום ואינו שובר את הפריסה.', 'metadoc' ),
-			)
-		);
+		$slots    = self::image_slots();
+		$priority = 45;
 
-		foreach ( self::image_slots() as $key => $slot ) {
-			$id = 'metadoc_re_img_' . $key;
-			$wp_customize->add_setting(
-				$id,
+		// מקטע לכל קבוצה, באותה חלוקה של מסך הניהול — כדי שתמונות עמוד הבית
+		// לא ייפלו לתוך המקטע של מחלקת הנדל"ן.
+		foreach ( self::image_groups() as $group_key => $group ) {
+			$section = 'metadoc_img_' . $group_key;
+			$wp_customize->add_section(
+				$section,
 				array(
-					'default'           => 0,
-					'sanitize_callback' => 'absint',
-					'transport'         => 'refresh',
+					/* translators: %s: שם קבוצת התמונות. */
+					'title'       => sprintf( __( 'תמונות: %s', 'metadoc' ), $group['title'] ),
+					'priority'    => $priority,
+					'description' => $group['desc'],
 				)
 			);
-			$wp_customize->add_control(
-				new WP_Customize_Media_Control(
-					$wp_customize,
+			++$priority;
+
+			foreach ( $group['keys'] as $key ) {
+				$slot = $slots[ $key ] ?? null;
+				if ( null === $slot ) {
+					continue;
+				}
+				$id = 'metadoc_re_img_' . $key;
+				$wp_customize->add_setting(
 					$id,
 					array(
-						'label'       => $slot['label'],
-						'description' => $slot['desc'],
-						'section'     => 'metadoc_realestate',
-						'mime_type'   => 'image',
+						'default'           => 0,
+						'sanitize_callback' => 'absint',
+						'transport'         => 'refresh',
 					)
-				)
-			);
+				);
+				$wp_customize->add_control(
+					new WP_Customize_Media_Control(
+						$wp_customize,
+						$id,
+						array(
+							'label'       => $slot['label'],
+							'description' => $slot['desc'],
+							'section'     => $section,
+							'mime_type'   => 'image',
+						)
+					)
+				);
+			}
 		}
 	}
 

@@ -86,6 +86,37 @@ function metadoc_logo_url(): string {
 }
 
 /**
+ * מזהה המדיה שהוחלפה דרך לוח הבקרה עבור תמונה מצורפת לתבנית.
+ *
+ * המיפוי נגזר מ-Metadoc_RealEstate::image_slots(), כך שהוספת חריץ במסך
+ * הניהול מספיקה — אין רשימה כפולה שצריך לתחזק בשני מקומות.
+ *
+ * @param string $file שם הקובץ ב-assets/img.
+ * @return int מזהה המדיה, או 0 כשלא הוגדרה החלפה.
+ */
+function metadoc_image_override( string $file ): int {
+	static $map = null;
+	if ( null === $map ) {
+		$map = array();
+		if ( class_exists( 'Metadoc_RealEstate' ) ) {
+			foreach ( Metadoc_RealEstate::image_slots() as $key => $slot ) {
+				if ( '' !== (string) $slot['file'] ) {
+					$map[ $slot['file'] ] = $key;
+				}
+			}
+		}
+	}
+
+	$file = ltrim( $file, '/' );
+	if ( ! isset( $map[ $file ] ) ) {
+		return 0;
+	}
+
+	$id = (int) get_theme_mod( 'metadoc_re_img_' . $map[ $file ], 0 );
+	return ( $id > 0 && wp_attachment_is_image( $id ) ) ? $id : 0;
+}
+
+/**
  * הדפסת תמונה רספונסיבית עם lazy-load ומידות קבועות (מניעת CLS).
  *
  * @param string $file    שם קובץ ב-assets/img.
@@ -96,6 +127,24 @@ function metadoc_logo_url(): string {
  * @param bool   $eager   טעינה מיידית (לתמונת ה-LCP בלבד).
  */
 function metadoc_image( string $file, string $alt, int $width, int $height, string $class = '', bool $eager = false ): void {
+	$id = metadoc_image_override( $file );
+	if ( $id > 0 ) {
+		$attr = array(
+			'class'    => $class,
+			'alt'      => $alt,
+			'decoding' => 'async',
+			'loading'  => $eager ? 'eager' : 'lazy',
+		);
+		if ( $eager ) {
+			$attr['fetchpriority'] = 'high';
+		}
+		if ( '' === $alt ) {
+			$attr['aria-hidden'] = 'true';
+		}
+		// wp_get_attachment_image() מוסיף srcset/sizes ומידות אמיתיות מהמדיה.
+		echo wp_get_attachment_image( $id, 'full', false, $attr ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- פלט ליבה מאובטח.
+		return;
+	}
 	printf(
 		'<img src="%1$s" alt="%2$s" width="%3$d" height="%4$d" class="%5$s" %6$s decoding="async"%7$s />',
 		esc_url( metadoc_img_url( $file ) ),
