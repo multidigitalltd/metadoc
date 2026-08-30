@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit; // לא לאפשר גישה ישירה.
 }
 
-define( 'METADOC_VERSION', '1.7.1' );
+define( 'METADOC_VERSION', '1.8.0' );
 define( 'METADOC_DIR', get_template_directory() );
 define( 'METADOC_URI', get_template_directory_uri() );
 
@@ -26,6 +26,8 @@ require_once METADOC_DIR . '/inc/class-metadoc-leads.php';
 require_once METADOC_DIR . '/inc/class-metadoc-press.php';
 require_once METADOC_DIR . '/inc/class-metadoc-landing.php';
 require_once METADOC_DIR . '/inc/class-metadoc-branding.php';
+require_once METADOC_DIR . '/inc/class-metadoc-realestate.php';
+require_once METADOC_DIR . '/inc/class-metadoc-projects.php';
 require_once METADOC_DIR . '/inc/class-metadoc-setup.php';
 
 /**
@@ -112,6 +114,15 @@ function metadoc_enqueue_assets(): void {
 	// סקריפט Turnstile של Cloudflare — רק כשהוגדר site key.
 	if ( Metadoc_Settings::turnstile_enabled() ) {
 		wp_enqueue_script( 'cf-turnstile', 'https://challenges.cloudflare.com/turnstile/v0/api.js', array(), null, true ); // phpcs:ignore WordPress.WP.EnqueuedResourceParameters.MissingVersion -- צד שלישי ללא גרסה.
+
+		// ווידג'ט Turnstile רגיל הוא ברוחב 300px וגולש ממכלי טפסים צרים במובייל.
+		// מעבר לגרסה הקומפקטית (150px) חייב לקרות לפני הרינדור האוטומטי — ולכן
+		// הסקריפט מודפס מיד לפני סקריפט Cloudflare.
+		wp_add_inline_script(
+			'cf-turnstile',
+			'(function(){try{if(window.innerWidth>430){return;}var n=document.querySelectorAll(".cf-turnstile");for(var i=0;i<n.length;i++){if(!n[i].getAttribute("data-size")){n[i].setAttribute("data-size","compact");}}}catch(e){}})();',
+			'before'
+		);
 	}
 
 	wp_localize_script(
@@ -125,6 +136,7 @@ function metadoc_enqueue_assets(): void {
 			'i18n'            => array(
 				'invalidName'    => __( 'נא להזין שם מלא', 'metadoc' ),
 				'invalidPhone'   => __( 'מספר טלפון לא תקין', 'metadoc' ),
+				'invalidContact' => __( 'נא להזין טלפון או אימייל תקינים', 'metadoc' ),
 				'invalidConsent' => __( 'יש לאשר את מדיניות הפרטיות', 'metadoc' ),
 				'invalidCaptcha' => __( 'נא להשלים את אימות ה-CAPTCHA', 'metadoc' ),
 				'sending'        => __( 'שולח...', 'metadoc' ),
@@ -155,14 +167,17 @@ add_filter( 'script_loader_tag', 'metadoc_defer_scripts', 10, 2 );
  * preconnect/preload לפונטים מקומיים — שיפור LCP.
  */
 function metadoc_resource_hints(): void {
-	if ( ! is_front_page() ) {
+	$is_realestate = class_exists( 'Metadoc_RealEstate' ) && Metadoc_RealEstate::is_re_page();
+	if ( ! is_front_page() && ! $is_realestate ) {
 		return;
 	}
 	// תמונת ה-LCP של ה-Hero — preload כדי להתחיל הורדה לפני פענוח ה-CSS (שיפור LCP במובייל).
-	printf(
-		'<link rel="preload" href="%s" as="image" fetchpriority="high">' . "\n",
-		esc_url( metadoc_img_url( 'rejection.jpg' ) )
-	);
+	if ( is_front_page() ) {
+		printf(
+			'<link rel="preload" href="%s" as="image" fetchpriority="high">' . "\n",
+			esc_url( metadoc_img_url( 'rejection.jpg' ) )
+		);
+	}
 
 	// פונטים קריטיים ל-LCP: כותרת ה-Hero (Anomalia) וטקסט הגוף (Atlas).
 	$fonts = array( 'anomalia-bold', 'atlas-regular', 'atlas-medium' );

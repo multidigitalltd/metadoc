@@ -1,0 +1,557 @@
+<?php
+/**
+ * מחלקת נדל"ן והשקעות — טעינה מותנית, נכסי תמונה ניתנים להחלפה,
+ * קישורים בין העמודים ויצירת העמודים בעת הפעלת התבנית.
+ *
+ * שתי התבניות: template-realestate.php (עמוד המחלקה) ו-template-project.php
+ * (עמוד פרויקט "שער המפרץ"). ה-CSS/JS שלהן נטענים אך ורק בעמודים אלה.
+ *
+ * @package Metadoc
+ */
+
+declare( strict_types=1 );
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
+/**
+ * Class Metadoc_RealEstate
+ */
+final class Metadoc_RealEstate {
+
+	public const TPL_DEPT    = 'template-realestate.php';
+	public const TPL_PROJECT = 'template-project.php';
+
+	/**
+	 * קיבוץ חריצי התמונה למסך הניהול.
+	 *
+	 * @return array<string,array{title:string,desc:string,keys:string[]}>
+	 */
+	public static function image_groups(): array {
+		return array(
+			'home' => array(
+				'title' => __( 'עמוד הבית', 'metadoc' ),
+				'desc'  => __( 'שלוש תמונות התוכן של עמוד הנחיתה. חריץ ריק מציג את התמונה המצורפת לתבנית. הלוגו מוחלף בהתאמה אישית ← זהות האתר.', 'metadoc' ),
+				'keys'  => array( 'home_hero', 'home_solution', 'home_success' ),
+			),
+			'dept' => array(
+				'title' => __( 'עמוד מחלקת הנדל"ן', 'metadoc' ),
+				'desc'  => __( 'התמונות של עמוד המחלקה. חריץ ריק מציג מסגרת מציין-מקום ואינו שובר את הפריסה.', 'metadoc' ),
+				'keys'  => array( 'hero', 'about', 'process', 'band', 'proj1', 'proj2', 'proj3' ),
+			),
+			'project' => array(
+				'title' => __( 'עמוד הפרויקט — ברירת מחדל', 'metadoc' ),
+				'desc'  => __( 'משמשות את עמוד "שער המפרץ" ואת כל פרויקט שלא הוגדרה לו תמונה משלו. לתמונה ייעודית לפרויקט — ערכו את הפרויקט עצמו.', 'metadoc' ),
+				'keys'  => array( 'pr_hero', 'pr_mass', 'pr_heigh' ),
+			),
+		);
+	}
+
+	/**
+	 * מסך התמונות — נרשם תחת התפריט "מחלקת נדל\"ן", ומקוצר גם מתוך
+	 * "מראה" כדי שמי שמחפש את תמונות עמוד הבית ימצא אותו במקום המתבקש.
+	 */
+	public static function admin_menu(): void {
+		add_submenu_page(
+			'metadoc-realestate',
+			__( 'תמונות האתר', 'metadoc' ),
+			__( 'תמונות האתר', 'metadoc' ),
+			'edit_theme_options',
+			'metadoc-re-images',
+			array( __CLASS__, 'render_images_page' )
+		);
+
+		// slug שהוא כתובת = פריט תפריט שמקשר למסך הקיים, בלי לרשום אותו פעמיים.
+		add_submenu_page(
+			'themes.php',
+			__( 'תמונות האתר', 'metadoc' ),
+			__( 'תמונות האתר', 'metadoc' ),
+			'edit_theme_options',
+			'admin.php?page=metadoc-re-images'
+		);
+	}
+
+	/**
+	 * מסך החלפת התמונות — תצוגה מקדימה וכפתור החלפה לכל חריץ.
+	 */
+	public static function render_images_page(): void {
+		if ( ! current_user_can( 'edit_theme_options' ) ) {
+			return;
+		}
+		wp_enqueue_media();
+		wp_enqueue_script(
+			'metadoc-admin-projects',
+			METADOC_URI . '/assets/js/admin-projects.js',
+			array( 'jquery', 'media-editor' ),
+			metadoc_asset_ver( 'assets/js/admin-projects.js' ),
+			true
+		);
+
+		$slots = self::image_slots();
+		?>
+		<div class="wrap">
+			<h1><?php esc_html_e( 'תמונות האתר', 'metadoc' ); ?></h1>
+			<?php if ( isset( $_GET['updated'] ) ) : // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- הודעת מצב בלבד. ?>
+				<div class="notice notice-success is-dismissible"><p><?php esc_html_e( 'התמונות נשמרו.', 'metadoc' ); ?></p></div>
+			<?php endif; ?>
+			<p class="description" style="max-width:70em"><?php esc_html_e( 'לחצו "בחירת תמונה" בכל חריץ, בחרו מספריית המדיה ושמרו. התמונות נטענות עצלנית ומוגשות עם srcset אוטומטי.', 'metadoc' ); ?></p>
+
+			<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
+				<input type="hidden" name="action" value="metadoc_save_images">
+				<?php wp_nonce_field( 'metadoc_save_images' ); ?>
+
+				<?php foreach ( self::image_groups() as $group ) : ?>
+					<h2 style="margin-top:26px"><?php echo esc_html( $group['title'] ); ?></h2>
+					<p class="description" style="max-width:70em;margin-bottom:12px"><?php echo esc_html( $group['desc'] ); ?></p>
+					<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px;max-width:1200px">
+						<?php foreach ( $group['keys'] as $key ) : ?>
+							<?php
+							if ( ! isset( $slots[ $key ] ) ) {
+								continue;
+							}
+							$slot = $slots[ $key ];
+							$id   = (int) get_theme_mod( 'metadoc_re_img_' . $key, 0 );
+							$img  = $id && wp_attachment_is_image( $id )
+								? wp_get_attachment_image( $id, 'medium', false, array( 'style' => 'max-width:100%;height:auto;display:block;border-radius:4px' ) )
+								: '';
+							?>
+							<div class="card md-pr-media" style="padding:14px;margin:0">
+								<strong style="display:block;margin-bottom:2px"><?php echo esc_html( $slot['label'] ); ?></strong>
+								<span class="description" style="display:block;margin-bottom:10px"><?php echo esc_html( $slot['desc'] ); ?></span>
+								<div class="md-pr-thumb" style="min-height:40px"><?php echo $img; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- פלט ליבה מאובטח. ?></div>
+								<?php if ( '' === $img && '' !== (string) $slot['file'] ) : ?>
+									<img src="<?php echo esc_url( metadoc_img_url( $slot['file'] ) ); ?>" alt="" style="max-width:100%;height:auto;display:block;border-radius:4px;opacity:.65">
+									<span class="description"><?php esc_html_e( 'ברירת המחדל המצורפת לתבנית', 'metadoc' ); ?></span>
+								<?php endif; ?>
+								<input type="hidden" name="md_img[<?php echo esc_attr( $key ); ?>]" value="<?php echo (int) $id; ?>">
+								<p style="margin:10px 0 0">
+									<button type="button" class="button md-pr-pick" data-title="<?php echo esc_attr( $slot['label'] ); ?>" data-choose="<?php esc_attr_e( 'בחירה', 'metadoc' ); ?>"><?php esc_html_e( 'בחירת תמונה', 'metadoc' ); ?></button>
+									<button type="button" class="button-link md-pr-clear" style="<?php echo $id ? '' : 'display:none'; ?>"><?php esc_html_e( 'הסרה', 'metadoc' ); ?></button>
+								</p>
+							</div>
+						<?php endforeach; ?>
+					</div>
+				<?php endforeach; ?>
+
+				<?php submit_button( __( 'שמירת התמונות', 'metadoc' ) ); ?>
+			</form>
+		</div>
+		<?php
+	}
+
+	/**
+	 * שמירת חריצי התמונה.
+	 */
+	public static function save_images(): void {
+		if ( ! current_user_can( 'edit_theme_options' ) ) {
+			wp_die( esc_html__( 'אין הרשאה.', 'metadoc' ), '', array( 'response' => 403 ) );
+		}
+		check_admin_referer( 'metadoc_save_images' );
+
+		$sent  = isset( $_POST['md_img'] ) && is_array( $_POST['md_img'] ) ? wp_unslash( $_POST['md_img'] ) : array(); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- מסונן מיד ב-absint.
+		$slots = self::image_slots();
+		foreach ( $slots as $key => $slot ) {
+			if ( ! isset( $sent[ $key ] ) || is_array( $sent[ $key ] ) ) {
+				continue;
+			}
+			$id = absint( $sent[ $key ] );
+			if ( $id > 0 && ! wp_attachment_is_image( $id ) ) {
+				$id = 0;
+			}
+			set_theme_mod( 'metadoc_re_img_' . $key, $id );
+		}
+
+		wp_safe_redirect( add_query_arg( 'updated', '1', admin_url( 'admin.php?page=metadoc-re-images' ) ) );
+		exit;
+	}
+
+	/**
+	 * מזהי חריצי התמונה הניתנים להחלפה דרך ההתאמה האישית.
+	 * key => array( label, description, default_file ).
+	 *
+	 * @return array<string,array<string,string>>
+	 */
+	public static function image_slots(): array {
+		return array(
+			'home_hero'     => array(
+				'label' => __( 'עמוד הבית — סירוב מהבנק (ריבוע)', 'metadoc' ),
+				'desc'  => __( 'התמונה שלצד הכותרת הראשית. מומלץ 1024×1024.', 'metadoc' ),
+				'file'  => 'rejection.jpg',
+			),
+			'home_solution' => array(
+				'label' => __( 'עמוד הבית — לחיצת יד (ריבוע)', 'metadoc' ),
+				'desc'  => __( 'התמונה במקטע הפתרון. מומלץ 1024×1024.', 'metadoc' ),
+				'file'  => 'handshake.jpg',
+			),
+			'home_success'  => array(
+				'label' => __( 'עמוד הבית — משפחה בבית חדש (יחס 4:3)', 'metadoc' ),
+				'desc'  => __( 'התמונה במקטע הצלחות הלקוחות. מומלץ 1200×896.', 'metadoc' ),
+				'file'  => 'family-home.jpg',
+			),
+			'hero'     => array(
+				'label' => __( 'ראשי — פנורמה (יחס 16:5.5)', 'metadoc' ),
+				'desc'  => __( 'תמונה רחבה של פרויקט או קו רקיע. מומלץ 2400×825.', 'metadoc' ),
+				'file'  => '',
+			),
+			'about'    => array(
+				'label' => __( 'אודות — צוות / משרד (יחס 4:3)', 'metadoc' ),
+				'desc'  => __( 'מומלץ 1200×900.', 'metadoc' ),
+				'file'  => '',
+			),
+			'process'  => array(
+				'label' => __( 'התהליך — ליווי משקיעים (יחס 4:5)', 'metadoc' ),
+				'desc'  => __( 'מומלץ 900×1125.', 'metadoc' ),
+				'file'  => '',
+			),
+			'band'     => array(
+				'label' => __( 'רצועת CTA — תמונה רחבה', 'metadoc' ),
+				'desc'  => __( 'מומלץ 2400×700, עם שמיים בהירים בחלק העליון.', 'metadoc' ),
+				'file'  => '',
+			),
+			'proj1'    => array(
+				'label' => __( 'כרטיס פרויקט 1', 'metadoc' ),
+				'desc'  => __( 'יחס 16:10.', 'metadoc' ),
+				'file'  => '',
+			),
+			'proj2'    => array(
+				'label' => __( 'כרטיס פרויקט 2', 'metadoc' ),
+				'desc'  => __( 'יחס 16:10.', 'metadoc' ),
+				'file'  => '',
+			),
+			'proj3'    => array(
+				'label' => __( 'כרטיס פרויקט 3', 'metadoc' ),
+				'desc'  => __( 'יחס 16:10.', 'metadoc' ),
+				'file'  => '',
+			),
+			'pr_hero'  => array(
+				'label' => __( 'פרויקט — תמונת Hero', 'metadoc' ),
+				'desc'  => __( 'ברירת מחדל: הדמיית המרקם העירוני המצורפת לתבנית.', 'metadoc' ),
+				'file'  => 're/project-hero.webp',
+			),
+			'pr_mass'  => array(
+				'label' => __( 'פרויקט — הדמיית בינוי', 'metadoc' ),
+				'desc'  => __( 'ברירת מחדל: הדמיית הבינוי המצורפת לתבנית.', 'metadoc' ),
+				'file'  => 're/project-massing.webp',
+			),
+			'pr_heigh' => array(
+				'label' => __( 'פרויקט — מפת גבהי בנייה', 'metadoc' ),
+				'desc'  => __( 'ברירת מחדל: מפת הגבהים המצורפת לתבנית.', 'metadoc' ),
+				'file'  => 're/project-heights.webp',
+			),
+		);
+	}
+
+	/**
+	 * אתחול ה-hooks.
+	 */
+	public static function init(): void {
+		add_action( 'wp_enqueue_scripts', array( __CLASS__, 'enqueue' ), 20 );
+		add_action( 'customize_register', array( __CLASS__, 'customize' ) );
+		add_filter( 'body_class', array( __CLASS__, 'body_class' ) );
+		add_action( 'after_switch_theme', array( __CLASS__, 'install_pages' ) );
+		add_action( 'admin_init', array( __CLASS__, 'maybe_install_pages' ) );
+		add_action( 'admin_menu', array( __CLASS__, 'admin_menu' ), 11 );
+		add_action( 'admin_post_metadoc_save_images', array( __CLASS__, 'save_images' ) );
+		add_action( 'save_post_page', array( __CLASS__, 'flush_urls' ) );
+		add_action( 'deleted_post', array( __CLASS__, 'flush_urls' ) );
+	}
+
+	/**
+	 * האם העמוד הנוכחי הוא אחת משתי תבניות הנדל"ן.
+	 *
+	 * @return bool
+	 */
+	public static function is_re_page(): bool {
+		if ( class_exists( 'Metadoc_Projects' ) && is_singular( Metadoc_Projects::CPT ) ) {
+			return true;
+		}
+		return is_page_template( array( self::TPL_DEPT, self::TPL_PROJECT ) );
+	}
+
+	/**
+	 * הוספת מחלקה ל-body לזיהוי העמודים (מיקום ווידג'טים צפים).
+	 *
+	 * @param array $classes מחלקות קיימות.
+	 * @return array
+	 */
+	public static function body_class( array $classes ): array {
+		if ( self::is_re_page() ) {
+			$classes[] = 'md-re-page';
+		}
+		return $classes;
+	}
+
+	/**
+	 * טעינה מותנית של הסגנון והסקריפט — רק בשני העמודים האלה.
+	 */
+	public static function enqueue(): void {
+		if ( ! self::is_re_page() ) {
+			return;
+		}
+
+		wp_enqueue_style(
+			'metadoc-realestate',
+			METADOC_URI . '/assets/css/realestate.min.css',
+			array( 'metadoc-app' ),
+			metadoc_asset_ver( 'assets/css/realestate.min.css' )
+		);
+
+		wp_enqueue_script(
+			'metadoc-realestate',
+			METADOC_URI . '/assets/js/realestate.js',
+			array( 'metadoc-main' ),
+			metadoc_asset_ver( 'assets/js/realestate.js' ),
+			true
+		);
+	}
+
+	/**
+	 * שדות ההתאמה האישית — תמונות התוכן של שני העמודים.
+	 *
+	 * @param WP_Customize_Manager $wp_customize מנהל ההתאמה האישית.
+	 */
+	public static function customize( $wp_customize ): void {
+		$slots    = self::image_slots();
+		$priority = 45;
+
+		// מקטע לכל קבוצה, באותה חלוקה של מסך הניהול — כדי שתמונות עמוד הבית
+		// לא ייפלו לתוך המקטע של מחלקת הנדל"ן.
+		foreach ( self::image_groups() as $group_key => $group ) {
+			$section = 'metadoc_img_' . $group_key;
+			$wp_customize->add_section(
+				$section,
+				array(
+					/* translators: %s: שם קבוצת התמונות. */
+					'title'       => sprintf( __( 'תמונות: %s', 'metadoc' ), $group['title'] ),
+					'priority'    => $priority,
+					'description' => $group['desc'],
+				)
+			);
+			++$priority;
+
+			foreach ( $group['keys'] as $key ) {
+				$slot = $slots[ $key ] ?? null;
+				if ( null === $slot ) {
+					continue;
+				}
+				$id = 'metadoc_re_img_' . $key;
+				$wp_customize->add_setting(
+					$id,
+					array(
+						'default'           => 0,
+						'sanitize_callback' => 'absint',
+						'transport'         => 'refresh',
+					)
+				);
+				$wp_customize->add_control(
+					new WP_Customize_Media_Control(
+						$wp_customize,
+						$id,
+						array(
+							'label'       => $slot['label'],
+							'description' => $slot['desc'],
+							'section'     => $section,
+							'mime_type'   => 'image',
+						)
+					)
+				);
+			}
+		}
+	}
+
+	/**
+	 * מחזיר כתובת עמוד לפי תבנית (עם מטמון קצר, ללא שאילתה בכל טעינה).
+	 *
+	 * @param string $template שם קובץ התבנית.
+	 * @return string כתובת, או '' אם אין עמוד כזה.
+	 */
+	public static function page_url( string $template ): string {
+		static $cache = array();
+		if ( isset( $cache[ $template ] ) ) {
+			return $cache[ $template ];
+		}
+
+		$key = 'md_re_url_' . md5( $template );
+		$url = get_transient( $key );
+		if ( false === $url ) {
+			$pages = get_posts(
+				array(
+					'post_type'        => 'page',
+					'post_status'      => 'publish',
+					'posts_per_page'   => 1,
+					'meta_key'         => '_wp_page_template', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key -- שאילתה יחידה, נשמרת ב-transient.
+					'meta_value'       => $template, // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value -- כנ"ל.
+					'fields'           => 'ids',
+					'no_found_rows'    => true,
+					'suppress_filters' => false,
+				)
+			);
+			$url = $pages ? (string) get_permalink( (int) $pages[0] ) : '';
+			set_transient( $key, $url, DAY_IN_SECONDS );
+		}
+
+		$cache[ $template ] = (string) $url;
+		return $cache[ $template ];
+	}
+
+	/**
+	 * ניקוי מטמון הכתובות כשעמוד נשמר.
+	 */
+	public static function flush_urls(): void {
+		delete_transient( 'md_re_url_' . md5( self::TPL_DEPT ) );
+		delete_transient( 'md_re_url_' . md5( self::TPL_PROJECT ) );
+	}
+
+	/**
+	 * יוצר את שני העמודים אם אינם קיימים, ומצמיד להם את התבניות.
+	 */
+	public static function install_pages(): void {
+		$pages = array(
+			'real-estate'    => array(
+				'title'    => __( 'מחלקת נדל"ן והשקעות', 'metadoc' ),
+				'template' => self::TPL_DEPT,
+			),
+			'shaar-hamifratz' => array(
+				'title'    => __( 'שער המפרץ — תמ"א 75', 'metadoc' ),
+				'template' => self::TPL_PROJECT,
+			),
+		);
+
+		foreach ( $pages as $slug => $page ) {
+			// רק עמוד *מפורסם* נחשב קיים. עמוד טיוטה/פרטי/באשפה באותו slug אינו
+			// נגיש לגולשים, ולכן יוצרים עמוד חדש (וורדפרס יבחר slug פנוי).
+			$existing = get_posts(
+				array(
+					'post_type'        => 'page',
+					'post_status'      => 'publish',
+					'name'             => $slug,
+					'posts_per_page'   => 1,
+					'fields'           => 'ids',
+					'no_found_rows'    => true,
+					'suppress_filters' => false,
+				)
+			);
+			if ( ! empty( $existing ) ) {
+				update_post_meta( (int) $existing[0], '_wp_page_template', $page['template'] );
+				continue;
+			}
+			wp_insert_post(
+				array(
+					'post_title'  => $page['title'],
+					'post_name'   => $slug,
+					'post_status' => 'publish',
+					'post_type'   => 'page',
+					'meta_input'  => array( '_wp_page_template' => $page['template'] ),
+				)
+			);
+		}
+
+		self::flush_urls();
+	}
+
+	/**
+	 * יצירה חד-פעמית גם בהתקנות קיימות (לא רק בהפעלת התבנית).
+	 */
+	public static function maybe_install_pages(): void {
+		if ( '1' === get_option( 'metadoc_re_pages_v1' ) ) {
+			return;
+		}
+		self::install_pages();
+		update_option( 'metadoc_re_pages_v1', '1' );
+	}
+}
+
+Metadoc_RealEstate::init();
+
+/* -------------------------------------------------------------------------
+ * פונקציות עזר לתצוגה (משמשות את קבצי ה-template-parts).
+ * ---------------------------------------------------------------------- */
+
+/**
+ * מדפיס תמונה לחריץ עיצובי. אם לא הוגדרה תמונה — מציג מציין-מקום
+ * שאינו שובר את הפריסה (ללא CLS, ללא תמונה חסרה).
+ *
+ * @param string $slot        מפתח החריץ (ראו Metadoc_RealEstate::image_slots()).
+ * @param string $alt         טקסט חלופי.
+ * @param string $placeholder טקסט מציין-המקום.
+ * @param array  $args        sizes, dark (מציין-מקום כהה), eager (טעינה מיידית).
+ */
+function metadoc_re_image( string $slot, string $alt, string $placeholder = '', array $args = array() ): void {
+	$slots = Metadoc_RealEstate::image_slots();
+	$id    = (int) get_theme_mod( 'metadoc_re_img_' . $slot, 0 );
+	$eager = ! empty( $args['eager'] );
+
+	if ( $id > 0 && wp_attachment_is_image( $id ) ) {
+		echo wp_get_attachment_image( // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- פלט מוכן ומאובטח של הליבה.
+			$id,
+			'full',
+			false,
+			array(
+				'alt'           => $alt,
+				'class'         => '',
+				'loading'       => $eager ? 'eager' : 'lazy',
+				'decoding'      => 'async',
+				'sizes'         => isset( $args['sizes'] ) ? (string) $args['sizes'] : '100vw',
+				'fetchpriority' => $eager ? 'high' : 'auto',
+			)
+		);
+		return;
+	}
+
+	$file = isset( $slots[ $slot ]['file'] ) ? (string) $slots[ $slot ]['file'] : '';
+	if ( '' !== $file && is_readable( METADOC_DIR . '/assets/img/' . $file ) ) {
+		printf(
+			'<img src="%1$s" alt="%2$s" %3$s decoding="async"%4$s />',
+			esc_url( METADOC_URI . '/assets/img/' . $file ),
+			esc_attr( $alt ),
+			$eager ? 'loading="eager" fetchpriority="high"' : 'loading="lazy"',
+			'' === $alt ? ' aria-hidden="true"' : ''
+		);
+		return;
+	}
+
+	printf(
+		'<span class="md-re-ph%1$s" aria-hidden="true"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4.5" width="18" height="15" rx="2"></rect><circle cx="8.5" cy="10" r="1.6"></circle><path d="m4 17 5-4.5 4 3.5 3-2.5 4 3.5"></path></svg><span>%2$s</span></span>',
+		empty( $args['dark'] ) ? '' : ' md-re-ph--dark',
+		esc_html( '' !== $placeholder ? $placeholder : __( 'ממתין לתמונה', 'metadoc' ) )
+	);
+}
+
+/**
+ * כתובת עמוד המחלקה (לקישור החוזר מעמוד הפרויקט).
+ *
+ * @return string
+ */
+function metadoc_re_dept_url(): string {
+	$url = Metadoc_RealEstate::page_url( Metadoc_RealEstate::TPL_DEPT );
+	return '' !== $url ? $url : home_url( '/real-estate/' );
+}
+
+/**
+ * כתובת עמוד הפרויקט (לקישור מעמוד המחלקה).
+ *
+ * @return string
+ */
+function metadoc_re_project_url(): string {
+	if ( class_exists( 'Metadoc_Projects' ) ) {
+		$projects = Metadoc_Projects::published( 1 );
+		if ( ! empty( $projects ) ) {
+			return (string) get_permalink( (int) $projects[0] );
+		}
+	}
+	$url = Metadoc_RealEstate::page_url( Metadoc_RealEstate::TPL_PROJECT );
+	return '' !== $url ? $url : home_url( '/shaar-hamifratz/' );
+}
+
+/**
+ * כתובת וואטסאפ עם הודעה פותחת מותאמת.
+ *
+ * @param string $text ההודעה.
+ * @return string
+ */
+function metadoc_re_whatsapp( string $text ): string {
+	$digits = (string) preg_replace( '/\D/', '', metadoc_text( 'phone_tel' ) );
+	$intl   = '972' . ltrim( $digits, '0' );
+	return 'https://wa.me/' . $intl . '?text=' . rawurlencode( $text );
+}

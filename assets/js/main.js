@@ -19,6 +19,11 @@
 		return /^0\d{7,9}$/.test(d) || /^972\d{8,9}$/.test(d);
 	}
 
+	// בדיקת אימייל בסיסית (האימות המחייב נעשה בצד השרת).
+	function validEmail(raw) {
+		return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test((raw || '').trim());
+	}
+
 	/**
 	 * מחזיר nonce עדכני מה-endpoint; בכשל נופל ל-nonce המוטמע.
 	 * @returns {Promise<string>}
@@ -97,16 +102,49 @@
 
 			var name = (form.elements.name && form.elements.name.value || '').trim();
 			var phone = (form.elements.phone && form.elements.phone.value || '').trim();
+			var email = (form.elements.email && form.elements.email.value || '').trim();
 			var note = (form.elements.note && form.elements.note.value || '').trim();
 			var hp = (form.elements.website && form.elements.website.value || '').trim();
+			// מקור הפנייה: פרויקט וטופס — לסינון ולייצוא בלוח הבקרה.
+			var project = (form.elements.project && form.elements.project.value || '').trim();
+			var formName = (form.elements.form && form.elements.form.value || '').trim();
 			var consentEl = form.querySelector('.md-consent');
 			var consent = consentEl ? consentEl.checked : true;
 			var captchaEl = form.querySelector('[name="cf-turnstile-response"]');
 			var captcha = captchaEl ? captchaEl.value : '';
 
+			// שדה משולב "טלפון / אימייל": אם הוזן אימייל — הוא עובר לשדה הנכון.
+			var dual = form.querySelector('[data-md-dual]');
+			if (dual && dual.value.indexOf('@') > -1) {
+				email = dual.value.trim();
+				phone = '';
+			}
+
+			// שדות בחירה נלווים (תחום השקעה, מועד מועדף) מצורפים לגוף הפנייה.
+			var extras = form.querySelectorAll('[data-md-note]');
+			var parts = [];
+			for (var x = 0; x < extras.length; x++) {
+				var val = (extras[x].value || '').trim();
+				if (val !== '') { parts.push(extras[x].getAttribute('data-md-note') + ': ' + val); }
+			}
+			if (parts.length) { note = note ? note + ' · ' + parts.join(' · ') : parts.join(' · '); }
+
+			var hasPhone = phone !== '' && validPhone(phone);
+			var hasEmail = email !== '' && validEmail(email);
+			var acceptsEmail = !!(form.elements.email || dual);
+
 			if (hp !== '') { return; } // honeypot
 			if (name.length < 2) { setStatus(statusEl, i18n.invalidName || 'נא להזין שם מלא', false); return; }
-			if (!validPhone(phone)) { setStatus(statusEl, i18n.invalidPhone || 'מספר טלפון לא תקין', false); return; }
+			if (!hasPhone && !hasEmail) {
+				setStatus(
+					statusEl,
+					acceptsEmail
+						? (i18n.invalidContact || 'נא להזין טלפון או אימייל תקינים')
+						: (i18n.invalidPhone || 'מספר טלפון לא תקין'),
+					false
+				);
+				return;
+			}
 			if (!consent) { setStatus(statusEl, i18n.invalidConsent || 'יש לאשר את מדיניות הפרטיות', false); return; }
 			if (data.turnstile && !captcha) { setStatus(statusEl, i18n.invalidCaptcha || 'נא להשלים את אימות ה-CAPTCHA', false); return; }
 
@@ -124,7 +162,7 @@
 					return fetch(data.restUrl, {
 						method: 'POST',
 						headers: { 'Content-Type': 'application/json' },
-						body: JSON.stringify({ name: name, phone: phone, note: note, website: hp, consent: consent ? 1 : 0, captcha: captcha, md_nonce: nonce, source: srcData })
+						body: JSON.stringify({ name: name, phone: phone, email: email, note: note, project: project, form: formName, website: hp, consent: consent ? 1 : 0, captcha: captcha, md_nonce: nonce, source: srcData })
 					});
 				})
 				.then(function (res) {
@@ -135,9 +173,17 @@
 						setStatus(statusEl, '', true);
 						// אירוע ליד מוצלח — לשימוש אופציונלי של סקריפט מעקב קמפיין (אם נטען).
 						try {
-							document.dispatchEvent(new CustomEvent('metadoc:lead', { detail: { name: name, phone: phone, note: note } }));
+							document.dispatchEvent(new CustomEvent('metadoc:lead', { detail: { name: name, phone: phone, email: email, note: note } }));
 						} catch (e) {}
 						form.reset();
+						if ('inline' === form.getAttribute('data-md-success')) {
+							// אישור כפול: תווית הכפתור מתחלפת (לפי העיצוב) ובנוסף נפתח פופאפ תודה.
+							var done = form.getAttribute('data-md-success-label') || i18n.success || '';
+							labelText = done;
+							if (label) { label.textContent = done; }
+							form.setAttribute('data-md-sent', '1');
+							setStatus(statusEl, i18n.success || '', true);
+						}
 						openSuccessModal();
 					} else {
 						var msg = (result.body && result.body.message) ? result.body.message : (i18n.error || 'אירעה שגיאה.');
@@ -148,10 +194,14 @@
 					setStatus(statusEl, i18n.error || 'אירעה שגיאה.', false);
 				})
 				.finally(function () {
-					if (button) { button.disabled = false; }
+					if (button) { button.disabled = '1' === form.getAttribute('data-md-sent'); }
 					if (label) { label.textContent = labelText; }
+					// איפוס הווידג'ט של הטופס הזה בלבד. ללא מזהה, Cloudflare מאפסת את
+					// הווידג'ט הראשון בעמוד — ובעמוד עם שני טפסים זה משאיר את הטופס
+					// שנשלח עם טוקן שנוצל, וכל ניסיון חוזר נכשל.
 					if (window.turnstile && typeof window.turnstile.reset === 'function') {
-						try { window.turnstile.reset(); } catch (e) {}
+						var tsEl = form.querySelector('.cf-turnstile');
+						try { tsEl ? window.turnstile.reset(tsEl) : window.turnstile.reset(); } catch (e) {}
 					}
 				});
 		});
