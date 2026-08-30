@@ -412,7 +412,7 @@ final class Metadoc_Projects {
 						}
 						?>
 					</p>
-					<p><a class="button" href="<?php echo esc_url( admin_url( 'customize.php?autofocus[section]=metadoc_realestate' ) ); ?>"><?php esc_html_e( 'העלאת תמונות', 'metadoc' ); ?></a></p>
+					<p><a class="button button-primary" href="<?php echo esc_url( admin_url( 'admin.php?page=metadoc-re-images' ) ); ?>"><?php esc_html_e( 'ניהול התמונות', 'metadoc' ); ?></a></p>
 				</div>
 			</div>
 
@@ -498,14 +498,15 @@ final class Metadoc_Projects {
 				$id  = (int) $value;
 				$img = $id ? wp_get_attachment_image( $id, 'medium', false, array( 'style' => 'max-width:180px;height:auto;display:block' ) ) : '';
 				printf(
-					'<div class="md-pr-media"><div class="md-pr-thumb">%1$s</div><input type="hidden" id="%2$s" name="%2$s" value="%3$d"><p><button type="button" class="button md-pr-pick" data-title="%4$s">%5$s</button> <button type="button" class="button-link md-pr-clear" style="%6$s">%7$s</button></p></div>',
+					'<div class="md-pr-media"><div class="md-pr-thumb">%1$s</div><input type="hidden" id="%2$s" name="%2$s" value="%3$d"><p><button type="button" class="button md-pr-pick" data-title="%4$s" data-choose="%8$s">%5$s</button> <button type="button" class="button-link md-pr-clear" style="%6$s">%7$s</button></p></div>',
 					$img, // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- פלט ליבה מאובטח.
 					esc_attr( 'md_pr_' . $key ),
 					$id,
 					esc_attr( $field['label'] ),
 					esc_html__( 'בחירת תמונה', 'metadoc' ),
 					$id ? '' : 'display:none',
-					esc_html__( 'הסרה', 'metadoc' )
+					esc_html__( 'הסרה', 'metadoc' ),
+					esc_attr__( 'בחירה', 'metadoc' )
 				);
 			} elseif ( 'icon' === $type ) {
 				$icons = self::fact_icons();

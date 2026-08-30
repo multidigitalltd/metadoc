@@ -24,6 +24,134 @@ final class Metadoc_RealEstate {
 	public const TPL_PROJECT = 'template-project.php';
 
 	/**
+	 * קיבוץ חריצי התמונה למסך הניהול.
+	 *
+	 * @return array<string,array{title:string,desc:string,keys:string[]}>
+	 */
+	public static function image_groups(): array {
+		return array(
+			'dept' => array(
+				'title' => __( 'עמוד מחלקת הנדל"ן', 'metadoc' ),
+				'desc'  => __( 'התמונות של עמוד המחלקה. חריץ ריק מציג מסגרת מציין-מקום ואינו שובר את הפריסה.', 'metadoc' ),
+				'keys'  => array( 'hero', 'about', 'process', 'band', 'proj1', 'proj2', 'proj3' ),
+			),
+			'project' => array(
+				'title' => __( 'עמוד הפרויקט — ברירת מחדל', 'metadoc' ),
+				'desc'  => __( 'משמשות את עמוד "שער המפרץ" ואת כל פרויקט שלא הוגדרה לו תמונה משלו. לתמונה ייעודית לפרויקט — ערכו את הפרויקט עצמו.', 'metadoc' ),
+				'keys'  => array( 'pr_hero', 'pr_mass', 'pr_heigh' ),
+			),
+		);
+	}
+
+	/**
+	 * הוספת מסך התמונות תחת התפריט "מחלקת נדל\"ן".
+	 */
+	public static function admin_menu(): void {
+		add_submenu_page(
+			'metadoc-realestate',
+			__( 'תמונות', 'metadoc' ),
+			__( 'תמונות', 'metadoc' ),
+			'edit_theme_options',
+			'metadoc-re-images',
+			array( __CLASS__, 'render_images_page' )
+		);
+	}
+
+	/**
+	 * מסך החלפת התמונות — תצוגה מקדימה וכפתור החלפה לכל חריץ.
+	 */
+	public static function render_images_page(): void {
+		if ( ! current_user_can( 'edit_theme_options' ) ) {
+			return;
+		}
+		wp_enqueue_media();
+		wp_enqueue_script(
+			'metadoc-admin-projects',
+			METADOC_URI . '/assets/js/admin-projects.js',
+			array( 'jquery', 'media-editor' ),
+			metadoc_asset_ver( 'assets/js/admin-projects.js' ),
+			true
+		);
+
+		$slots = self::image_slots();
+		?>
+		<div class="wrap">
+			<h1><?php esc_html_e( 'תמונות מחלקת הנדל"ן', 'metadoc' ); ?></h1>
+			<?php if ( isset( $_GET['updated'] ) ) : // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- הודעת מצב בלבד. ?>
+				<div class="notice notice-success is-dismissible"><p><?php esc_html_e( 'התמונות נשמרו.', 'metadoc' ); ?></p></div>
+			<?php endif; ?>
+			<p class="description" style="max-width:70em"><?php esc_html_e( 'לחצו "בחירת תמונה" בכל חריץ, בחרו מספריית המדיה ושמרו. התמונות נטענות עצלנית ומוגשות עם srcset אוטומטי.', 'metadoc' ); ?></p>
+
+			<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
+				<input type="hidden" name="action" value="metadoc_save_images">
+				<?php wp_nonce_field( 'metadoc_save_images' ); ?>
+
+				<?php foreach ( self::image_groups() as $group ) : ?>
+					<h2 style="margin-top:26px"><?php echo esc_html( $group['title'] ); ?></h2>
+					<p class="description" style="max-width:70em;margin-bottom:12px"><?php echo esc_html( $group['desc'] ); ?></p>
+					<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px;max-width:1200px">
+						<?php foreach ( $group['keys'] as $key ) : ?>
+							<?php
+							if ( ! isset( $slots[ $key ] ) ) {
+								continue;
+							}
+							$slot = $slots[ $key ];
+							$id   = (int) get_theme_mod( 'metadoc_re_img_' . $key, 0 );
+							$img  = $id && wp_attachment_is_image( $id )
+								? wp_get_attachment_image( $id, 'medium', false, array( 'style' => 'max-width:100%;height:auto;display:block;border-radius:4px' ) )
+								: '';
+							?>
+							<div class="card md-pr-media" style="padding:14px;margin:0">
+								<strong style="display:block;margin-bottom:2px"><?php echo esc_html( $slot['label'] ); ?></strong>
+								<span class="description" style="display:block;margin-bottom:10px"><?php echo esc_html( $slot['desc'] ); ?></span>
+								<div class="md-pr-thumb" style="min-height:40px"><?php echo $img; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- פלט ליבה מאובטח. ?></div>
+								<?php if ( '' === $img && '' !== (string) $slot['file'] ) : ?>
+									<img src="<?php echo esc_url( METADOC_URI . '/assets/img/' . $slot['file'] ); ?>" alt="" style="max-width:100%;height:auto;display:block;border-radius:4px;opacity:.65">
+									<span class="description"><?php esc_html_e( 'ברירת המחדל המצורפת לתבנית', 'metadoc' ); ?></span>
+								<?php endif; ?>
+								<input type="hidden" name="md_img[<?php echo esc_attr( $key ); ?>]" value="<?php echo (int) $id; ?>">
+								<p style="margin:10px 0 0">
+									<button type="button" class="button md-pr-pick" data-title="<?php echo esc_attr( $slot['label'] ); ?>" data-choose="<?php esc_attr_e( 'בחירה', 'metadoc' ); ?>"><?php esc_html_e( 'בחירת תמונה', 'metadoc' ); ?></button>
+									<button type="button" class="button-link md-pr-clear" style="<?php echo $id ? '' : 'display:none'; ?>"><?php esc_html_e( 'הסרה', 'metadoc' ); ?></button>
+								</p>
+							</div>
+						<?php endforeach; ?>
+					</div>
+				<?php endforeach; ?>
+
+				<?php submit_button( __( 'שמירת התמונות', 'metadoc' ) ); ?>
+			</form>
+		</div>
+		<?php
+	}
+
+	/**
+	 * שמירת חריצי התמונה.
+	 */
+	public static function save_images(): void {
+		if ( ! current_user_can( 'edit_theme_options' ) ) {
+			wp_die( esc_html__( 'אין הרשאה.', 'metadoc' ), '', array( 'response' => 403 ) );
+		}
+		check_admin_referer( 'metadoc_save_images' );
+
+		$sent  = isset( $_POST['md_img'] ) && is_array( $_POST['md_img'] ) ? wp_unslash( $_POST['md_img'] ) : array(); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- מסונן מיד ב-absint.
+		$slots = self::image_slots();
+		foreach ( $slots as $key => $slot ) {
+			if ( ! isset( $sent[ $key ] ) || is_array( $sent[ $key ] ) ) {
+				continue;
+			}
+			$id = absint( $sent[ $key ] );
+			if ( $id > 0 && ! wp_attachment_is_image( $id ) ) {
+				$id = 0;
+			}
+			set_theme_mod( 'metadoc_re_img_' . $key, $id );
+		}
+
+		wp_safe_redirect( add_query_arg( 'updated', '1', admin_url( 'admin.php?page=metadoc-re-images' ) ) );
+		exit;
+	}
+
+	/**
 	 * מזהי חריצי התמונה הניתנים להחלפה דרך ההתאמה האישית.
 	 * key => array( label, description, default_file ).
 	 *
@@ -93,6 +221,8 @@ final class Metadoc_RealEstate {
 		add_filter( 'body_class', array( __CLASS__, 'body_class' ) );
 		add_action( 'after_switch_theme', array( __CLASS__, 'install_pages' ) );
 		add_action( 'admin_init', array( __CLASS__, 'maybe_install_pages' ) );
+		add_action( 'admin_menu', array( __CLASS__, 'admin_menu' ), 11 );
+		add_action( 'admin_post_metadoc_save_images', array( __CLASS__, 'save_images' ) );
 		add_action( 'save_post_page', array( __CLASS__, 'flush_urls' ) );
 		add_action( 'deleted_post', array( __CLASS__, 'flush_urls' ) );
 	}
