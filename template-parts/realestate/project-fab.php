@@ -18,7 +18,7 @@ $wa_ic = '<svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" ar
 	<form class="md-lead-form" novalidate data-md-fab-form
 		data-md-success="inline"
 		data-md-success-label="<?php esc_attr_e( 'קיבלנו — נחזור אליכם ✓', 'metadoc' ); ?>">
-		<div class="md-pr-fab-bar">
+		<div class="md-pr-fab-bar<?php echo ( class_exists( 'Metadoc_Settings' ) && Metadoc_Settings::turnstile_enabled() ) ? ' has-ts' : ''; ?>">
 			<div class="md-pr-fab-lead">
 				<b><?php esc_html_e( 'מעניין אתכם?', 'metadoc' ); ?></b>
 				<span><?php esc_html_e( 'השאירו פרטים ונחזור אליכם', 'metadoc' ); ?></span>
@@ -29,6 +29,7 @@ $wa_ic = '<svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" ar
 			<input class="md-pr-fab-in md-pr-fab-phone" id="pr-fab-phone" name="phone" type="tel" inputmode="tel" required autocomplete="tel" placeholder="<?php esc_attr_e( 'טלפון', 'metadoc' ); ?>">
 			<label class="md-re-sr" for="pr-fab-email"><?php esc_html_e( 'אימייל', 'metadoc' ); ?></label>
 			<input class="md-pr-fab-in md-pr-fab-email" id="pr-fab-email" name="email" type="email" autocomplete="email" placeholder="<?php esc_attr_e( 'אימייל', 'metadoc' ); ?>">
+			<?php get_template_part( 'template-parts/realestate/turnstile', null, array( 'light' => true ) ); ?>
 			<?php get_template_part( 'template-parts/realestate/consent', null, array( 'id' => 'fab', 'compact' => true ) ); ?>
 			<button type="submit" class="md-pr-fab-send">
 				<span class="md-btn-label"><?php esc_html_e( 'שלחו', 'metadoc' ); ?></span>
@@ -38,7 +39,6 @@ $wa_ic = '<svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" ar
 			</a>
 			<button type="button" class="md-pr-fab-x" data-md-fab-toggle aria-label="<?php esc_attr_e( 'סגירת הטופס', 'metadoc' ); ?>">×</button>
 		</div>
-		<?php get_template_part( 'template-parts/realestate/turnstile', null, array( 'light' => true ) ); ?>
 		<?php get_template_part( 'template-parts/form-honeypot' ); ?>
 		<p class="md-re-status md-form-status" role="status" aria-live="polite"></p>
 	</form>

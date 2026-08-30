@@ -93,7 +93,6 @@ html[data-md-anim="1"] .md-re [data-rv].rv-in { opacity: 1; transform: none; }
  * עדיין דורשת טוקן. במסכים צרים הוא עובר לגרסה קומפקטית (ראו functions.php),
  * וכגיבוי אחרון המכל ניתן לגלילה במקום להסתיר. */
 .md-re-turnstile { max-width: 100%; overflow-x: auto; }
-.md-pr-fab .md-re-turnstile { max-width: 1220px; margin: 0 auto; padding: 0 4% 10px; }
 
 .md-re-status { font-size: 13.5px; font-weight: 700; margin: 12px 0 0; min-height: 1em; }
 .md-re-status:empty { margin: 0; min-height: 0; }
@@ -692,6 +691,8 @@ html[data-md-anim="1"] .md-pr [data-chart].rv-in [data-ch-dot]:nth-child(3) { tr
 .md-pr-wa--round { width: 46px; height: 46px; border-radius: 50%; box-shadow: none; }
 .md-pr-fab-x { border: none; background: transparent; color: var(--grey); font-size: 20px; line-height: 1; cursor: pointer; padding: 6px 2px; }
 .md-pr-fab-x:hover { color: var(--ink); }
+/* ווידג'ט האימות יושב בשורת הטופס עצמה, כעמודה ברוחב קבוע (300px). */
+.md-pr-fab-bar .md-re-turnstile { width: 300px; overflow: visible; line-height: 0; }
 .md-pr-fab-consent { display: flex; align-items: center; gap: 7px; font-size: 11.5px; line-height: 1.35; color: var(--grey); max-width: 96px; }
 .md-pr-fab-consent input { margin: 0; inline-size: 16px; block-size: 16px; flex: none; accent-color: var(--acc); }
 .md-pr-fab-consent a { color: var(--acc-txt); text-decoration: underline; }
@@ -725,6 +726,19 @@ html[data-md-anim="1"] .md-pr [data-chart].rv-in [data-ch-dot]:nth-child(3) { tr
   .md-pr-fab-bar { grid-template-columns: 1fr 1fr 1fr auto auto auto auto; }
   .md-pr-fab-lead { display: none; }
 }
+/* עם ווידג'ט אימות: עמודה נוספת, והשדות נושרים מוקדם יותר כדי לשמור שורה אחת. */
+.md-pr-fab-bar.has-ts { grid-template-columns: auto 1fr 1fr 1fr auto auto auto auto auto; }
+@media (max-width: 1240px) {
+  .md-pr-fab-bar.has-ts { grid-template-columns: 1fr 1fr 1fr auto auto auto auto auto; }
+  .md-pr-fab-bar.has-ts .md-pr-fab-lead { display: none; }
+}
+@media (max-width: 1040px) {
+  .md-pr-fab-bar.has-ts { grid-template-columns: 1fr 1fr auto auto auto auto auto; }
+  .md-pr-fab-bar.has-ts .md-pr-fab-email { display: none; }
+  .md-pr-fab-bar.has-ts .md-pr-fab-consent { max-width: none; font-size: 0; gap: 0; }
+  .md-pr-fab-bar.has-ts .md-pr-fab-consent span { display: none; }
+}
+
 @media (max-width: 1060px) {
   .md-pr-split, .md-pr-scen, .md-pr-scen-wrap { grid-template-columns: 1fr; gap: 36px; }
   .md-pr-facts { grid-template-columns: repeat(2, 1fr); }
@@ -735,6 +749,19 @@ html[data-md-anim="1"] .md-pr [data-chart].rv-in [data-ch-dot]:nth-child(3) { tr
   .md-re-tst-grid { grid-template-columns: 1fr 1fr; }
 }
 @media (max-width: 980px) {
+  /* מכאן ומטה — התנהגות מובייל/טאבלט של עמוד הפרויקט.
+   * הסרגל הקבוע מצטמצם לכפתור אחד שמפנה לטופס שבתחתית העמוד + וואטסאפ,
+   * והכותרת נגללת עם העמוד במקום להישאר דביקה. */
+  .md-pr-fab form, .md-pr-fab-mini { display: none !important; }
+  .md-pr-fab-mobile { display: flex; }
+  .md-pr-foot-in, .md-pr-foot-in.is-open { padding-bottom: 88px; }
+  .md-pr-hdr { position: static; padding: 12px 5%; gap: 12px; }
+  .md-pr-back { font-size: 14px; }
+  .md-pr-back span:last-child { white-space: nowrap; }
+  .md-pr-hdr .md-re-btn--grad { padding: 11px 18px; font-size: 14.5px; }
+  .md-pr-cta-full { display: none; }
+  .md-pr-cta-short { display: inline; }
+
   .md-pr-hero-grid { grid-template-columns: 1fr; min-height: 0; }
   .md-pr-hero-shell { padding: 56px 5vw 44px; }
   .md-pr-hero-media { min-height: 340px; }
@@ -771,18 +798,6 @@ html[data-md-anim="1"] .md-pr [data-chart].rv-in [data-ch-dot]:nth-child(3) { tr
   .md-pr-fab-email { display: none; }
 }
 @media (max-width: 760px) {
-  /* הסרגל הקבוע מצטמצם לכפתור אחד שמפנה לטופס שבתחתית העמוד + וואטסאפ. */
-  .md-pr-fab form, .md-pr-fab-mini { display: none !important; }
-  .md-pr-fab-mobile { display: flex; }
-  .md-pr-foot-in, .md-pr-foot-in.is-open { padding-bottom: 88px; }
-
-  /* הכותרת נגללת עם העמוד במובייל, והכפתור מתקצר לשורה אחת. */
-  .md-pr-hdr { position: static; padding: 12px 5%; gap: 12px; }
-  .md-pr-back { font-size: 14px; }
-  .md-pr-back span:last-child { white-space: nowrap; }
-  .md-pr-hdr .md-re-btn--grad { padding: 11px 18px; font-size: 14.5px; }
-  .md-pr-cta-full { display: none; }
-  .md-pr-cta-short { display: inline; }
   .md-re-hstats { grid-template-columns: repeat(2, 1fr); }
   .md-pr-hstats { grid-template-columns: 1fr 1fr; gap: 20px 24px; }
   .md-pr-h1 { font-size: 36px; }
