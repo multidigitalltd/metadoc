@@ -272,7 +272,7 @@ html[data-md-anim="1"] .md-re [data-rv].rv-in { opacity: 1; transform: none; }
 /* אישור פרטיות */
 .md-re-consent { display: flex; align-items: flex-start; gap: 10px; font-size: 12.5px; line-height: 1.5; }
 .md-re-consent input { margin: 3px 0 0; inline-size: 16px; block-size: 16px; flex: none; accent-color: var(--acc); }
-.md-re-consent--dark { color: #b9b0a4; }
+.md-re-consent--dark { color: #cfc8be; }
 .md-re-consent--dark a { color: var(--brass); text-decoration: underline; }
 .md-re-consent--dark a:hover { color: var(--acc); }
 .md-re-consent--light { color: var(--grey); }
@@ -457,21 +457,23 @@ html[data-md-anim="1"] .md-re [data-rv].rv-in { opacity: 1; transform: none; }
 .md-re-promises { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; padding-top: 26px; border-top: 1px solid #ffffff1a; font-size: 15px; font-weight: 600; color: #c9c2b8; }
 .md-re-promises li { display: flex; align-items: flex-start; gap: 12px; }
 .md-re-promises b { color: var(--acc); font-weight: 700; line-height: 1.5; }
-.md-re-contact-card { background: linear-gradient(180deg, #ffffff0d, #ffffff05); border: 1px solid #ffffff1f; border-radius: 18px; padding: 38px 36px; box-shadow: 0 30px 70px #00000059; }
+/* כרטיס הטופס מובהר ביחס למקטע הכהה, והשדות בהירים ממש — כמו בסרגל
+ * הלידים של עמוד הפרויקט — כדי שיהיו קריאים וברורים. */
+.md-re-contact-card { background: linear-gradient(180deg, #ffffff45, #ffffff2b); border: 1px solid #ffffff5c; border-radius: 18px; padding: 38px 36px; box-shadow: 0 30px 70px #00000059; }
 .md-re-contact-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 22px 26px; }
 .md-re-contact-fields .md-re-wide { grid-column: 1 / -1; }
-.md-re-label { display: block; font-size: 12.5px; letter-spacing: 1.5px; font-weight: 700; color: #a89f92; margin-bottom: 8px; }
-.md-re-label i { color: #9b9286; font-weight: 600; font-style: normal; }
+.md-re-label { display: block; font-size: 12.5px; letter-spacing: 1.5px; font-weight: 700; color: #d5cec4; margin-bottom: 8px; }
+.md-re-label i { color: #b9b0a4; font-weight: 600; font-style: normal; }
 .md-re-field {
-  width: 100%; box-sizing: border-box; padding: 14px 16px; border: 1px solid #ffffff1f;
-  border-radius: 10px; background: #0000002e; color: #fff; font-size: 16px; resize: vertical;
+  width: 100%; box-sizing: border-box; padding: 14px 16px; border: 1px solid #e2ded8;
+  border-radius: 10px; background: #f4f2ef; color: var(--ink); font-size: 16px; resize: vertical;
 }
-.md-re-field:focus { border-color: var(--acc); box-shadow: 0 0 0 3px #fb7a001f; }
-.md-re-field::placeholder { color: #948a7e; }
-.md-re-field option { background: var(--deep); color: #e8e2d8; }
+.md-re-field:focus { border-color: var(--acc); background: #fff; box-shadow: 0 0 0 3px #fb7a0033; }
+.md-re-field::placeholder { color: var(--ink); opacity: .6; }
+.md-re-field option { background: #fff; color: var(--ink); }
 .md-re-contact-foot { display: flex; align-items: center; justify-content: space-between; gap: 20px; flex-wrap: wrap; margin-top: 30px; }
 .md-re-contact-foot .md-re-btn--pill { padding: 16px 40px; font-size: 17px; box-shadow: 0 8px 26px #fb7a003d; }
-.md-re-note { font-size: 13px; color: #a49c90; }
+.md-re-note { font-size: 13px; color: #c9c2b8; }
 
 /* --- רצועת מועדון קבועה ------------------------------------------------- */
 .md-re-strip { position: fixed; bottom: 0; left: 0; right: 0; z-index: 90; background: #100e0bf2; backdrop-filter: blur(12px); border-top: 1px solid #fb7a0040; box-shadow: 0 -14px 40px #00000073; }
