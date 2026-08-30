@@ -10,22 +10,17 @@ declare( strict_types=1 );
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
-
-$mix = array(
-	array( __( 'דירות קטנות · 55–80 מ"ר', 'metadoc' ), '20%' ),
-	array( __( 'דירות רגילות · 80–110 מ"ר', 'metadoc' ), '60%' ),
-	array( __( 'דירות גדולות · מעל 110 מ"ר', 'metadoc' ), '20%' ),
-);
 ?>
 <section class="md-pr-sec">
 	<div class="md-re-in">
-		<p class="md-re-eyebrow"><?php esc_html_e( '03 / מאפייני הבינוי', 'metadoc' ); ?></p>
-		<h2 class="md-pr-h2" style="margin-bottom:44px" data-rv><?php esc_html_e( 'איפה עומדת', 'metadoc' ); ?> <span class="md-re-acc"><?php esc_html_e( 'החלקה שלנו.', 'metadoc' ); ?></span></h2>
+		<p class="md-re-eyebrow"><?php metadoc_project_the( 's3_eyebrow' ); ?></p>
+		<h2 class="md-pr-h2" style="margin-bottom:44px" data-rv><?php metadoc_project_the( 's3_title' ); ?> <span class="md-re-acc"><?php metadoc_project_the( 's3_title_acc' ); ?></span></h2>
 		<div class="md-pr-split md-pr-split--top">
 			<figure class="md-pr-fig" data-rv>
 				<div class="md-pr-fig-in">
 					<?php
-					metadoc_re_image(
+					metadoc_project_image(
+						's3_image',
 						'pr_heigh',
 						__( 'מפת גבהי בנייה באזור — מיקום החלקה מסומן', 'metadoc' ),
 						__( 'מפת גבהי בנייה', 'metadoc' ),
@@ -33,30 +28,44 @@ $mix = array(
 					);
 					?>
 				</div>
-				<figcaption><?php esc_html_e( 'תבנית הבנייה באזור — החלקה על ציר שד\' הקישון, בקטגוריית המגדלים.', 'metadoc' ); ?></figcaption>
+				<?php $pr_cap = metadoc_project_field( 's3_caption' ); ?>
+				<?php if ( '' !== $pr_cap ) : ?>
+					<figcaption><?php echo esc_html( $pr_cap ); ?></figcaption>
+				<?php endif; ?>
 			</figure>
 			<div class="md-pr-bullets" data-rv>
-				<div class="md-pr-bullet md-pr-bullet--first">
-					<h3><?php esc_html_e( 'על ציר שד\' הקישון החדש', 'metadoc' ); ?></h3>
-					<p><?php esc_html_e( 'הציר המחבר את חיפה, נשר וקריית אתא לפארק המטרופוליני.', 'metadoc' ); ?></p>
-				</div>
+				<?php for ( $i = 1; $i <= 2; $i++ ) : ?>
+					<?php $title = metadoc_project_field( 's3_b' . $i . '_title' ); ?>
+					<?php if ( '' === $title ) : continue; endif; ?>
+					<div class="md-pr-bullet<?php echo 1 === $i ? ' md-pr-bullet--first' : ''; ?>">
+						<h3><?php echo esc_html( $title ); ?></h3>
+						<p><?php metadoc_project_the( 's3_b' . $i . '_body' ); ?></p>
+					</div>
+				<?php endfor; ?>
 				<div class="md-pr-bullet">
-					<h3><?php esc_html_e( 'מעורב שימושים, עד 28 קומות', 'metadoc' ); ?></h3>
-					<p><?php esc_html_e( 'מגורים ומסחר במתחם מגדלים.', 'metadoc' ); ?></p>
-				</div>
-				<div class="md-pr-bullet">
-					<h3 style="margin-bottom:14px"><?php esc_html_e( 'תמהיל דירות מתוכנן', 'metadoc' ); ?></h3>
+					<h3 style="margin-bottom:14px"><?php metadoc_project_the( 's3_mix_title' ); ?></h3>
 					<div class="md-pr-mix">
-						<?php foreach ( $mix as $row ) : ?>
+						<?php for ( $i = 1; $i <= 3; $i++ ) : ?>
+							<?php
+							$label = metadoc_project_field( 's3_mix' . $i . '_label' );
+							if ( '' === $label ) {
+								continue;
+							}
+							$pct = metadoc_project_field( 's3_mix' . $i . '_pct' );
+							$w   = (float) preg_replace( '/[^0-9.]/', '', $pct );
+							?>
 							<div>
 								<div class="md-pr-mix-row">
-									<span><?php echo esc_html( $row[0] ); ?></span>
-									<b><?php echo esc_html( $row[1] ); ?></b>
+									<span><?php echo esc_html( $label ); ?></span>
+									<b><?php echo esc_html( $pct ); ?></b>
 								</div>
-								<div class="md-pr-bar"><i style="width:<?php echo esc_attr( $row[1] ); ?>"></i></div>
+								<div class="md-pr-bar"><i style="width:<?php echo esc_attr( min( 100, max( 0, $w ) ) . '%' ); ?>"></i></div>
 							</div>
-						<?php endforeach; ?>
-						<p class="md-pr-mix-note"><?php esc_html_e( 'ממוצע יח"ד: 95 מ"ר', 'metadoc' ); ?></p>
+						<?php endfor; ?>
+						<?php $pr_note = metadoc_project_field( 's3_mix_note' ); ?>
+						<?php if ( '' !== $pr_note ) : ?>
+							<p class="md-pr-mix-note"><?php echo esc_html( $pr_note ); ?></p>
+						<?php endif; ?>
 					</div>
 				</div>
 			</div>

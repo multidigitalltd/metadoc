@@ -104,6 +104,7 @@ $logo_img = METADOC_URI . '/assets/img/re/metadoc-logo-full.png';
 								<span class="md-btn-label"><?php esc_html_e( 'הצטרפו למועדון ←', 'metadoc' ); ?></span>
 							</button>
 						</div>
+						<?php get_template_part( 'template-parts/realestate/lead-source', null, array( 'form' => __( 'מועדון המשקיעים', 'metadoc' ) ) ); ?>
 						<?php get_template_part( 'template-parts/form-honeypot' ); ?>
 						<p class="md-re-status md-form-status" role="status" aria-live="polite"></p>
 					</form>

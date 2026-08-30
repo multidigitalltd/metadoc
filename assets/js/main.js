@@ -105,6 +105,9 @@
 			var email = (form.elements.email && form.elements.email.value || '').trim();
 			var note = (form.elements.note && form.elements.note.value || '').trim();
 			var hp = (form.elements.website && form.elements.website.value || '').trim();
+			// מקור הפנייה: פרויקט וטופס — לסינון ולייצוא בלוח הבקרה.
+			var project = (form.elements.project && form.elements.project.value || '').trim();
+			var formName = (form.elements.form && form.elements.form.value || '').trim();
 			var consentEl = form.querySelector('.md-consent');
 			var consent = consentEl ? consentEl.checked : true;
 			var captchaEl = form.querySelector('[name="cf-turnstile-response"]');
@@ -159,7 +162,7 @@
 					return fetch(data.restUrl, {
 						method: 'POST',
 						headers: { 'Content-Type': 'application/json' },
-						body: JSON.stringify({ name: name, phone: phone, email: email, note: note, website: hp, consent: consent ? 1 : 0, captcha: captcha, md_nonce: nonce, source: srcData })
+						body: JSON.stringify({ name: name, phone: phone, email: email, note: note, project: project, form: formName, website: hp, consent: consent ? 1 : 0, captcha: captcha, md_nonce: nonce, source: srcData })
 					});
 				})
 				.then(function (res) {
@@ -174,15 +177,14 @@
 						} catch (e) {}
 						form.reset();
 						if ('inline' === form.getAttribute('data-md-success')) {
-							// אישור במקום — בלי מודאל, לפי עיצוב עמודי הנדל"ן.
+							// אישור כפול: תווית הכפתור מתחלפת (לפי העיצוב) ובנוסף נפתח פופאפ תודה.
 							var done = form.getAttribute('data-md-success-label') || i18n.success || '';
 							labelText = done;
 							if (label) { label.textContent = done; }
 							form.setAttribute('data-md-sent', '1');
 							setStatus(statusEl, i18n.success || '', true);
-						} else {
-							openSuccessModal();
 						}
+						openSuccessModal();
 					} else {
 						var msg = (result.body && result.body.message) ? result.body.message : (i18n.error || 'אירעה שגיאה.');
 						setStatus(statusEl, msg, false);

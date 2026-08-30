@@ -1,6 +1,7 @@
 <?php
 /**
  * עמוד פרויקט — Hero מפוצל: עמודת טקסט כהה + תמונה עם פרלקסה וזום איטי.
+ * התוכן נקרא מרשומת הפרויקט (עם נפילה לברירות המחדל של "שער המפרץ").
  *
  * @package Metadoc
  */
@@ -11,11 +12,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-$hstats = array(
-	array( '199,000 ₪', __( 'מחיר כניסה', 'metadoc' ) ),
-	array( __( 'עד 28', 'metadoc' ), __( 'קומות · מתחם מגדלים', 'metadoc' ) ),
-	array( __( 'מתחם 2.4', 'metadoc' ), __( 'מרקם עירוני חדש', 'metadoc' ) ),
-);
+$pr_title = is_singular( Metadoc_Projects::CPT ) ? get_the_title() : __( 'שער המפרץ', 'metadoc' );
 ?>
 <section class="md-pr-hero">
 	<div class="md-pr-hero-grid">
@@ -23,25 +20,29 @@ $hstats = array(
 			<div class="md-pr-hero-glow" data-md-hero-glow aria-hidden="true"></div>
 			<div class="md-pr-kicker">
 				<i aria-hidden="true"></i>
-				<span><?php esc_html_e( 'הזדמנות קרקע · תמ"א 75', 'metadoc' ); ?></span>
+				<span><?php metadoc_project_the( 'hero_eyebrow' ); ?></span>
 			</div>
-			<h1 class="md-pr-h1"><?php esc_html_e( 'שער המפרץ', 'metadoc' ); ?></h1>
-			<p class="md-pr-hero-sub"><?php esc_html_e( 'קריית בנימין, קריית אתא', 'metadoc' ); ?></p>
+			<h1 class="md-pr-h1"><?php echo esc_html( $pr_title ); ?></h1>
+			<p class="md-pr-hero-sub"><?php metadoc_project_the( 'hero_sub' ); ?></p>
 			<div class="md-pr-hstats">
-				<?php foreach ( $hstats as $stat ) : ?>
+				<?php for ( $i = 1; $i <= 3; $i++ ) : ?>
+					<?php $num = metadoc_project_field( 'hero_stat' . $i . '_num' ); ?>
+					<?php if ( '' === $num ) : continue; endif; ?>
 					<div class="md-pr-hstat">
-						<b><?php echo esc_html( $stat[0] ); ?></b>
-						<span><?php echo esc_html( $stat[1] ); ?></span>
+						<b><?php echo esc_html( $num ); ?></b>
+						<span><?php metadoc_project_the( 'hero_stat' . $i . '_label' ); ?></span>
 					</div>
-				<?php endforeach; ?>
+				<?php endfor; ?>
 			</div>
 		</div>
 		<div class="md-pr-hero-media">
 			<div class="md-pr-hero-px" data-md-hero-px>
 				<?php
-				metadoc_re_image(
+				metadoc_project_image(
+					'hero_image',
 					'pr_hero',
-					__( 'הדמיית המרקם העירוני והפארק המטרופוליני המתוכננים', 'metadoc' ),
+					/* translators: %s: שם הפרויקט. */
+					sprintf( __( 'הדמיית הפרויקט %s', 'metadoc' ), $pr_title ),
 					__( 'הדמיית הפרויקט', 'metadoc' ),
 					array(
 						'dark'  => true,

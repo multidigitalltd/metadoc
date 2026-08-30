@@ -14,14 +14,32 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+// פרויקטים אמיתיים מסוג התוכן md_project; אם אין — ממלאי-מקום לעריכה.
+$projects = array();
+foreach ( Metadoc_Projects::published( 3 ) as $pid ) {
+	$projects[] = array(
+		'id'     => $pid,
+		'tag'    => metadoc_project_field( 'card_tag', $pid ),
+		'status' => metadoc_project_field( 'card_status', $pid ),
+		'title'  => get_the_title( $pid ),
+		'loc'    => metadoc_project_field( 'card_loc', $pid ),
+		'specs'  => array(
+			array( metadoc_project_field( 'card_spec1_k', $pid ), metadoc_project_field( 'card_spec1_v', $pid ) ),
+			array( metadoc_project_field( 'card_spec2_k', $pid ), metadoc_project_field( 'card_spec2_v', $pid ) ),
+			array( metadoc_project_field( 'card_spec3_k', $pid ), metadoc_project_field( 'card_spec3_v', $pid ) ),
+		),
+		'url'    => (string) get_permalink( $pid ),
+	);
+}
+
 /**
- * כרטיסי הפרויקטים.
+ * כרטיסי הפרויקטים בעמוד המחלקה.
  *
- * @param array $projects רשימת פרויקטים (slot, tag, status, title, loc, specs, url).
+ * @param array $projects רשימת פרויקטים (id|slot, tag, status, title, loc, specs, url).
  */
 $projects = apply_filters(
 	'metadoc_re_projects',
-	array(
+	! empty( $projects ) ? $projects : array(
 		array(
 			'slot'   => 'proj1',
 			'tag'    => __( 'פרויקט מגורים', 'metadoc' ),
@@ -74,12 +92,26 @@ $projects = apply_filters(
 				<article class="md-re-proj">
 					<div class="md-re-proj-shot">
 						<?php
-						metadoc_re_image(
-							(string) $project['slot'],
-							(string) $project['title'],
-							__( 'תמונת פרויקט', 'metadoc' ),
-							array( 'sizes' => '(max-width: 700px) 100vw, (max-width: 900px) 50vw, 390px' )
-						);
+						$md_sizes = '(max-width: 700px) 100vw, (max-width: 900px) 50vw, 390px';
+						if ( ! empty( $project['id'] ) && has_post_thumbnail( (int) $project['id'] ) ) {
+							echo get_the_post_thumbnail( // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- פלט ליבה מאובטח.
+								(int) $project['id'],
+								'large',
+								array(
+									'alt'      => (string) $project['title'],
+									'loading'  => 'lazy',
+									'decoding' => 'async',
+									'sizes'    => $md_sizes,
+								)
+							);
+						} else {
+							metadoc_re_image(
+								isset( $project['slot'] ) ? (string) $project['slot'] : '',
+								(string) $project['title'],
+								__( 'תמונת פרויקט', 'metadoc' ),
+								array( 'sizes' => $md_sizes )
+							);
+						}
 						?>
 						<span class="md-re-proj-tag"><?php echo esc_html( $project['tag'] ); ?></span>
 						<span class="md-re-proj-status"><?php echo esc_html( $project['status'] ); ?></span>

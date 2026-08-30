@@ -113,6 +113,7 @@ $areas = array(
 							<span class="md-btn-label"><?php esc_html_e( 'שלחו לתיאום שיחה', 'metadoc' ); ?></span>
 						</button>
 					</div>
+					<?php get_template_part( 'template-parts/realestate/lead-source', null, array( 'form' => __( 'יצירת קשר', 'metadoc' ) ) ); ?>
 					<?php get_template_part( 'template-parts/form-honeypot' ); ?>
 					<p class="md-re-status md-form-status" role="status" aria-live="polite"></p>
 				</form>

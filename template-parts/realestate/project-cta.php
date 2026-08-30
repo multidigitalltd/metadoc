@@ -23,10 +23,10 @@ $slots = array(
 	<div class="md-pr-cta-grid md-pr-split">
 		<div>
 			<h2 data-rv>
-				<?php esc_html_e( 'מבינים את הפוטנציאל?', 'metadoc' ); ?><br>
-				<span class="md-re-acc"><?php esc_html_e( 'בואו להיות חלק מההצלחה.', 'metadoc' ); ?></span>
+				<?php metadoc_project_the( 's5_title' ); ?><br>
+				<span class="md-re-acc"><?php metadoc_project_the( 's5_title_acc' ); ?></span>
 			</h2>
-			<p><?php esc_html_e( 'השאירו טלפון ומייל, נקבע פגישה ונעבור יחד על התיק המלא — נסח החלקה, המצב התכנוני ולוחות הזמנים למימוש.', 'metadoc' ); ?></p>
+			<p><?php metadoc_project_the( 's5_body' ); ?></p>
 			<div class="md-pr-cta-rows">
 				<a class="md-pr-cta-row md-pr-cta-tel" href="tel:<?php echo esc_attr( $c['phone_tel'] ); ?>">
 					<span class="md-pr-cta-ico md-pr-cta-ico--acc" aria-hidden="true">
@@ -75,6 +75,7 @@ $slots = array(
 						<span class="md-btn-label"><?php esc_html_e( 'קבעו לי פגישה', 'metadoc' ); ?></span>
 					</button>
 				</div>
+				<?php get_template_part( 'template-parts/realestate/lead-source', null, array( 'form' => __( 'קביעת פגישה', 'metadoc' ) ) ); ?>
 				<?php get_template_part( 'template-parts/form-honeypot' ); ?>
 				<p class="md-re-status md-form-status" role="status" aria-live="polite"></p>
 			</form>

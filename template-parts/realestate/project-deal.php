@@ -10,32 +10,29 @@ declare( strict_types=1 );
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
-
-$rows = array(
-	array( __( 'מיקום', 'metadoc' ), __( 'קריית אתא, מזרח שכונת קריית בנימין, צמוד לרקמה הבנויה', 'metadoc' ) ),
-	array( __( 'מחיר כניסה', 'metadoc' ), __( '199,000 ₪ בלבד', 'metadoc' ) ),
-	array( __( 'עיתוי', 'metadoc' ), __( 'לפני נעילת הזכויות', 'metadoc' ) ),
-);
 ?>
 <section class="md-pr-sec">
 	<div class="md-pr-split md-re-in">
 		<div data-rv>
-			<p class="md-re-eyebrow"><?php esc_html_e( '01 / תמצית העסקה', 'metadoc' ); ?></p>
-			<h2 class="md-pr-h2"><?php esc_html_e( 'כניסה מוקדמת,', 'metadoc' ); ?> <span class="md-re-acc"><?php esc_html_e( 'לפני נעילת הזכויות.', 'metadoc' ); ?></span></h2>
-			<p class="md-pr-lead"><?php esc_html_e( 'קרקע במזרח שכונת קריית בנימין, צמודת דופן לרקמה הבנויה — בתוך מתחם 2.4 של תמ"א 75, המיועד למרקם עירוני חדש.', 'metadoc' ); ?></p>
+			<p class="md-re-eyebrow"><?php metadoc_project_the( 's1_eyebrow' ); ?></p>
+			<h2 class="md-pr-h2"><?php metadoc_project_the( 's1_title' ); ?> <span class="md-re-acc"><?php metadoc_project_the( 's1_title_acc' ); ?></span></h2>
+			<p class="md-pr-lead"><?php metadoc_project_the( 's1_lead' ); ?></p>
 			<dl class="md-pr-rows">
-				<?php foreach ( $rows as $row ) : ?>
+				<?php for ( $i = 1; $i <= 3; $i++ ) : ?>
+					<?php $key = metadoc_project_field( 's1_row' . $i . '_k' ); ?>
+					<?php if ( '' === $key ) : continue; endif; ?>
 					<div class="md-pr-row">
-						<dt><?php echo esc_html( $row[0] ); ?></dt>
-						<dd><?php echo esc_html( $row[1] ); ?></dd>
+						<dt><?php echo esc_html( $key ); ?></dt>
+						<dd><?php metadoc_project_the( 's1_row' . $i . '_v' ); ?></dd>
 					</div>
-				<?php endforeach; ?>
+				<?php endfor; ?>
 			</dl>
 		</div>
 		<figure class="md-pr-fig" data-rv>
 			<div class="md-pr-fig-in">
 				<?php
-				metadoc_re_image(
+				metadoc_project_image(
+					's1_image',
 					'pr_mass',
 					__( 'הדמיית הבינוי המתוכנן — מיקום החלקה מסומן', 'metadoc' ),
 					__( 'הדמיית בינוי', 'metadoc' ),
@@ -43,7 +40,10 @@ $rows = array(
 				);
 				?>
 			</div>
-			<figcaption><?php esc_html_e( 'הדמיית הבינוי המתוכנן — מיקום החלקה מסומן בחץ.', 'metadoc' ); ?></figcaption>
+			<?php $pr_cap = metadoc_project_field( 's1_caption' ); ?>
+			<?php if ( '' !== $pr_cap ) : ?>
+				<figcaption><?php echo esc_html( $pr_cap ); ?></figcaption>
+			<?php endif; ?>
 		</figure>
 	</div>
 </section>

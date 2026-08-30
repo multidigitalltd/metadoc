@@ -15,8 +15,8 @@ $c = metadoc_contact();
 ?>
 <footer class="md-pr-foot">
 	<div class="md-pr-foot-in is-open" data-md-foot>
-		<p class="md-pr-foot-k"><?php esc_html_e( 'הבהרה משפטית', 'metadoc' ); ?></p>
-		<p><?php esc_html_e( 'המידע מבוסס על נתוני תמ"א 75, מנהל התכנון ומסמכי אדריכלים. המסמך מהווה חומר שיווקי/פנימי ואינו שומת מקרקעין, ייעוץ השקעות או הבטחה לתשואה.', 'metadoc' ); ?></p>
+		<p class="md-pr-foot-k"><?php metadoc_project_the( 'foot_label' ); ?></p>
+		<p><?php metadoc_project_the( 'foot_text' ); ?></p>
 		<div class="md-pr-foot-line">
 			<?php
 			printf(

@@ -33,6 +33,8 @@ template-parts/realestate/  סקשנים של שני עמודי הנדל"ן
 header-realestate.php / footer-realestate.php  עטיפה עצמאית לעמודי הנדל"ן
 template-realestate.php / template-project.php  שתי תבניות העמוד
 inc/                 לוגיקה: לידים (REST+CPT), אייקונים, helpers, מחלקת נדל"ן
+inc/class-metadoc-projects.php  CPT פרויקטים + לוח בקרה + שדות התוכן
+single-md_project.php  עמוד פרויקט בודד (אותה תבנית, מוזן מה-CPT)
 assets/css/app.min.css  Tailwind מקומפל (commit-ed, לא דורש build בפרודקשן)
 assets/css/realestate.min.css  CSS עמודי הנדל"ן (טעינה מותנית)
 assets/js/main.js    reveal-on-scroll, טופס, ווידג'ט נגישות
@@ -91,6 +93,13 @@ cd tooling && npm run build:re     # או npm run build:all לשניהם
 - מודאלים: trap focus, ESC, החזרת פוקוס. `prefers-reduced-motion` מכובד.
 - טקסט מתכוונן עד 200%. ווידג'ט נגישות (גודל טקסט, ניגודיות, עצירת אנימציות,
   הדגשת קישורים, מדריך קריאה) עם שמירה ב-localStorage. עמוד הצהרת נגישות.
+
+### פרויקטים (CPT md_project)
+- כל שדה מוגדר ב-`Metadoc_Projects::schema()` עם ברירת מחדל = תוכן שער המפרץ.
+- בתבניות קוראים דרך `metadoc_project_field()` / `metadoc_project_the()` בלבד,
+  לעולם לא בטקסט קשיח — כך אותה תבנית משרתת גם את עמוד ה-Page וגם כל פרויקט.
+- תמונות: `metadoc_project_image()` — תמונת הפרויקט, אחרת חריץ גלובלי, אחרת
+  מציין-מקום.
 
 ### עמודי הנדל"ן — כללי עבודה
 - הקופי, המספרים והערכים העיצוביים אושרו מול הלקוח — אין לשנותם ללא אישור.

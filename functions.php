@@ -27,6 +27,7 @@ require_once METADOC_DIR . '/inc/class-metadoc-press.php';
 require_once METADOC_DIR . '/inc/class-metadoc-landing.php';
 require_once METADOC_DIR . '/inc/class-metadoc-branding.php';
 require_once METADOC_DIR . '/inc/class-metadoc-realestate.php';
+require_once METADOC_DIR . '/inc/class-metadoc-projects.php';
 require_once METADOC_DIR . '/inc/class-metadoc-setup.php';
 
 /**

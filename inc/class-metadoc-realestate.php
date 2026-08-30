@@ -103,6 +103,9 @@ final class Metadoc_RealEstate {
 	 * @return bool
 	 */
 	public static function is_re_page(): bool {
+		if ( class_exists( 'Metadoc_Projects' ) && is_singular( Metadoc_Projects::CPT ) ) {
+			return true;
+		}
 		return is_page_template( array( self::TPL_DEPT, self::TPL_PROJECT ) );
 	}
 
@@ -357,6 +360,12 @@ function metadoc_re_dept_url(): string {
  * @return string
  */
 function metadoc_re_project_url(): string {
+	if ( class_exists( 'Metadoc_Projects' ) ) {
+		$projects = Metadoc_Projects::published( 1 );
+		if ( ! empty( $projects ) ) {
+			return (string) get_permalink( (int) $projects[0] );
+		}
+	}
 	$url = Metadoc_RealEstate::page_url( Metadoc_RealEstate::TPL_PROJECT );
 	return '' !== $url ? $url : home_url( '/shaar-hamifratz/' );
 }

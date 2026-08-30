@@ -36,6 +36,10 @@ $has_menu = has_nav_menu( 'primary' );
 	<?php endif; ?>
 
 	<div class="flex items-center gap-2 shrink-0">
+		<a href="<?php echo esc_url( metadoc_re_dept_url() ); ?>" class="hidden sm:inline-flex items-center gap-1.5 text-sm font-bold text-neutral-800 border border-neutral-200 rounded-full px-4 py-2 hover:border-[#ff7a00] hover:text-[#ff7a00] transition">
+			<?php esc_html_e( 'מחלקת נדל"ן', 'metadoc' ); ?>
+			<?php metadoc_icon( 'arrow-left', array( 'class' => 'size-3.5' ) ); ?>
+		</a>
 		<a href="tel:<?php echo esc_attr( $c['phone_tel'] ); ?>" class="hidden md:inline-flex items-center gap-2 text-sm font-bold text-neutral-700 hover:text-neutral-900 transition">
 			<?php metadoc_icon( 'phone', array( 'class' => 'size-4 text-[#ff7a00]' ) ); ?>
 			<?php echo esc_html( $c['phone_display'] ); ?>
@@ -64,5 +68,9 @@ $has_menu = has_nav_menu( 'primary' );
 			)
 		);
 		?>
+		<a href="<?php echo esc_url( metadoc_re_dept_url() ); ?>" class="mt-1 flex items-center gap-1.5 font-bold text-[#ff7a00] px-3 py-2.5 rounded-lg hover:bg-orange-50">
+			<?php esc_html_e( 'מחלקת נדל"ן והשקעות', 'metadoc' ); ?>
+			<?php metadoc_icon( 'arrow-left', array( 'class' => 'size-3.5' ) ); ?>
+		</a>
 	</nav>
 <?php endif; ?>
