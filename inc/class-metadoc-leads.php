@@ -189,26 +189,27 @@ final class Metadoc_Leads {
 		header( 'Content-Type: text/csv; charset=UTF-8' );
 		header( 'Content-Disposition: attachment; filename=metadoc-leads-' . gmdate( 'Y-m-d' ) . '.csv' );
 
+		/**
+		 * מנטרל הזרקת נוסחאות ל-CSV: תא שמתחיל ב-= + - @ מתפרש באקסל כנוסחה.
+		 *
+		 * @param string $value ערך התא.
+		 * @return string
+		 */
+		$escape = static function ( string $value ): string {
+			return ( '' !== $value && strpbrk( $value[0], "=+-@\t\r" ) ) ? "'" . $value : $value;
+		};
+
 		$out = fopen( 'php://output', 'w' );
 		// BOM — כדי שאקסל יזהה UTF-8 ויציג עברית כראוי.
 		fwrite( $out, "\xEF\xBB\xBF" ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fwrite -- פלט לזרם, לא לקובץ.
 		fputcsv( $out, $headers );
 
 		foreach ( $leads as $lead ) {
-			fputcsv(
-				$out,
-				array(
-					get_the_date( 'Y-m-d H:i', $lead ),
-					(string) get_post_meta( $lead->ID, '_md_name', true ),
-					(string) get_post_meta( $lead->ID, '_md_phone', true ),
-					(string) get_post_meta( $lead->ID, '_md_email', true ),
-					(string) get_post_meta( $lead->ID, '_md_project', true ),
-					(string) get_post_meta( $lead->ID, '_md_form', true ),
-					(string) get_post_meta( $lead->ID, '_md_note', true ),
-					(string) get_post_meta( $lead->ID, '_md_src_utm_source', true ),
-					(string) get_post_meta( $lead->ID, '_md_src_page', true ),
-				)
-			);
+			$row = array( get_the_date( 'Y-m-d H:i', $lead ) );
+			foreach ( array( '_md_name', '_md_phone', '_md_email', '_md_project', '_md_form', '_md_note', '_md_src_utm_source', '_md_src_page' ) as $meta_key ) {
+				$row[] = $escape( (string) get_post_meta( $lead->ID, $meta_key, true ) );
+			}
+			fputcsv( $out, $row );
 		}
 		fclose( $out ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fclose -- פלט לזרם.
 		exit;
