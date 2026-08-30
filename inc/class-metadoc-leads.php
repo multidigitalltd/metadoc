@@ -68,6 +68,20 @@ final class Metadoc_Leads {
 	}
 
 	/**
+	 * ההרשאה הנדרשת לצפייה בכל הלידים (פוסטים פרטיים של אחרים).
+	 * edit_posts לבדה אינה מספיקה — היא קיימת גם לתורמים ולכותבים.
+	 *
+	 * @return string
+	 */
+	private static function read_all_cap(): string {
+		$type = get_post_type_object( self::CPT );
+		if ( $type && isset( $type->cap->read_private_posts ) ) {
+			return (string) $type->cap->read_private_posts;
+		}
+		return 'read_private_posts';
+	}
+
+	/**
 	 * תיבות הסינון וכפתור הייצוא מעל טבלת הלידים.
 	 *
 	 * @param string $post_type סוג התוכן במסך הנוכחי.
@@ -93,6 +107,10 @@ final class Metadoc_Leads {
 				);
 			}
 			echo '</select>';
+		}
+
+		if ( ! current_user_can( self::read_all_cap() ) ) {
+			return; // ייצוא זמין רק למי שרשאי לקרוא את כל הלידים.
 		}
 
 		$export = wp_nonce_url(
@@ -144,7 +162,7 @@ final class Metadoc_Leads {
 	 * ייצוא הלידים (לפי הסינון הנוכחי) לקובץ CSV הנפתח באקסל.
 	 */
 	public static function export_csv(): void {
-		if ( ! current_user_can( 'edit_posts' ) ) {
+		if ( ! current_user_can( self::read_all_cap() ) ) {
 			wp_die( esc_html__( 'אין הרשאה.', 'metadoc' ), '', array( 'response' => 403 ) );
 		}
 		check_admin_referer( 'metadoc_export_leads' );
@@ -152,10 +170,11 @@ final class Metadoc_Leads {
 		$args = array(
 			'post_type'      => self::CPT,
 			'post_status'    => array( 'private', 'publish', 'draft' ),
-			'posts_per_page' => 5000,
+			'posts_per_page' => 500, // נשלף במנות; הייצוא כולל את *כל* הרשומות.
 			'orderby'        => 'date',
 			'order'          => 'DESC',
 			'no_found_rows'  => true,
+			'offset'         => 0,
 		);
 		$meta = array();
 		foreach ( array( 'md_project' => '_md_project', 'md_form' => '_md_form' ) as $param => $key ) {
@@ -172,7 +191,6 @@ final class Metadoc_Leads {
 			$args['meta_query'] = $meta; // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- ייצוא ידני.
 		}
 
-		$leads   = get_posts( $args );
 		$headers = array(
 			__( 'תאריך', 'metadoc' ),
 			__( 'שם', 'metadoc' ),
@@ -204,13 +222,20 @@ final class Metadoc_Leads {
 		fwrite( $out, "\xEF\xBB\xBF" ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fwrite -- פלט לזרם, לא לקובץ.
 		fputcsv( $out, $headers );
 
-		foreach ( $leads as $lead ) {
-			$row = array( get_the_date( 'Y-m-d H:i', $lead ) );
-			foreach ( array( '_md_name', '_md_phone', '_md_email', '_md_project', '_md_form', '_md_note', '_md_src_utm_source', '_md_src_page' ) as $meta_key ) {
-				$row[] = $escape( (string) get_post_meta( $lead->ID, $meta_key, true ) );
+		// שליפה במנות: אתר עם עשרות אלפי פניות מיוצא במלואו, בלי לנפח זיכרון.
+		do {
+			$leads = get_posts( $args );
+			foreach ( $leads as $lead ) {
+				$row = array( get_the_date( 'Y-m-d H:i', $lead ) );
+				foreach ( array( '_md_name', '_md_phone', '_md_email', '_md_project', '_md_form', '_md_note', '_md_src_utm_source', '_md_src_page' ) as $meta_key ) {
+					$row[] = $escape( (string) get_post_meta( $lead->ID, $meta_key, true ) );
+				}
+				fputcsv( $out, $row );
 			}
-			fputcsv( $out, $row );
-		}
+			$args['offset'] += $args['posts_per_page'];
+			$fetched         = count( $leads );
+			unset( $leads );
+		} while ( $fetched === $args['posts_per_page'] );
 		fclose( $out ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fclose -- פלט לזרם.
 		exit;
 	}
